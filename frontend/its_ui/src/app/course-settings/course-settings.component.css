@@ -1,0 +1,53 @@
+.settings-container {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    justify-content: center;
+    align-items: center;
+    text-align: center; /* Center-align text */
+    overflow-y: auto;
+    margin-top: 5%;
+}
+
+.manage-settings {
+    display: flex;
+    justify-content: space-evenly;
+    width: 40%;
+}
+
+.manage-settings button {
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    padding: 0.25rem 0.5rem; /* Adjusted padding to make the button smaller */
+    background-color: #777777;
+    color: #fff;
+    border: none;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    width: 40%;
+    font-size: 1.3rem;
+}
+
+.manage-settings button:hover {
+    background-color: #252525;
+}
+
+.add-settings {
+    cursor: pointer;
+}
+
+.add-settings p:last-child:hover{
+    color: #b5b5b5;
+}
+
+.delete-alt-setting {
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    color: rgb(217, 61, 61);
+}
+
+.delete-alt-setting:hover {
+    color: rgb(215, 127, 127);
+}

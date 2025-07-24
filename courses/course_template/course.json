@@ -1,0 +1,6 @@
+{
+    "display_name": "Course Name",
+    "domain": "Course Domain",
+    "sub_domains": ["Sub domain 1", "Sub domain 2"],
+    "curriculum": ["task_unique_name_1"]
+}

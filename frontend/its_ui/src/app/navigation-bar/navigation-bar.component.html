@@ -1,0 +1,113 @@
+<nav class="navbar">
+    <div class="nav-brand" (click)="emitHomeButtonClicked()" title="Home">
+      <mat-icon>home</mat-icon>
+      {{title}}</div>
+    <ul class="nav-links">
+
+
+      <li *ngIf="display_elements.has('topicSelection')">
+        <div class="dropdown">
+          <li>
+            <button class="dropbtn">{{current_topic_index}}. {{current_topic}}
+              <i class="fa fa-caret-down"></i>
+            </button>
+          </li>
+          <div class="dropdown-content">
+            <li *ngFor="let topic of course_topics; index as i"><a (click)="topicSelected(topic)">{{i+1}}. {{topic}}</a></li>
+          </div>
+        </div>
+      </li>
+
+      <div class="vspace"></div>
+
+      <!-- TODO: Make dropdown elements responsive to their content (such that they disapear if no content is present)-->
+      <li *ngIf="display_elements.has('taskSelection')"><a (click)="newTaskButtonClicked('previous')"><i class="arrow left" role="button"></i></a></li>
+      <li *ngIf="display_elements.has('taskSelection')"><a>{{task_name}}</a></li>
+      <li *ngIf="display_elements.has('taskSelection')"><a (click)="newTaskButtonClicked('next')"><i class="arrow right" role="button"></i></a></li>
+
+      <!-- Questionaires Dropdown -->
+<!--       <li>
+        <div class="dropdown">
+          <li>
+            <button class="dropbtn">Surveys
+              <i class="fa fa-caret-down"></i>
+            </button>
+          </li>
+          <div class="dropdown-content">
+            <li><a [href]="'https://utfragen.uni-bielefeld.de/index.php/229462?login='+user_name">Personality</a></li>
+            <li><a [href]="'https://utfragen.uni-bielefeld.de/index.php/125364?login='+user_name">Feedback</a></li>
+          </div>
+        </div>
+      </li> -->
+      <div class="vspace"></div>
+
+      
+
+      <li *ngIf="roles.includes('admin') || roles.includes('tutor')">
+        <div class="dropdown">
+          <li title="Settings">
+            <button class="dropbtn">Settings
+              <i class="fa fa-caret-down"></i>
+            </button>
+          </li>
+          <div class="dropdown-content">
+            <li *ngIf="roles.includes('admin')"><a (click)="emitAdminSettingsRequested()" href="#">Admin Settings</a></li>
+            <li *ngIf="display_elements.has('courseSettings')" ><a (click)="emitCourseSettingsRequested()" href="#">Course Settings</a></li>
+          </div>
+        </div>
+      </li>
+
+      <div *ngIf="roles.includes('admin') || roles.includes('tutor')" class="vspace"></div>
+      
+      <li>
+        <div class="dropdown">
+          <li title="Info">
+            <button class="dropbtn"><mat-icon>info</mat-icon>
+              <i class="fa fa-caret-down"></i>
+            </button>
+          </li>
+          <div class="dropdown-content">
+            <!-- <li><a href="#" (click)="newTaskButtonClicked('personal')">New Task</a></li> -->
+            <li><a (click)="openAboutPopup()" href="#">About</a></li>
+            <li><a (click)="openImprintPopup()" href="#">Impressum</a></li>
+            <li><a (click)="openPrivacyPolicyPopup()" href="#">Privacy Policy</a></li>
+            <li><a href="#" (click)="emitProfileButtonClicked()">Profile</a></li>
+          </div>
+        </div>
+      </li>
+
+    </ul>
+  </nav>
+  
+  <dialog #aboutPopup class="popup-dialog-container">
+    <div class="popup-dialog">
+      <app-markdown-panel [markdownString]="aboutMarkdown"></app-markdown-panel>
+        <div class="ok-button-container">
+          <button class="popup-dialog-button" (click)="aboutPopup.close()">
+            Close
+         </button>
+        </div>
+    </div>
+  </dialog>
+
+  <dialog #privacyPolicyPopup class="popup-dialog-container">
+    <div class="popup-dialog">
+      <app-markdown-panel [markdownString]="privacyPolicyMarkdown"></app-markdown-panel>
+        <div class="ok-button-container">
+          <button class="popup-dialog-button" (click)="privacyPolicyPopup.close()">
+            Close
+         </button>
+        </div>
+    </div>
+
+
+  <dialog #imprintPopup class="popup-dialog-container">
+    <div class="popup-dialog">
+      <app-markdown-panel [markdownString]="imprintMarkdown"></app-markdown-panel>
+        <div class="ok-button-container">
+          <button class="popup-dialog-button" (click)="imprintPopup.close()">              
+            Close
+           </button>
+        </div>
+     </div>
+  

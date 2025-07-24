@@ -1,0 +1,47 @@
+/* .feedback-container-visible {
+    display: grid;
+    grid-template-rows: 8fr 2fr;
+    grid-template-areas: 
+    "panel"
+    "survey";
+    height: 100%;
+}
+
+.feedback-container-hidden {
+    display: grid;
+    grid-template-rows: 8fr 2fr;
+    grid-template-areas: 
+    "panel"
+    "panel";
+    height: 100%;
+}
+
+.feedback-panel {
+    grid-area: panel;
+    overflow-y: hidden;
+}
+
+.feedback-survey
+{
+    margin-top: 0.3rem;
+    grid-area: survey;
+} */
+
+
+ .feedback-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.feedback-panel {
+    flex: 1;
+    overflow: hidden;
+}
+
+.feedback-survey
+{
+    margin-top: 0.3rem;
+    flex-basis: 17%;
+}
+

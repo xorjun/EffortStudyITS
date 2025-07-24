@@ -1,93 +1,194 @@
-# ITS_programming
+# Readme
 
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.ub.uni-bielefeld.de/publications-ag-kml/its_programming.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.ub.uni-bielefeld.de/publications-ag-kml/its_programming/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+SCRIPT (Step-based Coding for Research and Interactive Programming Training) is an Intelligent Tutoring System for programming. In this REDAME, you will find information on how to start using, contributing or hosting SCRIPT. This software is developed and maintained by the Knowledge Representation and Machine Learning (KML) group of Bielefeld University (https://www.uni-bielefeld.de/fakultaeten/technische-fakultaet/arbeitsgruppen/kml/).
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+"SCRIPT" is an Intelligent Tutoring System for Programming.
+Copyright (C) 2025  Benjamin Paaßen, Jesper Dannath, Alina Deriyeva
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+## Feature List
+
+- [x] Online code-editor based on Monaco code editor
+- [x] Display tasks and feedback with markdown
+- [x] User management and data-collection settings
+- [x] Save code execution using Jugde0
+- [x] Program evaluation/submission based on unit-tests
+- [x] Run programs with custom parameters
+- [x] Users can send feedback requests to an ollama LLM-server
+- [x] Print, function and multiple-choice tasks
+- [x] Multiple courses per user
+- [x] E-Mail based login
+- [x] Upload courses
+- [x] Conceptual Feedback on Steps
+- [x] Course settings
+- [x] Task selection based on user competency
+- [x] Tasks with image-files
+- [ ] Learning progress dashboard
+- [ ] Fill the gap-tasks
+- [ ] Course enrollment system
+
+
+## How to use?
+
+At this point, SCRIPT is still in an alpha stage.
+
+### Learners
+
+#### Registration
+
+At registration, learners have to enter an email-adress for account verification. The email-adress is only stored until the user has succesfully verified (afterwords it will be hashed and encrypted for cases of a password reset).  On registration, learners must select, whether they want their intermediate steps to be stored in the database and whether they allow the usage of their system data for research purposes. 
+
+![register](doc/pictures/register.png "Register"){width=300}
+
+
+#### Login
+
+Users can log in to the selected course with their username and password. 
+
+![login](doc/pictures/login.png "Login"){width=300}
+
+#### Reset Password
+
+To reset their password users have to enter their mail, their username and the password reset token they received via email on registration.
+
+![forget password](doc/pictures/forgot_password.png "Forgot password"){width=300}
+
+#### Tutoring View
+
+The tutoring view is the main view within a particular course. It allows for solving and navigating tasks. The task description is displayed in the upper left corner, different feedback and result types are displayed in the lower left corner. On the right side, the code editor allows for entering solutions to tasks. The action panel on the bottom allows for three actions: "Run", "Feedback" and "Submission". 
+
+![tutoring view](doc/pictures/tutoring_view.png "Tutoring View"){width=500}
+
+
+The "Run" button allows for the execution of the learner program with custom parameters. The "Submit" functionality will run unit tests on the current solution and display the results to the learner in the feedback panel. The "Feedback" button will send a Feedback request to the backend. Depending on the course settings, feedback on the current learner program will then be generated.
+
+#### Profile View
+
+The user profile can be reached over the navigation bar. It displays basic information about the user profile. Also, the user profile allows for reviewing and re-setting the data-collection preferences that were originally set during registration.
+
+
+![profile](doc/pictures/profile.png "Profile View"){width=300}
+
+## How to deploy?
+
+There are two options for deployment. The first one deployment through Docker and the second one is local deployment. We recommend deployment through Docker for testing out the system and local deployment for development.
+
+### Deployment through Docker
+
+1. Clone the repository
+
+2.  Install required software
+
+    - Docker, Docker-compose
+
+3. Set up a .env file in the repo's root folder
+
+Example: 
+
+```
+ITS_ENV="development-docker"
+
+DB_SERVICE_PW="SECRET"
+DB_ROOT_PW="SECRET"
+
+JWT_SECRET="SECRET"
+USER_VERIFICATION_SECRET="SECRET"
+RESET_PWD_SECRET="SECRET"
+```
+
+4. Open a terminal inside the repo and run "docker-compose up"
+
+
+### Local Deployment
+
+1. Clone the repository
+
+2.  Install required software
+
+    - Docker, Docker-compose
+    - MongoDB (5.x)
+    - NodeJs
+    - Angular CLI
+    - Judge0 (Best install through the provided judge0/docker-compose.yml)
+
+3. Set up a .env file in the repo's root folder
+
+Example: 
+
+```
+ITS_ENV="development"
+
+DB_SERVICE_PW="SECRET"
+DB_ROOT_PW="SECRET"
+
+JWT_SECRET="SECRET"
+USER_VERIFICATION_SECRET="SECRET"
+RESET_PWD_SECRET="SECRET"
+```
+
+4. Set up a user in MongoDB with read and write access to "its_db"
+
+```
+use admin
+db.createUser(
+  {
+    user: "backend_service_user",
+    pwd:  "SECRET"
+    roles: [ { role: "readWrite", db: "its_db" }]
+  }
+)
+```
+
+5. Install python requirements in /api/requirements.txt, it is recommended to use a virtual python environment like conda. 
+
+6. Run "npm install" in frontend/its_ui
+
+6. Start the system by running start_app.py
+
+
+#### Setting up an (admin) user.
+
+In the development environment no emails are sended upon registration. The tokens for verifiction and pasword reset are printed to the backend console. For deployment through docker, one has to access the backend container for verifying new users. 
+
+Only users with the roles "admin" and "tutor" can upload courses to the system. The roles can be added manually in the database User document. 
+
+#### Loading a course to the system
+
+If your user has the respective priveliges, courses can be uploaded through the UI. For uploading a new course, there is a button on the course-selection page. For uploading new tasks to an exiting course, there is an option in the course settings.
+
+#### Setting up the LLM Server
+
+To set up the feedback functionality, please ensure that you can access an Ollama instance with your preferred models installed. Indicate the link to your instance in the admin settings. Additionally, you can select a language generation model in the course settings.
+
+## Contributing
+
+We welcome external contributors to this project. If you want to contribute, we are happy to assist with questions regarding the integration of your contribution with our system. In any case, contributions should align with the general system architecture.
+
+## Contributors
+
+### Active Contributors
+
+- Alina Deriyeva (primary)
+- Arno Gaußelmann
+- Benjamin Paaßen
+- Jesper Dannath (primary)
+
+### Additional Contributors
+
+- Aliena Strathmann
+- Björn Buschkämper
+- Tobias Hillmer

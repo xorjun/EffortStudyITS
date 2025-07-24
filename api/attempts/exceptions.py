@@ -1,0 +1,3 @@
+
+class EditorFileSizeException(Exception):
+    pass

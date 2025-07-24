@@ -1,0 +1,41 @@
+<div>
+    <form [formGroup]="form">
+    <ng-container [ngSwitch]="setting">
+        <div *ngSwitchCase="'feedback_init_time'">
+            <p>
+                {{settingName}}:
+                <input type="number" formControlName="feedback_init_time" placeholder="sec">
+            </p>
+        </div>
+
+        <div *ngSwitchCase="'feedback_cooldown'">
+            <p>
+                {{settingName}}:
+                <input type="number" formControlName="feedback_cooldown" placeholder="sec">
+            </p>
+        </div>
+
+        <div *ngSwitchCase="'sample_settings'">
+            <p>
+                {{settingName}}:
+                <input formControlName="sample_settings">
+            </p>
+        </div>
+
+        <div *ngSwitchCase="'pedagogical_model'">
+            <p>
+                {{settingName}}:
+                <input formControlName="pedagogical_model">
+            </p>
+        </div>
+
+        <div *ngSwitchCase="'language_generation_model'">
+            <p>
+                {{settingName}}:
+                <input formControlName="language_generation_model">
+            </p>
+        </div>
+
+    </ng-container>
+    </form>
+</div>

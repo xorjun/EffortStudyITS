@@ -1,0 +1,6 @@
+{
+    "display_name": "Test Course",
+    "domain": "Simple Python",
+    "sub_domains": [],
+    "curriculum": ["factorial", "square", "print_name", "scalar_multiplication"]
+}

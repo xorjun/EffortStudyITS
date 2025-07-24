@@ -1,0 +1,136 @@
+/* You can add global styles to this file, and also import other style files */
+/* Prismjs theme */
+/* @import "~prismjs/themes/prism-okaidia"; */
+@import "~prismjs/themes/prism-tomorrow";
+/* @import "~prismjs/themes/prism-solarizedlight"; */
+/* @import "~prismjs/themes/prism"; */
+
+
+/* Use Angular Theme */
+@import '~@angular/material/prebuilt-themes/purple-green.css';
+
+@import '~material-icons/iconfont/material-icons.css';
+
+
+@import '~css-star-rating/css/star-rating';
+
+*::after,
+*::before {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  font-family: sans-serif;
+  height: 99%;
+  background-color: #3f3f3f;
+  overflow: auto; /* hide scrollbars */
+}
+
+h1 {
+  padding: 10px 0;
+  text-align: center;
+  font-weight: 200;
+  font-size: 35px;
+  color: rgb(233, 233, 233);
+}
+
+h2 {
+  padding: 10px 0;
+  text-align: center;
+  font-weight: 200;
+  font-size: 25px;
+  color: rgb(233, 233, 233);
+}
+
+h3 {
+  padding: 10px 0;
+  text-align: center;
+  font-weight: 200;
+  font-size: 22px;
+  color: rgb(233, 233, 233);
+}
+
+p {
+  text-align: center;
+  font-size: 20px;
+  color: rgb(214, 214, 214);
+  margin-bottom: 20px;
+}
+
+/* // Prism.js line numbers plugin */
+/* .line-numbers .line-numbers-rows {
+  position: absolute;
+  pointer-events: none;
+  top: 15px;
+  font-size: 100%;
+  left: 0;
+  width: 3em;
+  letter-spacing: -1px;
+  border-right: 1px solid rgb(179, 179, 179);
+  user-select: none;
+}
+
+.line-numbers-rows > span {
+  display: block;
+  counter-increment: linenumber;
+}
+
+.line-numbers-rows > span:before {
+  content: counter(linenumber);
+  color: rgb(219, 219, 219);
+  display: block;
+  padding-right: 0.8em;
+  text-align: right;
+} */
+
+
+/* Popup Dialog styles. For all Popup dialogs use the same class names */
+.popup-dialog-container {
+  background-color: rgb(37, 37, 37);
+  border-color: rgb(0, 0, 0);
+  max-width: 37rem;
+  max-height: 45rem;
+}
+
+.popup-dialog { 
+  text-align: left;
+  background-color: rgb(37, 37, 37);
+  color:aliceblue;
+  font-size: 1rem;
+  overflow: auto;
+}
+
+  /* Updated the class to target the action-button */
+  .popup-dialog-button {
+    flex: 1; /* Each button will equally share the available space */
+    border: none;
+    background-color: #444;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s;
+    margin-right: 10px;
+  }
+  
+  .popup-dialog-button:hover {
+    background-color: #555;
+  }
+  
+  /* Apply styles on button click */
+  .popup-dialog-button:active {
+    background-color: #333;
+  }
+
+  .a {
+    color: rgb(42, 125, 250);
+    cursor: pointer;
+  }
+
+  .a:hover{
+    color: rgb(104, 164, 255);
+  }
+  

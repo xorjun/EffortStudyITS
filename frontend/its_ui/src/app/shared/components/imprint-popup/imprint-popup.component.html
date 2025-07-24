@@ -1,0 +1,10 @@
+<dialog #imprintPopup class="popup-dialog-container">
+    <div class="popup-dialog">
+        <app-markdown-panel [markdownString]="imprintMarkdown"></app-markdown-panel>
+        <div class="ok-button-container">
+            <button class="popup-dialog-button" (click)="imprintPopup.close()">
+                Close
+            </button>
+        </div>
+    </div>
+</dialog>

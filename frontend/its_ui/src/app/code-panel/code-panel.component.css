@@ -1,0 +1,21 @@
+.grid-container-code {
+  display: grid;
+  /* grid-template-rows: minmax(0, 10fr) minmax(0, 0.7fr); */
+  grid-template-rows: 10fr 0.7fr;
+  gap: 0.3rem;
+  align-items: self-start;
+  height: 100%;
+  width: minmax(0, 100%);
+}
+
+.code-editor {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.actionPanel {
+  height: 100%;
+  width: 100%;
+  display: block;
+}

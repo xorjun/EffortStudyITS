@@ -1,0 +1,8 @@
+# Stage 1
+FROM node:18.17.1 as node
+WORKDIR /app
+COPY its_ui/ .
+RUN npm install
+EXPOSE 4200 49153
+#CMD tail -f /dev/null
+CMD ["npm", "start"]

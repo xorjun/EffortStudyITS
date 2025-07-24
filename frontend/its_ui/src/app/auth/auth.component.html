@@ -1,0 +1,100 @@
+<div class="login-container" *ngIf="currentForm==='login'">
+  <div class="login-form">
+    <h2>Login</h2>
+    <input #loginUsername placeholder="Username" /><br />
+    <input #loginPassword type="password" placeholder="Password" /><br />
+    <div class="centered-button">
+      <button (click)="login(loginUsername.value, loginPassword.value)">Login</button>
+    </div>
+    <p>Don't have an account yet? You can <a (click)="setForm('register')"><u>register here!</u></a></p>
+    <p> <a (click)="setForm('forgot-pw')"><u>Forgot your password?</u></a> Request a reset-token using the reset key you
+      received on registration.</p>
+    <div class="impressum">
+      <p><a href="https://www.uni-bielefeld.de/impressum/">Impressum</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="login-container" *ngIf="currentForm==='forgot-pw'">
+  <div class="login-form">
+    <h2>Forgot Password</h2>
+    <input #loginUsername placeholder="Username" /><br />
+    <input #verificationEmail placeholder="Email for verification" /><br />
+    <input #resetTokenKey placeholder="Reset key" /><br />
+    <div class="centered-button">
+      <button (click)="forgotPassword(loginUsername.value, resetTokenKey.value, verificationEmail.value)">Request
+        reset-token</button>
+    </div>
+    <p>Don't have an account yet? You can <a (click)="setForm('register')"><u>register here!</u></a></p>
+    <div class="impressum">
+      <p><a href="https://www.uni-bielefeld.de/impressum/">Impressum</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="login-container" *ngIf="currentForm==='reset-pw'">
+  <div class="login-form">
+    <h2>Reset Password</h2>
+    <input #loginPassword type="password" placeholder="New Password" /><br />
+    <input #resetToken type="password" placeholder="Reset Token" /><br />
+    <div class="centered-button">
+      <button (click)="resetPassword(loginPassword.value, resetToken.value)">Reset Password</button>
+    </div>
+    <p>Don't have an account yet? You can <a (click)="setForm('register')"><u>register here!</u></a></p>
+    <div class="impressum">
+      <p><a href="https://www.uni-bielefeld.de/impressum/">Impressum</a></p>
+    </div>
+  </div>
+</div>
+
+<div class="login-container" *ngIf="currentForm==='register'">
+  <div class="login-form">
+    <h2>Register</h2>
+
+    <input #email placeholder="Email" /><br />
+    <input #registerUsername placeholder="Username" /><br />
+    <input #registerPassword type="password" placeholder="Password" /><br />
+
+    <hr>
+    <div class="checkbox-container">
+      <div class="data-checkbox">
+        <p>
+          <input type="radio" id="radio-select-yes" name="consentRadio" #consentCheckboxYes />
+          <label for="radio-select-yes">Yes</label>
+        </p>
+        <p>
+          <input type="radio" id="radio-select-no" name="consentRadio" #consentCheckboxNo />
+          <label for="radio-select-no">No</label>
+        </p>
+      </div>
+      <label class="consent-label" for="data-checkbox">I consent to anonymized data collection for purely scientific
+        purposes.</label>
+    </div>
+    <div class="checkbox-info">
+      <div class="invisible-checkbox"></div>
+      <p>
+        <a (click)="showDataTermPopup()">Learn more about the data we gather and its potential uses.</a>
+      </p>
+      <app-data-terms-popup #dataTermsPopupComponent></app-data-terms-popup>
+    </div>
+
+    <hr>
+    <div class="checkbox-container">
+      <div class="data-checkbox">
+        <p>
+          <input type="checkbox" id="privacy-checkbox" #privacyCheckbox>
+        </p>
+      </div>
+      <label class="consent-label">I have read and agree to the
+        <a (click)="showPrivacyPolicyPopup()">Privacy Policy</a>.</label>
+      <app-privacy-policy-popup #privacyPolicyPopupComponent></app-privacy-policy-popup>
+    </div>
+
+    <hr>
+    <div class="centered-button">
+      <button
+        (click)="register(email.value, registerUsername.value, registerPassword.value, consentCheckboxYes.checked)">Register</button>
+    </div>
+    <p>Do you already have an account? If so, you can <a (click)="setForm('login')"><u>login here!</u></a></p>
+  </div>
+</div>

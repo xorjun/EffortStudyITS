@@ -1,0 +1,72 @@
+/* @import "~prismjs/themes/prism-okaidia"; */
+/* @import "./vscode-dark.css"; */
+
+.markdown-container {
+    margin-top: 0px;
+    height: 100%;
+    width: 100%;
+    background: #2d2d2d;
+    max-width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+
+.markdown-panel {
+    margin-left: 10px;
+    display: block;
+    text-align: left;
+    font-size: 1rem;
+    color: aliceblue;
+    gap: 0px;
+    max-width: 100%;
+    word-wrap: break-word;      /* IE 5.5-7 */
+    white-space: -moz-pre-wrap; /* Firefox 1.0-2.0 */
+    white-space: pre-wrap;      /* current browsers */
+}
+
+
+/* The child tags of markdown-panel are in a different component (third-party) and are threfore
+removed from the css-scope by Angular's encapsulation process. The ::ng-deep selector breaks the encapsualation*/
+.markdown-panel ::ng-deep h1 {
+    margin-bottom: 0px;
+    margin-block-end: 0px;
+    text-align: left;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.markdown-panel ::ng-deep h2 {
+    margin-bottom: 0px;
+    margin-block-end: 0px;
+    text-align: left;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.markdown-panel ::ng-deep p {
+    margin-top: 0em;
+    margin-bottom: 1em;
+    font-size: 1em;
+    text-align: left;
+}
+
+.markdown-panel ::ng-deep pre {
+    margin-right: 10px;
+    border-radius: 10px;
+    font-size: 1em;
+    text-align: left;
+    background: #181818;
+}
+
+.markdown-panel ::ng-deep a {
+    color: rgb(42, 125, 250);
+    cursor: pointer;
+  }
+
+ .markdown-panel ::ng-deep a:hover{
+    color: rgb(104, 164, 255);
+  }
+
+
+

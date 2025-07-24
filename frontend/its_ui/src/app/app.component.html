@@ -1,0 +1,42 @@
+<!-- Main Page -->
+<ng-container [ngSwitch]="pageName">
+    <div *ngSwitchCase="'loginView'" class="login-view"><app-auth (loginEvent)="setView($event)"></app-auth></div>
+    <div *ngSwitchCase="'profileView'" class="profile-view"><app-profile (profileAction)="setView($event)" ></app-profile></div>
+
+    <div *ngSwitchCase="'tutoringView'" class="tutoring-view tutoring-grid-container">
+        <div class="navbar"><app-navigation-bar (profileButtonClicked)="setView($event)"
+                                                    (homeButtonClicked)="setView($event)"
+                                                     [currentPageName]="pageName" 
+                                                     (settingButtonClicked)="setView($event)"></app-navigation-bar></div>
+        <div class="task-panel"><app-task-panel [initTask]="initTask"></app-task-panel></div>
+        <div class="feedback-panel"><app-feedback-panel></app-feedback-panel></div>
+        <div class="code-panel"><app-code-panel></app-code-panel></div>
+    </div>
+
+    <div *ngSwitchCase="'welcomePage'" class="welcome-page">
+        <div class="navbar"><app-navigation-bar (profileButtonClicked)="setView($event)" 
+                                                 (homeButtonClicked)="setView($event)"
+                                                  [currentPageName]="pageName"
+                                                  (settingButtonClicked)="setView($event)"></app-navigation-bar></div>
+        <div class="course-selection"><app-course-selection-panel (courseSelected)="setView($event)"></app-course-selection-panel></div>
+    </div>
+
+    <div *ngSwitchCase="'courseSettings'">
+        <div class="navbar"><app-navigation-bar (profileButtonClicked)="setView($event)"
+            (homeButtonClicked)="setView($event)"
+             [currentPageName]="pageName" 
+             (settingButtonClicked)="setView($event)"></app-navigation-bar></div>
+
+             <app-course-settings class="settings" (settingsClosedEvent)="setView($event)"></app-course-settings>
+    </div>
+
+    <div *ngSwitchCase="'adminSettings'">
+        <div class="navbar"><app-navigation-bar (profileButtonClicked)="setView($event)"
+            (homeButtonClicked)="setView($event)"
+             [currentPageName]="pageName" 
+             (settingButtonClicked)="setView($event)"></app-navigation-bar></div>
+
+             <app-admin-settings class="settings" (settingsClosedEvent)="setView($event)"></app-admin-settings>
+    </div>
+
+</ng-container>

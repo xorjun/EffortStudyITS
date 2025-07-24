@@ -1,0 +1,14 @@
+<div class="course-selection-container">
+    <h2 class="title-course-selection"> Please select a course</h2>
+    <ul class="styled-list">
+    <li 
+        class="course-list-element" 
+        *ngFor="let course of courses"
+        (click)="selectCourse(course.unique_name)"
+        >{{ course.display_name }}</li>
+    </ul>
+    <p *ngIf="roles.includes('admin') || roles.includes('tutor')">
+        Upload new Course (.zip):
+        <input type="file" class="file-upload" (change)="onCourseFolderSelected($any($event).target)">
+    </p>
+</div>

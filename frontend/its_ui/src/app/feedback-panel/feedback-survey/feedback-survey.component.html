@@ -1,0 +1,15 @@
+<form class="survey-form" [formGroup]="surveyForm" (change)="onFormChange()">
+  <button class="hide-button" (click)="hideButtonClicked()">&#8964;</button>
+  <table class="survey-table" align="center">
+    <tr>
+      <td><p>The hint is useful:</p></td>
+      <td><star-rating-control class="survey-star-rating" formControlName="usefullRating"></star-rating-control></td>
+      <td><p>{{usefulRatingText}}</p></td>
+    </tr>
+    <tr>
+      <td><p>The hint fits my work:</p></td>
+      <td><star-rating-control class="survey-star-rating" formControlName="relatedRating"></star-rating-control></td>
+      <td><p>{{relatedRatingText}}</p></td>
+    </tr>
+  </table>
+</form>

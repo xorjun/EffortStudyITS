@@ -1,0 +1,38 @@
+.survey-form {
+  position: relative;
+  background-color: #616161;
+  height: 100%;
+}
+
+.survey-form p {
+  font-size: 1.1rem;
+  margin-top: 0%;
+  margin-bottom: 0%;
+}
+
+.survey-star-rating {
+  /* display: inline-block; */
+}
+
+/* Styling for the close button */
+.hide-button {
+  position: absolute;
+  top: -1rem;
+  right: 0;
+  background-color: transparent;
+  border: none;
+  font-size: 2.5rem;
+  cursor: pointer;
+  color: aliceblue;
+  transition: color 0.3s ease;
+}
+
+/* Hover effect for the close button */
+.hide-button:hover {
+  color: #242424;
+}
+
+/* Removing the focus outline on the close button */
+.hide-button:focus {
+  outline: none;
+}

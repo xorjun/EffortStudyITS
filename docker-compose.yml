@@ -1,0 +1,131 @@
+version: '3.8'
+
+x-logging:
+  &default-logging
+  logging:
+    driver: json-file
+    options:
+      max-size: 100m
+
+
+services:
+  
+  angular-app:
+    environment:
+      #TODO: Should this be set in the .env or not?
+      ITS_ENV: ${ITS_ENV}
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        BUILD_ENV: ${ITS_ENV}
+    ports:
+      - "8080:80"
+      - "4200:4200"
+      - "49153:49153"
+    volumes:
+      - ./frontend/its_ui/src:/app/src
+    networks:
+      - its_network
+
+  fastapi-backend:
+    restart: always
+    build: ./api
+    command: python main.py
+    environment:
+      ITS_ENV: ${ITS_ENV}
+      DB_SERVICE_PW: ${DB_SERVICE_PW?}
+      JWT_SECRET: ${JWT_SECRET}
+      USER_VERIFICATION_SECRET: ${USER_VERIFICATION_SECRET}
+      RESET_PWD_SECRET: ${RESET_PWD_SECRET}
+      EMAIL_PWD: ${EMAIL_PWD}
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_SENDER: ${EMAIL_SENDER}
+      EMAIL_USR: ${EMAIL_USR}
+      EMAIL_POSTFIX: ${EMAIL_POSTFIX}
+    ports:
+      - "8888:8000"
+    depends_on:
+      - mongodb
+    networks:
+      - its_network
+
+  mongodb:
+    #image: mongo:4.4.6
+    image: mongo:5.0
+    environment:
+      #Credentials for The root user of the db
+      #Store credenials in a file called .env
+      MONGO_INITDB_ROOT_USERNAME: useradmin
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_ROOT_PW?}
+      # Service pw will be known by the backend
+      DB_SERVICE_PW: ${DB_SERVICE_PW?}
+    volumes:
+      - mongodb_data:/data/db
+      #TODO: If possible, get rid of the mongo-init dependency?
+      - ./database_scripts/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh
+    command:
+      - mongod
+    ports:
+      - "27017:27017"
+    networks:
+      - its_network
+
+  #Judge0 Sevices
+  j0-server:
+    image: judge0/judge0:1.13.0-extra
+    volumes:
+      - ./judge0/judge0.conf:/judge0.conf:ro
+    ports:
+      - "2358:2358"
+    privileged: true
+    <<: *default-logging
+    restart: always
+    networks:
+      - its_network
+
+  j0-workers:
+    image: judge0/judge0:1.13.0-extra
+    command: ["./scripts/workers"]
+    volumes:
+      - ./judge0/judge0.conf:/judge0.conf:ro
+    privileged: true
+    <<: *default-logging
+    restart: always
+    networks:
+      - its_network
+
+  db:
+    image: postgres:13.0
+    env_file: judge0/judge0.conf
+    volumes:
+      - postgres-data:/var/lib/postgresql/data/
+    <<: *default-logging
+    restart: always
+    networks:
+      - its_network
+
+  redis:
+    image: redis:6.0
+    command: [
+      "bash", "-c",
+      'docker-entrypoint.sh --appendonly yes --requirepass "$$REDIS_PASSWORD"'
+    ]
+    env_file: judge0/judge0.conf
+    volumes:
+      - redis-data:/data
+    <<: *default-logging
+    restart: always
+    networks:
+      - its_network
+
+networks:
+  its_network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  postgres-data:
+  redis-data:
+
+

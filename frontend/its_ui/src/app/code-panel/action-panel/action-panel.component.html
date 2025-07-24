@@ -1,0 +1,44 @@
+
+<!-- Run Popup -->
+<dialog #runDialog class="popup-dialog-container">
+
+  <div *ngIf="runDialog.open">
+    <div class="popup-dialog">
+      <p>Please select the input parameters of your experiment:</p>
+
+      <form [formGroup]="runParametersForm">
+          <!-- Other form controls go here -->
+          <div class="argumentFields">
+            <div *ngFor="let control of runFormArrayControls; let i = index">
+              <label>{{control.get('argname')?.value}}:</label>
+              <input [formControl]="$any(control).get('textField')" placeholder="Text Field {{ i + 1 }}">
+            </div>
+          </div>
+        </form>
+
+      <div class="ok-button-container">
+        <button class="popup-dialog-button" (click)="runDialog.close()">
+          Abort
+        </button>
+        <button class="popup-dialog-button" (click)="sendWithParameters()">
+          Run
+       </button>
+      </div>
+  </div>
+  </div>
+
+  </dialog>
+
+<!-- Action Panel with action buttons -->
+<div class="action-buttons"> <!-- Added a new container for action buttons -->
+    <button class="action-button" (click)="runButtonClicked()" *ngIf="showRunButton" title="Run code"><mat-icon>play_arrow</mat-icon></button>
+
+    <button title="Request a hint"
+
+      [ngClass]="{'cooldown-action-button': inCooldown, 'action-button': !inCooldown}"
+      (click)="feedbackButtonClicked()" *ngIf="showFeedbackButton"><mat-icon>help_outline</mat-icon>
+    </button>
+
+    <button class="action-button" (click)="submitButtonClicked()" title="Submit code"><mat-icon> publish</mat-icon></button>
+</div>
+

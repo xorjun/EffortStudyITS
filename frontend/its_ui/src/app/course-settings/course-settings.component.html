@@ -1,0 +1,63 @@
+<div class="settings-container">
+
+  <h1>{{course.display_name}}</h1>
+
+    <div class="base-settings">
+
+        <form [formGroup]="settingsForm">
+          <app-settings-element *ngIf="formGroupArray.length > 0" setting="sample_settings" [form]="settingsForm"></app-settings-element>
+          <app-settings-element setting="pedagogical_model" [form]="settingsForm"></app-settings-element>
+          <app-settings-element setting="language_generation_model" [form]="settingsForm"></app-settings-element>
+          <p>
+            Update Task-files (.zip):
+            <input type="file" class="file-upload" (change)="onTaskFolderSelected($any($event).target)">
+        </p>
+          <h2>Feedback Settings</h2>
+          <app-settings-element setting="feedback_init_time" [form]="settingsForm"></app-settings-element>
+          <app-settings-element setting="feedback_cooldown" [form]="settingsForm"></app-settings-element>
+          </form>
+    </div>
+    
+    <div class="alternative-settings">
+
+
+      <div *ngFor="let i of courseSettingsList | slice:1; index as id">
+        <hr>
+        <h3>Alternative Variant {{id+1}} <span class="delete-alt-setting" (click)="deleteAlternativeSetting(id+1)"> &#9747;</span></h3>
+
+        <div *ngFor="let key of getActiveSettings(id+1)">
+          <app-settings-element [setting]="key" [form]="getFormGroup(id+1)"></app-settings-element>
+        </div>
+
+        <div class="setting-selection">
+          <select name="Select a new setting" (change)="[updateActiveSettings(id+1, $any($event.target).value), resetSelection($event)]">
+            <option disabled selected value> -- select a setting -- </option>
+            <option *ngIf='!courseSettingsList[id+1].hasOwnProperty("feedback_init_time")' 
+              value="feedback_init_time">Feedback initialization time </option>
+<!--             <option *ngFor="let key of courseSettingsList[0].keys()" [ngValue]="key"></option> -->
+            <option *ngIf='!courseSettingsList[id+1].hasOwnProperty("feedback_cooldown")'
+               value="feedback_cooldown">Feedback cooldown</option>
+            <option *ngIf='!courseSettingsList[id+1].hasOwnProperty("pedagogical_model")'
+               value="pedagogical_model">Pedagogical Model</option>
+            <option *ngIf='!courseSettingsList[id+1].hasOwnProperty("language_generation_model")'
+               value="language_generation_model">Language generation Model</option>
+          </select>
+        </div>
+      </div>
+
+      <hr>
+      <div class="add-settings">
+        <p (click)="addNewAlternativeSetting()">
+          <span>&#8853;</span> 
+          <span class="label"> Add new variant</span>
+        </p>
+      </div>
+      
+    </div>
+
+  <div class="manage-settings">
+      <button (click)="closeSettings()">Close</button>
+      <button  [disabled]="!settingsForm.valid" (click)="saveSettings()">Save Settings</button>
+  </div>
+
+</div>

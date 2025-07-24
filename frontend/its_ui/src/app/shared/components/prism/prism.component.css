@@ -1,0 +1,5 @@
+.code_pre {
+    margin-top: -0px;
+    height: 87.5%; /*TODO: Find better solution, only Quick fix*/
+    width: inherit;
+}

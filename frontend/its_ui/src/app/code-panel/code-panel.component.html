@@ -1,0 +1,17 @@
+<div class="grid-container-code">
+
+  <div class="code-editor">
+    <app-code-editor *ngIf="!isMultipleChoice" (codeChangeEvent)="recordChanges($event)"></app-code-editor>
+    <app-multiple-choice *ngIf="isMultipleChoice"></app-multiple-choice>
+  </div>
+
+  
+  <div class="actionPanel">
+    <app-action-panel 
+    [showRunButton]="!isMultipleChoice" (submitEvent)="submitButtonClicked()" 
+    [showFeedbackButton]="feedbackAvailable"
+    (runEvent)="handleRunEvent($event)" (feedbackEvent)="handleFeedbackEvent()" 
+    ></app-action-panel>
+  </div>
+
+</div>

@@ -1,0 +1,18 @@
+<!-- <app-prism [code]=task_python_code [language]=code_language></app-prism> -->
+<!-- <pre class="markdown-container">
+    <markdown
+    [data]="task_python_code">
+  </markdown>
+</pre>
+ -->
+ <dialog #courseCompleteDialog class="popup-dialog-container">
+  <div class="popup-dialog">
+      <p>Awesome, you have completed the course! There are no tasks left to solve.</p>
+      <div class="ok-button-container">
+        <button class="popup-dialog-button" (click)="courseCompleteDialog.close()">
+          OK
+       </button>
+      </div>
+  </div>
+</dialog>
+ <app-markdown-panel #taskPanelElement [markdownString]="task_markdown"></app-markdown-panel>

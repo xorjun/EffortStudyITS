@@ -1,0 +1,7 @@
+#Implement further tests in a seperate file each
+from example_solution import function_name as function_name
+#!cut_imports!#
+def test_test_name_2():
+    # Test is arbitrary, but you should use assert.
+    assert function_name("input1") == "something1", "Message1"
+    assert function_name("input2") == "something2", "Message2"

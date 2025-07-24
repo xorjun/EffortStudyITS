@@ -1,0 +1,21 @@
+<!-- <app-prism class="feedback-panel" [code]=feedback_string [language]=code_language></app-prism> -->
+<dialog #taskSolvedDialog class="popup-dialog-container">
+    <div class="popup-dialog">
+        <p>Congratulations, you have solved this task!</p>
+        <button class="popup-dialog-button" (click)="actOnValidSolution('stay')">
+            Close
+         </button>
+        <button class="popup-dialog-button" (click)="actOnValidSolution('next task')">
+            Next Task
+         </button>
+    </div>
+</dialog>
+<div class="feedback-container">
+    <div class="feedback-panel">
+        <app-markdown-panel [markdownString]="feedback_markdown"></app-markdown-panel>
+    </div>
+    <div class="feedback-survey" *ngIf="displayFeedbackSurvey" feedbackID="currentFeedbackID">
+        <app-feedback-survey (surveyFilled)="sendSurveyResults($event)"
+                                (hideForm)="hideSurveyForm()"></app-feedback-survey>
+    </div>
+</div>

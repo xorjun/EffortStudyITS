@@ -1,0 +1,31 @@
+<div class="settings-container">
+
+    <h1>Admin Settings</h1>
+
+    <div class="settings-form">
+        <form [formGroup]="settingsForm">
+
+            <p>
+                Ollama-url:
+                <input formControlName="ollama_url">
+            </p>
+
+            <p>
+                Ollama-key:
+                <input formControlName="ollama_key">
+            </p>
+
+            <p>
+                Email-whitelist:
+                <input formControlName="email_whitelist">
+            </p>
+
+        </form>
+
+    </div>
+
+    <div class="manage-settings">
+        <button   (click)="closeSettings()">Close</button>
+        <button  [disabled]="!settingsForm.valid" (click)="saveSettings()">Save Settings</button>
+    </div>
+</div>

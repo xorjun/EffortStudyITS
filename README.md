@@ -152,7 +152,7 @@ use admin
 db.createUser(
   {
     user: "backend_service_user",
-    pwd:  "SECRET"
+    pwd:  "SECRET",
     roles: [ { role: "readWrite", db: "its_db" }]
   }
 )

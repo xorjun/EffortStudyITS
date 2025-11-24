@@ -372,3 +372,5 @@ pyrightconfig.json
 ## Custom
 codellama-7b-nxt.gguf
 *.zip
+
+api/services/text_embedding/embedding_models/*

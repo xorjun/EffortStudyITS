@@ -1,0 +1,7 @@
+{
+    "display_name": "Test course ITS",
+    "domain": "Simple Python",
+    "sub_domains": [],
+    "curriculum": ["mean_and_std", "nll_functions", "pca_fa", "name_check",  "critical_thinking"],
+    "course_options": []
+}

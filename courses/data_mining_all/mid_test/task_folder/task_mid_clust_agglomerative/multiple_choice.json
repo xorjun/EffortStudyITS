@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "[1, 1.5, 2], [4, 5]",
+        "[1, 1.5, 2], [4], [5]",
+        "[1, 2, 4], [1.5, 5]",
+        "[1, 1.5, 2, 4, 5]"
+    ],
+    "correct_choices": [
+        true,
+        false,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "This would have been the correct answer.",
+        "Not quite, this would occur after two links, whereas K = 2 means that only two clusters are left.",
+        "No, the points 1.5 and 5 are too far apart to be merged.",
+        "Not quite, this would occur for K=1."
+    ]
+}

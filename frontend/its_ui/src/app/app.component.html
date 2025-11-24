@@ -30,6 +30,15 @@
              <app-course-settings class="settings" (settingsClosedEvent)="setView($event)"></app-course-settings>
     </div>
 
+    <div *ngSwitchCase="'skillOverview'">
+        <div class="navbar"><app-navigation-bar (profileButtonClicked)="setView($event)"
+            (homeButtonClicked)="setView($event)"
+             [currentPageName]="pageName" 
+             (settingButtonClicked)="setView($event)"></app-navigation-bar></div>
+
+             <app-skill-overview class="settings"></app-skill-overview>
+    </div>
+
     <div *ngSwitchCase="'adminSettings'">
         <div class="navbar"><app-navigation-bar (profileButtonClicked)="setView($event)"
             (homeButtonClicked)="setView($event)"

@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "p_{X|Y}(x|y) = p_X(x) \u22c5 p_Y(y)",
+        "p_{X|Y}(x|y) = p_X(x)/p_Y(y)",
+        "p_{X|Y}(x|y) = p_{Y|X}(y|x)/p_Y(y)",
+        "p_{X|Y}(x|y) = p_{Y|X}(y|x) \u22c5 p_X(x)/p_Y(y)"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        false,
+        true
+    ],
+    "choice_explanations": [
+        "No, this computes the joint density if X and Y are independent",
+        "Not quite. The enumerator would have to be the joint probability.",
+        "Not quite. The enumerator would have to be the joint probability.",
+        "This would have been the correct answer."
+    ]
+}

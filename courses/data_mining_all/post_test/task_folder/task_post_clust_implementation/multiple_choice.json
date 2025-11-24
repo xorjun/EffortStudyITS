@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "k = np.argmin(cdist(X, M), axis = 1)",
+        "k = np.min(cdist(X, M))",
+        "k = np.min(cdist(M, X))",
+        "k = np.argmin(cdist(M, X), axis = 1)"
+    ],
+    "correct_choices": [
+        true,
+        false,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "This would have been the correct answer.",
+        "No, this would return the smallest distance from any data point to any mean.",
+        "No, this would return the smallest distance from any mean to any data point.",
+        "No, this would return, for any mean, the index of the closest data point."
+    ]
+}

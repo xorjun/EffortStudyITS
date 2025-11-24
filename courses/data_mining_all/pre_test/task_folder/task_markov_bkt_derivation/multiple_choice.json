@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "P_{Z_2}(1) = p_start \u22c5 p_trans",
+        "P_{Z_2}(1) = p_slip \u22c5 p_start + (1 - p_guess) \u22c5 (1 - p_start)",
+        "P_{Z_2}(1) = p_start + p_trans \u22c5 (1-p_start)",
+        "P_{Z_2}(1) = 1/(1 + (1-p_guess)/p_slip) \u22c5 (1-p_start)/p_start)"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "Not quite. Consider the options for Z_2 being 1. A student could already know the skill at step 1 or they did not know it and transition to knowing it between step 1 and step 2.",
+        "Not quite. We have no information about the output, here. We only consider the latent variable.",
+        "This would have been the correct answer.",
+        "Not quite. We have no information about the output, here. We only consider the latent variable."
+    ]
+}

@@ -36,6 +36,18 @@
             </p>
         </div>
 
+        <div *ngSwitchCase="'visibility'">
+            <p>
+                {{settingName}}:
+               <!--  <input formControlName="visibility"> -->
+                  <select  formControlName="visibility">
+                    <option value="student">student</option>
+                    <option value="tutor">tutor</option>
+                    <option value="admin">admin</option>
+                </select>
+            </p>
+        </div>
+
     </ng-container>
     </form>
 </div>

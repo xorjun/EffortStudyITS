@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "M = np.mean(X[:, k == 0])",
+        "M = np.mean(X[k, :], axis = 0)",
+        "M = np.mean(X[k == 0, :], axis = 0)",
+        "M = np.mean(X[k == 0, :])"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "No, this would not even execute because k == 0 is an array with as many entries as there are data points and the second dimension of X is usually much less.",
+        "No, this would just select a lot of repeats of the first, second, and so on data point and compute their mean.",
+        "This would have been the correct answer.",
+        "Not quite. This would compute the mean across dimensions and just return a scalar value."
+    ]
+}

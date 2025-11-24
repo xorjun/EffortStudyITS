@@ -16,8 +16,9 @@ export class AdminSettingsComponent {
 
   constructor(private client: HttpClient){
     this.settingsForm = new FormGroup({
-      ollama_url: new FormControl(""),
-      ollama_key: new FormControl(""),
+      api_type: new FormControl(""),
+      api_url: new FormControl(""),
+      api_key: new FormControl(""),
       email_whitelist: new FormControl(""),
     });
   }
@@ -26,8 +27,9 @@ export class AdminSettingsComponent {
     this.client.get<any>(`${environment.apiUrl}/settings/get`, {"withCredentials": true}).subscribe(
       (data) => {
         this.settingsForm.patchValue({
-          ollama_url: data.ollama_url,
-          ollama_key: data.ollama_key,
+          api_type: data.api_type,
+          api_url: data.api_url,
+          api_key: data.api_key,
           email_whitelist: data.email_whitelist.join(","),
         });
       }

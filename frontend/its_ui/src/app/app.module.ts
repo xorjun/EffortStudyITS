@@ -34,6 +34,7 @@ import { CourseSettingsComponent } from './course-settings/course-settings.compo
 import { SettingsElementComponent } from './course-settings/settings-element/settings-element.component';
 import { AdminSettingsComponent } from './admin-settings/admin-settings.component';
 import { FeedbackSurveyComponent } from './feedback-panel/feedback-survey/feedback-survey.component';
+import { SkillOverviewComponent } from './skill-overview/skill-overview.component';
 import { StarRatingModule } from 'angular-star-rating';
 
 @NgModule({
@@ -52,7 +53,8 @@ import { StarRatingModule } from 'angular-star-rating';
     CourseSettingsComponent,
     SettingsElementComponent,
     AdminSettingsComponent,
-    FeedbackSurveyComponent
+    FeedbackSurveyComponent,
+    SkillOverviewComponent
   ],
   imports: [
     BrowserModule,

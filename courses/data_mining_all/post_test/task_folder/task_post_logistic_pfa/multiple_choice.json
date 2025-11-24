@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "-1.5",
+        "0",
+        "1",
+        "2"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "No, consider the gamma and rho parameters. These are not zero, so the student would learn something from their successes and failures.",
+        "Not quite. Consider the successes and failures in the plot in combination with the parameters.",
+        "This would have been the correct answer.",
+        "Not quite. Consider the successes and failures in the plot in combination with the parameters."
+    ]
+}

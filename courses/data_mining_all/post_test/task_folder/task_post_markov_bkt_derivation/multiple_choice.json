@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "P_{Z_1|X_1}(1|0) = p_start \u22c5 p_trans",
+        "P_{Z_1|X_1}(1|0) = p_slip \u22c5 p_start + (1 - p_guess) \u22c5 (1 - p_start)",
+        "P_{Z_1|X_1}(1|0) = (p_slip \u22c5 p_start)/(p_slip \u22c5 p_start + (1-p_guess) \u22c5 (1-p_start))",
+        "P_{Z_1|X_1}(1|0) = p_start + p_trans \u22c5 (1-p_start)"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "No, this computes something else.",
+        "No, this would be the marginal probability P_{X_1}(1).",
+        "This would have been the correct answer.",
+        "No, this would be P_{Z_2}(1)."
+    ]
+}

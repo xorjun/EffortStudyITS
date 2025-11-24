@@ -114,6 +114,7 @@ p {
     text-align: center;
     transition: background-color 0.2s;
     margin-right: 10px;
+    max-width: 20em;
   }
   
   .popup-dialog-button:hover {

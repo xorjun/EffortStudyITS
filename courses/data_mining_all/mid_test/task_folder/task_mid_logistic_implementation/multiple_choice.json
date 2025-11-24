@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "b = model.coef_[0, m:]",
+        "b = -model.coef_[0, m:]",
+        "b = model.coef_[:n, 0]",
+        "b = -model.coef_[:n, 0]"
+    ],
+    "correct_choices": [
+        false,
+        true,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "Not quite, these are the negative difficulty parameters.",
+        "This would have been the correct answer.",
+        "No, the first dimension of coef_ indexes the output dimensionality, which is just 1.",
+        "No, the first dimension of coef_ indexes the output dimensionality, which is just 1."
+    ]
+}

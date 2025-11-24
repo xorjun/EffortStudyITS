@@ -1,0 +1,46 @@
+{
+    "display_name": "Intro to Data Mining",
+    "domain": "Data Mining: Bonus Tasks",
+    "sub_domains": [],
+    "competencies": ["mathematical reasoning", "implementing methods", "applying models", "interpretation and debugging"],
+    "unique_name": "dm_bonus",
+    "topics": ["Probability Theory", "Statistical Testing", "Linear Factor Models", "Clustering", "Logistic Models"],
+    "default_topic": "Probability Theory",
+    "curriculum": {
+      "Probability Theory": ["bayes", "dice", "independence", "mean_and_var"],
+      "Statistical Testing": ["pearson", "pooled_error", "wilcoxon", "box_plot", "box_plot_differences", "wilcoxon_usage"],
+      "Linear Factor Models": ["principal_components", "pca_plotting", "variance_coverage"],
+      "Clustering": ["kmeans", "kmeans_full", "optimal_gmm_clusters", "ward_linkage"],
+      "Logistic Models": ["irt_logreg", "irt2", "icc", "pfa_inference", "pfa_extended"]
+    },
+    "q_matrix":{
+        "bayes":[1,1,0,0],
+        "dice":[1,1,0,0],
+        "independence":[1,1,0,1],
+        "mean_and_var":[1,1,0,0],
+        "pearson":[1,1,0,0],
+        "pooled_error":[1,1,0,1],
+        "wilcoxon":[0,1,0,1],
+        "box_plot":[0,0,1,1],
+        "box_plot_differences":[0,0,1,1],
+        "wilcoxon_usage":[0,0,1,0],
+        "principal_components":[1,1,1,0],
+        "pca_plotting":[1,1,1,1],
+        "variance_coverage":[1,1,1,0],
+        "kmeans":[0,1,0,1],
+        "kmeans_full":[0,1,0,1],
+        "optimal_gmm_clusters":[0,0,1,1],
+        "ward_linkage":[1,1,0,0],
+        "irt_logreg":[0,1,1,0],
+        "irt2":[1,1,1,1],
+        "icc":[1,1,0,0],
+        "pfa_inference":[1, 0, 1, 1],
+        "pfa_extended":[1, 1, 1, 1]
+    },
+    "course_parameters": {"skill_weights_pfa": [0,0,0,0,0,0,0,0,0,0,0,0]},
+    "course_settings": {
+        "feedback_init_time": 60,
+        "feedback_cooldown": 30,
+        "pedagogical_model": "prototype"
+    }
+}

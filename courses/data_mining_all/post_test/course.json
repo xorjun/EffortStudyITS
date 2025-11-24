@@ -1,0 +1,52 @@
+{
+    "display_name": "Data Mining: Post-Test",
+    "domain": "Data Mining",
+    "sub_domains": [],
+    "unique_name": "dm_post_test",
+    "topics": ["Probability Theory", "Statistical Testing", "Linear Factor Models", "Clustering", "Logistic Models", "Markov Models", "Deep Models", "Recommender Systems"],
+    "competencies": ["mathematical reasoning", "implementing methods", "applying models", "interpretation and debugging"],
+    "default_topic": "Probability Theory",
+    "curriculum": {
+        "Probability Theory" : ["post_proba_dice", "post_proba_joint_conditional", "post_proba_independence"], 
+        "Statistical Testing" : ["post_stats_p_value", "post_stats_test", "post_stats_formulae"], 
+        "Linear Factor Models" : ["post_pca_eigenvalues", "post_pca_component", "post_pca_fa"], 
+        "Clustering" : ["post_clust_fitting", "post_clust_implementation", "post_clust_agglomerative"], 
+        "Logistic Models" : ["post_logistic_irt", "post_logistic_implementation", "post_logistic_pfa"], 
+        "Markov Models" : ["post_markov_chain", "post_markov_bkt_derivation","post_markov_implementation"],
+        "Deep Models" : ["post_deep_training", "post_deep_vae","post_deep_dkt"],
+        "Recommender Systems" : ["post_rec_collaborative_filtering", "post_rec_matrix_factorization","post_rec_cold_start"]
+    },
+    "q_matrix" : {
+        "post_proba_dice" : [1, 0, 0, 0],
+        "post_proba_joint_conditional" : [1, 0, 0, 0],
+        "post_proba_independence" : [1, 0, 0, 1],
+        "post_stats_p_value" : [1, 0, 0, 1],
+        "post_stats_test" : [0, 0, 1, 1],
+        "post_stats_formulae" : [1, 1, 0, 0],
+        "post_pca_eigenvalues" : [1, 1, 0, 0],
+        "post_pca_component" : [0, 0, 1, 1],
+        "post_pca_fa" : [0, 0, 1, 0],
+        "post_clust_fitting" : [0, 0, 1, 1],
+        "post_clust_implementation" : [0, 1, 0, 1],
+        "post_clust_agglomerative" : [0, 0, 1, 1],
+        "post_logistic_irt" : [0, 0, 1, 1],
+        "post_logistic_implementation" : [0, 1, 0, 1],
+        "post_logistic_pfa" : [0, 0, 1, 1],
+        "post_markov_chain" : [0, 0, 1, 1],
+        "post_markov_bkt_derivation" : [1, 0, 0, 1],
+        "post_markov_implementation" : [1, 1, 0, 1],
+        "post_deep_training" : [0, 1, 1, 0],
+        "post_deep_vae" : [0, 1, 1, 0],
+        "post_deep_dkt" : [0, 0, 1, 0],
+        "post_rec_collaborative_filtering" : [0, 0, 1, 1],
+        "post_rec_matrix_factorization" : [1, 0, 1, 1],
+        "post_rec_cold_start" : [0, 0, 0, 1]
+    },
+    "course_settings": {
+        "feedback_init_time": 60,
+        "feedback_cooldown": 30,
+        "pedagogical_model": "prototype",
+        "language_generation_model": "default"
+    }
+}
+

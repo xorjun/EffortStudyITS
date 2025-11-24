@@ -70,15 +70,35 @@ export class ActionPanelComponent {
 
   runButtonClicked() {
     if(sessionStorage.getItem("taskType") == "function") {
+      if (!this.runParametersForm ||  this.shouldReinitializeForm(this.parameterFormArrayControls())) {
       this.runParametersForm = this.fb.group({
         fields: this.fb.array(this.parameterFormArrayControls())
       });
+    }
       this.runDialog.nativeElement.showModal();
     }
     else {
       this.emitRunEvent({});
     }
   }
+
+private shouldReinitializeForm(expectedControls: FormGroup[]): boolean {
+  const currentArray = this.runParametersForm?.get('fields') as FormArray;
+  const currentFormGroups = currentArray.controls as FormGroup[];
+
+  if (!currentFormGroups) return true;
+
+  if (currentFormGroups.length !== expectedControls.length) return true;
+
+  for (let i = 0; i < currentFormGroups.length; i++) {
+    const currentKey = currentFormGroups[i].get('argname')?.value;
+    const expectedKey = expectedControls[i].get('argname')?.value;
+    if (currentKey != expectedKey) {
+      return true; 
+    }
+  }
+  return false; 
+}
 
   sendWithParameters() {
     var parameters: any = {};
@@ -100,6 +120,10 @@ export class ActionPanelComponent {
 
   //Submit Button
   submitButtonClicked() {
+    this.emitSubmitEvent()
+  }
+
+  emitSubmitEvent() {
     this.submitEvent.emit();
     this.eventShareService.emitSubmitButtonClick();
   }

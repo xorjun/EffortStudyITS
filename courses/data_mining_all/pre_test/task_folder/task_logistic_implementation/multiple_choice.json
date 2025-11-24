@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "y[k] = 1",
+        "y[i*j] = 0",
+        "y[i*j] = X[i, j]",
+        "y[k] = X[i, j]"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        false,
+        true
+    ],
+    "choice_explanations": [
+        "No, this would assume that all students were successful on all tasks.",
+        "No, the indexing scheme is wrong.",
+        "No, the indexing scheme is wrong.",
+        "This would have been the correct answer."
+    ]
+}

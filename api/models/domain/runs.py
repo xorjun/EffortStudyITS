@@ -3,12 +3,27 @@ from courses.schemas import TaskType
 from runs.schemas import Run_code_submission, Evaluated_run_code_submission
 from db.db_connector_beanie import User
 from db import database
-from models.domain.submissions.submissions import check_user_code, execute_code_judge0, process_plt_plot
-import json
-import re
+from models.domain.executor import check_user_code, execute_code, parse_argument_types, process_plt_plots
 
-async def run_code(submission: Run_code_submission, user: User):
+
+async def handle_run(submission: Run_code_submission, user: User):
     user_id = user.id
+    run_result = await run_code(submission)
+    
+    evaluated_submission = Evaluated_run_code_submission(
+        code = submission.code,
+        selected_choices = [],
+        submission_time=submission.submission_time,
+        run_arguments=submission.run_arguments,
+        run_output=run_result,
+        task_unique_name=submission.task_unique_name,
+        type="run",
+        user_id=user_id,
+        course_unique_name=submission.course_unique_name)
+    await database.log_code_submission(evaluated_submission)
+    return {"run_id": str(evaluated_submission.id)}
+
+async def run_code(submission: Run_code_submission):
     task_json = await database.get_task(submission.task_unique_name)
     submission_code = task_json.prefix + submission.code
     run_arguments = parse_argument_types(submission.run_arguments)
@@ -32,43 +47,17 @@ async def run_code(submission: Run_code_submission, user: User):
     if safe:
         result_json = await execute_code(run_code)
         if task_json.type in [TaskType.Function]:
-            run_result = str(result_json["run_result"])
+            try:
+                run_result = str(result_json["run_result"])
+            except Exception as e:
+                run_result = result_json.splitlines()[-1]
         elif task_json.type in [TaskType.PlotFunction]:
-            run_result = process_plt_plot(result_json["plot_args"])
+            try:
+                run_result = process_plt_plots(result_json["func_queue"])
+            except Exception as e:
+                print("Plots could not be processed.")
+                run_result = result_json
         else:
             run_result = result_json
-        
-    evaluated_submission = Evaluated_run_code_submission(
-        code = submission.code, selected_choices = [], submission_time=submission.submission_time, run_arguments=submission.run_arguments,
-        run_output=run_result, task_unique_name=submission.task_unique_name, type="run", user_id=user_id, course_unique_name=submission.course_unique_name
-    )
-    
-    
-    await database.log_code_submission(evaluated_submission)
-    return  {"run_id": str(evaluated_submission.id)}
 
-def parse_argument_types(arg_dict):
-    run_arguments = [(key, arg_dict[key]) for key in arg_dict.keys()]
-    try:
-        check_list = [check_user_code(entry[1]) for entry in run_arguments]
-    except Exception as e: 
-        raise ValueError("Illegal argument.")
-    else:
-        try:
-            run_argument_string = dict([(entry[0], f'#$eval(##{entry[1]}##)$#') for entry in run_arguments])
-            run_argument_string = json.dumps(run_argument_string)
-            run_argument_string = run_argument_string.replace('"#$', "")
-            run_argument_string = run_argument_string.replace('$#"', "")
-            run_argument_string = run_argument_string.replace('##', '"')
-        except Exception as e:
-            raise ValueError("Invalid argument.")
-        return run_argument_string
-
-async def execute_code(code):
-    run_result = await execute_code_judge0(code_payload=code)
-    if "##!serialization!##" in run_result:
-        pattern = r".*?\##!serialization!##(.*?)\##!serialization!##.*"
-        parsed_result_string = re.findall(pattern, run_result, re.DOTALL)
-        if len(parsed_result_string) > 1: raise ValueError("Unexpected serialization tags.")
-        run_result = json.loads(parsed_result_string[0])
-    return(run_result)
+    return run_result

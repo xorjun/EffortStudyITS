@@ -1,13 +1,11 @@
-from fastapi import APIRouter, HTTPException, status, UploadFile
+from fastapi import APIRouter, HTTPException, status, UploadFile, Response
 from fastapi import Depends
-from courses.schemas import Course, CourseInfo, CourseEnrollment, CourseSelection, CourseSettings
+from courses.schemas import Course, CourseInfo, CourseEnrollment, CourseSelection, CourseValidationStatus, CourseSettings
 from users.schemas import User
 from users.handle_users import current_active_verified_user
 from db import database
-from random import randrange
 import itertools
 import numpy as np
-from typing import List
 import zipfile
 from io import BytesIO
 import shutil
@@ -18,9 +16,18 @@ from courses.parse_courses import parse_course
 
 router = APIRouter(prefix="/course")
 
+user_level_dict = {"admin": 2, "tutor": 1, "student": 0}
+
 @router.get("/get/{course_unique_name}")
 async def get_course(course_unique_name, user: User = Depends(current_active_verified_user)) -> Course:
     course = await database.get_course(course_unique_name)
+    user_level = max([user_level_dict[role] for role in user.roles])
+    course_level = user_level_dict[course.visibility]
+    if user_level < course_level:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authorized to access this resource"
+        )
     if course_unique_name not in user.enrolled_courses:
         enrolled_courses = user.enrolled_courses.copy()
         enrolled_courses.append(course_unique_name)
@@ -68,7 +75,8 @@ async def update_course_settings(course: Course, user: User = Depends(current_ac
         db_course = await database.get_course(course.unique_name)
         db_course.course_settings_list = course.course_settings_list
         await database.update_course(db_course, {"course_settings_list": course.course_settings_list, 
-                                                 "sample_settings": course.sample_settings})
+                                                 "sample_settings": course.sample_settings,
+                                                 "visibility": course.visibility})
 
 def override_course_settings(course: Course, course_settings):
     #TODO: turn the course settings into an object and access values accordingly!
@@ -76,16 +84,19 @@ def override_course_settings(course: Course, course_settings):
     for key in course_settings.keys():
         base_settings.update([(key, course_settings[key])])
     course.course_settings_list = None
-    course.course_settings = base_settings
+    course.course_settings = CourseSettings(**base_settings)
     return course
 
 @router.get("/info")
-async def get_course_info(User = Depends(current_active_verified_user)) -> CourseInfo:
+async def get_course_info(user: User = Depends(current_active_verified_user)) -> CourseInfo:
     courses = await database.get_courses()
+    user_level = max([user_level_dict[role] for role in user.roles])
     course_list = [{"unique_name": course.unique_name, 
                     "display_name": course.display_name,
                      "number_tasks": len(list(itertools.chain(*course.curriculum))),
-                      "domain": course.domain } for course in courses]
+                      "domain": course.domain,
+                       "visibility_level": user_level_dict[course.visibility] } for course in courses]
+    course_list = [course for course in course_list if course["visibility_level"]<=user_level]
     course_info = CourseInfo(course_list=course_list)
     return course_info
 
@@ -130,7 +141,7 @@ async def update_tasks(file: UploadFile, temp_dir="./temp", user: User = Depends
 
 
 @router.post("/upload_course")
-async def upload_course(file: UploadFile, temp_dir="./temp", user: User = Depends(current_active_verified_user)):
+async def upload_course(file: UploadFile, temp_dir="./temp", overwrite: bool = False, user: User = Depends(current_active_verified_user)):
     if (not "admin" in user.roles) and (not "tutor" in user.roles):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -142,12 +153,30 @@ async def upload_course(file: UploadFile, temp_dir="./temp", user: User = Depend
         raise Exception("Uploaded archive should only contain a single course folder which should be named with the course_unique_name")
     course_name = os.path.basename(course_name[0])
     try:
-        await parse_course(os.path.join(temp_dir, course_name))
+        course_status, warn_msg = await parse_course(os.path.join(temp_dir, course_name), overwrite)
         await parse_task_folder(os.path.join(temp_dir, course_name, "task_folder"))
+        if course_status == CourseValidationStatus.Missing:
+            response = Response(status_code=status.HTTP_200_OK, headers={
+                "warning": warn_msg,
+                "Access-Control-Expose-Headers": "warning"
+            })
+        elif course_status == CourseValidationStatus.No_Weights:
+            response = Response(status_code=status.HTTP_206_PARTIAL_CONTENT, headers={
+                "warning": warn_msg,
+                "Access-Control-Expose-Headers": "warning"
+            })
+        elif course_status == CourseValidationStatus.Faulty:
+            response = Response(status_code=status.HTTP_206_PARTIAL_CONTENT, headers={
+                "warning": warn_msg,
+                "Access-Control-Expose-Headers": "warning"
+            })
+        elif course_status == CourseValidationStatus.Valid:
+            response = Response(status_code=status.HTTP_200_OK)
     except Exception as e:
         shutil.rmtree(temp_dir)
         raise e
     shutil.rmtree(temp_dir)
+    return response
 
 
 async def get_course_enrolment():

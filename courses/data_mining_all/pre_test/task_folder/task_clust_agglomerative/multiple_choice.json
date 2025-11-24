@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "3 for single-linkage clustering",
+        "2 for complete-linkage clustering",
+        "4 for Ward's clustering",
+        "5 for average linkage clustering"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "Not quite. Think how many clusters have to be merged for K = 1.",
+        "Not quite. Think how many clusters have to be merged for K = 1.",
+        "This would have been the correct answer.",
+        "Not quite. Think how many clusters have to be merged for K = 1."
+    ]
+}

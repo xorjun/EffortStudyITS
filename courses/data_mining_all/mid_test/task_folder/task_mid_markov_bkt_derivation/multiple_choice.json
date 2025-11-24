@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "P_{X_1}(1) = p_slip \u22c5 p_start + p_guess \u22c5 (1 - p_start)",
+        "P_{X_1}(1) = p_slip \u22c5 p_start + (1-p_guess) \u22c5 (1 - p_start)",
+        "P_{X_1}(1) = (1-p_slip) \u22c5 p_start + (1-p_guess) \u22c5 (1 - p_start)",
+        "P_{X_1}(1) = (1-p_slip) \u22c5 p_start + p_guess \u22c5 (1 - p_start)"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        false,
+        true
+    ],
+    "choice_explanations": [
+        "No, this computes no meaningful quantity.",
+        "Not quite. This computes the probability for a failure in the first time step.",
+        "No, this computes no meaningful quantity.",
+        "This would have been the correct answer."
+    ]
+}

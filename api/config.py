@@ -17,19 +17,43 @@ class Config:
             self.database_pwd = os.environ.get("DB_SERVICE_PW")
             self.database_host = "localhost"
             self.database_port = 27017
-            self.judge0_host = "localhost"
+            self.judge0_mode = os.environ.get("JUDGE0_MODE")
+            if self.judge0_mode == "local":
+                self.judge0_host = "http://localhost:2358"
+                self.judge0_token = None
+            elif self.judge0_mode == "remote":
+                self.judge0_host = os.environ.get("JUDGE0_URL")
+                self.judge0_token = os.environ.get("JUDGE0_TOKEN")
+            else: 
+                raise Exception("Judge0 mode not specified correctly")
 
         elif self.env == "development-docker":
             self.database_pwd = os.environ.get("DB_SERVICE_PW")
             self.database_host = "mongodb"
             self.database_port = 27017
-            self.judge0_host = "j0-server"
+            self.judge0_mode = os.environ.get("JUDGE0_MODE")
+            if self.judge0_mode == "local":
+                self.judge0_host = "http://j0-server:2358"
+                self.judge0_token = None
+            elif self.judge0_mode == "remote":
+                self.judge0_host = os.environ.get("JUDGE0_URL")
+                self.judge0_token = os.environ.get("JUDGE0_TOKEN")
+            else: 
+                raise Exception("Judge0 mode not specified correctly")
 
         elif self.env == "production":
             self.database_pwd = os.environ.get("DB_SERVICE_PW")
             self.database_host = "mongodb"
             self.database_port = 27017
-            self.judge0_host = "j0-server"
+            self.judge0_mode = os.environ.get("JUDGE0_MODE")
+            if self.judge0_mode == "local":
+                self.judge0_host = "http://j0-server:2358"
+                self.judge0_token = None
+            elif self.judge0_mode == "remote":
+                self.judge0_host = os.environ.get("JUDGE0_URL")
+                self.judge0_token = os.environ.get("JUDGE0_TOKEN")
+            else: 
+                raise Exception("Judge0 mode not specified correctly")
 
 
         else:

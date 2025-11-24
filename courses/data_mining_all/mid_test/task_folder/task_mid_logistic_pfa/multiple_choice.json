@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "-1",
+        "0",
+        "1",
+        "2"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "No, the students would get more skill due to their successes and failures.",
+        "Not quite. Consider how much skill the students get from each success and failure.",
+        "This would have been the correct answer.",
+        "Not quite. Consider how much skill the students get from each success and failure."
+    ]
+}

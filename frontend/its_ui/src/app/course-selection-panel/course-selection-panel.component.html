@@ -10,5 +10,9 @@
     <p *ngIf="roles.includes('admin') || roles.includes('tutor')">
         Upload new Course (.zip):
         <input type="file" class="file-upload" (change)="onCourseFolderSelected($any($event).target)">
+        <br>
+        <mat-checkbox [checked]="upload_overwrite" (change)="onForceUpload($event)">
+            Overwrite course settings and parameters on upload.
+        </mat-checkbox>
     </p>
 </div>

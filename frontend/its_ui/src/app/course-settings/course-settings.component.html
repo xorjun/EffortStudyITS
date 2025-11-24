@@ -8,6 +8,7 @@
           <app-settings-element *ngIf="formGroupArray.length > 0" setting="sample_settings" [form]="settingsForm"></app-settings-element>
           <app-settings-element setting="pedagogical_model" [form]="settingsForm"></app-settings-element>
           <app-settings-element setting="language_generation_model" [form]="settingsForm"></app-settings-element>
+          <app-settings-element setting="visibility" [form]="settingsForm"></app-settings-element>
           <p>
             Update Task-files (.zip):
             <input type="file" class="file-upload" (change)="onTaskFolderSelected($any($event).target)">

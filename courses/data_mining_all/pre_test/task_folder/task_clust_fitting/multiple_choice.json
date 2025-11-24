@@ -1,0 +1,12 @@
+{
+    "possible_choices": ["mu_1 = (0, 0), mu_2 = (0, 0)",
+                         "mu_1 = (-1, 0), mu_2 = (+1, 0)",
+                         "mu_1 = (-1,+1), mu_2 = (+1,-1)",
+                         "mu_1 = (-2, 0), mu_2 = (+2, 0)"],
+    "correct_choices": [false, true, false, false],
+    "choice_explanations": ["Not quite. Check the clusters you see on the picture: Where should the means be, roughly?", 
+                            "This would have been the correct answer.",
+                            "Not quite. Check the clusters you see on the picture: Where should the means be, roughly?",
+                            "Not quite. Check the clusters you see on the picture: Where should the means be, roughly?"]
+}
+

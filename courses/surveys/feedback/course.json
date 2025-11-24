@@ -1,0 +1,13 @@
+{
+    "display_name": "Feedback Questionnaire",
+    "domain": "Surveys",
+    "pedagogical_model": "prototype",
+    "sub_domains": [],
+    "unique_name": "feedback_questionnaire",
+    "curriculum": ["introduction", 
+                   "sus_1", "sus_2","sus_3","sus_4","sus_5","sus_6","sus_7","sus_8","sus_9","sus_10",
+                   "toast_1", "toast_2", "toast_3",  "toast_4", "toast_5", "toast_6", "toast_7", "toast_8", "toast_9",
+                   "wow!"],
+    "mandatory_curriculum": [],
+    "course_settings": {}
+}

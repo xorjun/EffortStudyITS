@@ -2,8 +2,8 @@ from feedback.schemas import Feedback_submission, Evaluated_feedback_submission
 from db import database
 from db.db_connector_beanie import User
 from models.domain.submissions.submissions import run_tests
-
-from models import manager
+import asyncio
+from models import model_manager
 
 
 async def handle_feedback(submission: Feedback_submission, user: User):
@@ -17,9 +17,14 @@ async def handle_feedback(submission: Feedback_submission, user: User):
     user_id = user.id
     task_id = submission.task_unique_name
     task_json = await database.get_task(str(task_id))
-    test_results = await run_tests(task_json, submission)
+    try: 
+        test_results = await run_tests(task_json, submission.code)
+    except asyncio.TimeoutError as e:
+        submission.type = "timed_out_submission"
+        await database.log_code_submission(submission)
+    
     valid_solution = all([result["status"] for result in test_results]) > 0
-    pedagogical_model = await manager.pedagogical_model(user)
+    pedagogical_model = await model_manager.get_pedagogical_model_by_user(user)
     evaluated_feedback_submission = Evaluated_feedback_submission(task_unique_name = submission.task_unique_name, 
                                                             course_unique_name=submission.course_unique_name,
                                                             code = submission.code,
@@ -27,7 +32,7 @@ async def handle_feedback(submission: Feedback_submission, user: User):
                                                             correct_choices = [],
                                                             selected_choices = [],  
                                                             test_results = test_results,
-                                                            user_id=user_id, 
+                                                            user_id=user_id,
                                                             type="feedback_request",
                                                             submission_time=submission.submission_time, 
                                                             valid_solution=valid_solution,

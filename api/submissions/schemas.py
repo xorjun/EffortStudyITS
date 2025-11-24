@@ -21,6 +21,7 @@ class Tested_Submission(Base_Submission):
     user_id: PydanticObjectId
     possible_choices: Optional[list]
     correct_choices: Optional[list]
+    reference_output: Optional[str]=None
 
     class Settings: 
         name = "Submission"

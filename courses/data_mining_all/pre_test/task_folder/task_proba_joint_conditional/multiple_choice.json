@@ -1,0 +1,12 @@
+{
+    "possible_choices": ["p_{X, Y}(x, y) = p_X(x) ⋅ p_Y(y)",
+                         "p_{X, Y}(x, y) = p_{X|Y}(x|y) ⋅ p_Y(y)",
+                         "p_{X, Y}(x, y) = p_{X|Y}(x|y) ⋅ p_Y(y) / p_X(x)",
+                         "p_{X, Y}(x, y) = Σ_y p_{X|Y}(x|y) ⋅ p_Y(y)"],
+    "correct_choices": [false, true, false, false],
+    "choice_explanations": ["This is only true if X and Y are independent. But which equation is true in general?", 
+                            "This would have been the correct answer.",
+                            "This is Bayes' theorem and computes the conditional for Y given X. Consider the joint probability, instead.",
+                            "This is the law of total probability and computes the marginal for X. Consider the joint probability, instead."]
+}
+

@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "The probability of the test statistic under the null hypothesis is at most 5%.",
+        "The test is insignificant.",
+        "The alternate hypothesis can be rejected at 0.05 level.",
+        "The integral of the density for the test statistic from the observed value to infinity is lower-bounded by 0.05."
+    ],
+    "correct_choices": [
+        true,
+        false,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "This would have been the correct answer.",
+        "No, the test is significant.",
+        "No, the null hypothesis can be rejected at the 0.05 level.",
+        "Not quite. It is upper-bounded by 0.05."
+    ]
+}

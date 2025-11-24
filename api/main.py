@@ -1,6 +1,7 @@
 import uvicorn
-from fastapi import FastAPI, Depends, Request, Response, HTTPException
-from fastapi import APIRouter
+from db import db_connector_beanie, database
+from fastapi import FastAPI, Depends, Request
+from models import model_manager
 from submissions import handle_submissions
 from attempts import handle_attempts
 from submissions.schemas import Base_Submission, Tested_Submission
@@ -10,14 +11,13 @@ from courses import handle_courses
 from surveys import handle_surveys
 from surveys.schemas import Survey
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 from users import handle_users
 from users import schemas as user_schemas
 from courses.schemas import Course, CourseInfo, CourseEnrollment, CourseSelection, CourseSettings
 from tasks.schemas import Task
 from attempts.schemas import Attempt, AttemptState, NestedAttemptState
 from beanie import init_beanie
-from db import db_connector_beanie, database
+from tasks.schemas import PackedStateSpace, PackedState
 from users.schemas import User
 from config import config
 from runs import handle_runs
@@ -29,17 +29,16 @@ from fastapi.responses import JSONResponse
 from starlette.status import HTTP_504_GATEWAY_TIMEOUT
 from system.schemas import AppSettings
 from feedback.schemas import Url
-from models.domain.skill_weights_pfa_update import Skill_parameters_pfa_update
-from datetime import datetime
-from apscheduler.schedulers.background import BackgroundScheduler
+from models.domain.skill_weights_pfa_update import update_skill_parameters
 from apscheduler.triggers.interval import IntervalTrigger  
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  
 from contextlib import asynccontextmanager
 from asyncio import run
+from services.text_embedding.embedding_model_manager import embedding_model_manager
 
 
 
-REQUEST_TIMEOUT_ERROR = 30  # Threshold
+REQUEST_TIMEOUT_ERROR = 45  # Threshold
 
 
 #Api prefix
@@ -110,47 +109,33 @@ async def on_startup():
     await init_beanie(
         database=db_connection_beanie.db,
         document_models=[
-            User, Base_Submission, Tested_Submission, 
+            User, Base_Submission, Tested_Submission,
             Course, CourseInfo, CourseEnrollment, CourseSelection, CourseSettings,
               Task, Attempt, AttemptState, NestedAttemptState, AppSettings, Url,
-            user_schemas.GlobalAccountList, Survey
+            user_schemas.GlobalAccountList, Survey, PackedStateSpace, PackedState
         ],
     )
     await initialize_settings(db_connection_beanie)
     await initialize_global_accounts_list(db_connection_beanie)
     #async def scheduled_jobs():
     scheduler = AsyncIOScheduler()
-    trigger = IntervalTrigger(seconds=60) # TODO: not sure yet if it can be added as a parameter
-    scheduler.add_job(coroutine_updater, trigger)
+    # TODO implement trigger time as global admin setting
+    trigger = IntervalTrigger(hours=1)
+    scheduler.add_job(course_parameter_update, trigger)
     scheduler.start()
     #loop = asyncio.get_event_loop()
     #a1 = loop.create_task(get())
     #loop.run_until_complete(a1)
 
+@app.on_event("shutdown")
+async def shutdown_event():
+    embedding_model_manager.cleanup()
+
 async def course_parameter_update():
     # TODO: schedule the updates of the course: exact timing not decided yet
     courses = await database.get_courses()
-    updater = Skill_parameters_pfa_update()
     for course in courses:
-        if (not course.q_matrix is None):
-            try:
-                await updater.select(course=course)
-            except:
-                pass
-
-async def coroutine_updater():
-    return await course_parameter_update()
-#scheduler = AsyncIOScheduler()
-#trigger = IntervalTrigger(seconds=60) 
-#scheduler.add_job(course_parameter_update, trigger)
-#scheduler.start()
-#asyncio.get_event_loop().run_forever()
-#asyncio.run(scheduler)
-
-#@asynccontextmanager
-#async def lifespan(app: FastAPI):
-#    yield
-#    scheduler.shutdown()
+        await model_manager.update_course_weights(course=course)
 
 
 origins = ["http://localhost:4200", "http://localhost:8080",
@@ -172,7 +157,7 @@ async def get_status():
 
 async def initialize_settings(database):
     #TODO: Enable initialization of settings via optional environment variables
-    settings = AppSettings(ollama_url="", email_whitelist=[".*"])
+    settings = AppSettings(api_url="", api_key="", api_type="", email_whitelist=[".*"])
     await database.create_settings(settings)
 
 async def initialize_global_accounts_list(database):

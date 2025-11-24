@@ -1,0 +1,13 @@
+{
+    "possible_choices": ["aaab",
+                         "aabb",
+                         "abbb",
+                         "bbba"],
+    "correct_choices": [true, false, false, false],
+    "choice_explanations": ["This would have been the correct answer.", 
+                            "Not quite. Consider the probabilities of transitions from b to b. While this is quite high, the a to a transition is even more likely.",
+                            "Not quite. Consider the probabilities of transitions from b to b. While this is quite high, the a to a transition is even more likely.",
+                            "Not quite. Consider the probabilities of transitions from b to b. While this is quite high, the a to a transition is even more likely."
+                        ]
+}
+

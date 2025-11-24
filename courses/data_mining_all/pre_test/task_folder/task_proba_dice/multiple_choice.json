@@ -1,0 +1,12 @@
+{
+    "possible_choices": ["1/36",
+                         "2/36",
+                         "3/36",
+                         "6/36"],
+    "correct_choices": [false, true, false, false],
+    "choice_explanations": ["Not quite. Consider how many outcomes a roll with two fair, six-sided dice add up to three.", 
+                            "This would have been the correct answer. Of 36 possible outcomes, only (1, 2) and (2, 1) add up to 3.",
+                            "Not quite. Consider how many outcomes a roll with two fair, six-sided dice add up to three.",
+                            "Not quite. Consider how many outcomes a roll with two fair, six-sided dice add up to three."]
+}
+

@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "In contrast to PFA, DKT models the student skill as a continuous latent variable.",
+        "In contrast to PFA and BKT, it estimates the student's success probability on the next task.",
+        "In contrast to BKT, it is guarenteed to converge to a global optimum of the loss function.",
+        "In contrast to PFA and BKT, it uses a recurrent neural network internally."
+    ],
+    "correct_choices": [
+        false,
+        false,
+        false,
+        true
+    ],
+    "choice_explanations": [
+        "No, DKT does not do that.",
+        "Not quite. PFA and BKT do that, as well.",
+        "No, the loss of DKT is generally not convex and, therefore, no global optimum can be guaranteed.",
+        "This would have been the correct answer."
+    ]
+}

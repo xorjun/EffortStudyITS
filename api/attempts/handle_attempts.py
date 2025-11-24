@@ -24,8 +24,9 @@ async def get_attempt_state(task_unique_name, user: User = Depends(current_activ
                           start_time_list=[datetime.now().astimezone(timezone.utc).strftime("%d.%m.%Y %H:%M:%S")], 
                           duration_list=[str(timedelta(0))])
         await database.create_attempt(attempt)
-        course_enrollment = course_enrollment = await database.get_course_enrollment(user, user.current_course)
+        course_enrollment = await database.get_course_enrollment(user, user.current_course)
         tasks_attempted = course_enrollment.tasks_attempted
+        # TODO: Prevent tasks that are not in the course to end up in course enrollment.
         if not task_unique_name in tasks_attempted:
             tasks_attempted.append(task_unique_name)
         await database.update_course_enrollment(course_enrollment, {"tasks_attempted": tasks_attempted})
@@ -43,13 +44,13 @@ async def get_attempt_state(task_unique_name, user: User = Depends(current_activ
         return({"attempt_id": str(attempt.id), "code": logged_current_state})
 
 
-def compile_state_log(previous_state, change_log: list):
+def compile_state_log(previous_state, change_log: list[AttemptState]):
     if not isinstance(previous_state, list):
         previous_state = previous_state.splitlines()
     if len(change_log) == 0:
         return "\n".join(previous_state)
     else:
-        storage_diff = change_log[0]["diff"]
+        storage_diff = change_log[0].diff
         diff = []
         for edit in storage_diff:
             if edit[0] == "I":
@@ -63,7 +64,17 @@ def compile_state_log(previous_state, change_log: list):
                     elif inner_edit[0] == "D": inner_diff.append(Deletion(inner_edit[1]))
                     elif inner_edit[0] == "R": inner_diff.append(Replacement(inner_edit[1], inner_edit[2]))
                 inner_diff = Script(lst=inner_diff)
-                diff.append(Replacement(edit[1], "".join(inner_diff.apply(list(previous_state[edit[1]])))))
+                try:
+                    new_line = "".join(inner_diff.apply(list(previous_state[edit[1]])))
+                except IndexError as e:
+                    # TODO: Das Problem sind wahrscheinlich Deletions an Indices die nicht (mehr) existieren.
+                    # Ansatz 1: Deletions in diesem Fall ignorieren.
+                    # Ansatz 2: State log rigoros resetten ab dem Moment wo er korrupt ist.
+                    print("Problem with char-diff in state log compilation")
+                    print(inner_diff)
+                    raise e
+                replacement = Replacement(edit[1], new_line)
+                diff.append(replacement)
             else:
                 raise Exception(f"Unknown edit type: {edit[0]}")
         diff = Script(lst=diff)
@@ -126,6 +137,9 @@ def transform_edit(edit):
 #TODO: In first log entry very often \r string occurs. This is probably a monaco artifact and should be handled somehow!
 @router.post("/log")
 async def log_attempt_state(state: NestedAttemptState, user: User = Depends(current_active_verified_user)):
+    """The basic logging approach is to create two levels of diffs, the first level is lines, the inner level is within lines.
+    This allows to store only minimal representations of where to apply a diff on character level (High logging density woth low strage effort). 
+    """
     attempt = await database.get_attempt(state.attempt_id)
     state.current_state =  "\n".join(state.current_state.splitlines())
     #TODO: Handle case where data collection settings are changed!
@@ -153,7 +167,16 @@ async def log_attempt_state(state: NestedAttemptState, user: User = Depends(curr
                 state.current_state = previous_code
                 print("Simple state log repair through stripping occured.")
             else:
-                raise NotImplementedError("State log is broken, repair not implemented!")
+                diff = get_diff(previous_code, ([-1, state.current_state],))
+                storage_diff = [transform_edit(edit) for edit in diff]
+                code_state = AttemptState(state_datetime=attempt.state_log[-1].state_datetime, 
+                                          diff=storage_diff, submission_id="")
+                previous_code = apply_diff(previous_code, diff)
+                if previous_code.strip() == state.current_state.strip():
+                    attempt.state_log.append(code_state)
+                    print("State log was repaired based on logged current state!")
+                else:
+                    raise Exception("State log is broken, repair was attempted but failed!")
     if len(state.state_datetime_list) > 0:
         current_attempt_time = datetime.strptime(state.state_datetime_list[-1]["utc"], "%d.%m.%Y %H:%M:%S.%f")
         current_start_time = datetime.strptime(attempt.start_time_list[-1], "%d.%m.%Y %H:%M:%S")

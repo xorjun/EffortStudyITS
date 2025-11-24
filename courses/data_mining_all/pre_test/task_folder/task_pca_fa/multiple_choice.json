@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "PCA assumes orthogonal principal components while FA does not.",
+        "FA is a generative model while PCA is not.",
+        "FA components can be rotated while PCAs can not.",
+        "PCA explicitly considers noise while FA does not."
+    ],
+    "correct_choices": [
+        false,
+        true,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "No, both methods do that.",
+        "This would have been the correct answer.",
+        "No, this can be done in either case, although it is more usual for FA.",
+        "No, it is the other way around."
+    ]
+}

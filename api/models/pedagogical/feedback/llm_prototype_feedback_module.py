@@ -20,7 +20,7 @@ class LLM_prototype_feedback_module(Base_step_feedback_module):
 
     async def get_feedback_available(self, task_type):
         settings = await database.get_settings()
-        if settings.ollama_url == "" or task_type in [TaskType.MultipleChoice]:
+        if settings.api_url == "" or task_type in [TaskType.MultipleChoice]:
             return False
         else:
             return True

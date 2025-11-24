@@ -4,7 +4,7 @@ from enum import StrEnum
 
 
 class CourseSettings(Document):
-    course_unique_name: str
+    course_unique_name: Optional[str] = None
     feedback_init_time: Optional[int] = None
     feedback_cooldown: Optional[int] = None
     pedagogical_model: Optional[str] = None
@@ -23,7 +23,7 @@ class Course(Document):
     competencies: Optional[list] = None
     #course_options: list
     course_settings: Optional[CourseSettings] = None
-    course_settings_list: Optional[list]
+    course_settings_list: Optional[list] = None
     # Use p-array
     sample_settings: list
     # Model related
@@ -31,6 +31,7 @@ class Course(Document):
     course_parameters: Optional[dict] = None
     default_topic: Optional[str] = None
     topics: Optional[list] = None
+    visibility: str = "student"
 
 class CourseInfo(Document):
     course_list: list[dict]
@@ -53,3 +54,13 @@ class TaskType(StrEnum):
     PlotFunction = "plot_function"
     Print = "print"
     MultipleChoice = "multiple_choice"
+
+class CourseValidationStatus(StrEnum):
+    # For courses with correct parameters:
+    Valid = "valid"
+    # For courses that have corrupted or partially missing components:
+    Faulty = "faulty"
+    # For courses that are missing the required params completely:
+    Missing = "missing"
+    # For courses that are specifically missing skill weights and are otherwise valid:
+    No_Weights = "no_weights"

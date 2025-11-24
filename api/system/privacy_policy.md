@@ -107,7 +107,7 @@ In some circumstances, this may be necessary if we are required by law to do so,
 Where technical service providers have access to personal data, this happens on the basis of a contract pursuant to Art. 28 of EU GDPR.
 No personal data is transferred to countries outside the European Economic Area and associated countries (no third country transfer). If this should become necessary you will be informed.
 
-To enable the feedback functionality (per-request service within the ITS), the current code state in a respective task of the user who requested the feedback is forwarded to the Research Center Jülich, where it processed with help of a Large Language Model: ollama-70B.
+To enable the feedback functionality (per-request service within the ITS), the current code state in a respective task of the user who requested the feedback is forwarded to the Research Center Jülich, where it processed with help of a Large Language Model.
 
 Forschungszentrum Jülich GmbH \
 Wilhelm-Johnen-Straße \

@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "U = [1, 0, 1, 0], V = [1, 1, -1, -1]",
+        "U = [2, -1, 1, -2], V = [1, 0.5, -0.5, -0.5]",
+        "U = [-1, 1, -1, 1], V = [-2, 1, -1, 2]",
+        "U = [1, -0.5, 0.5, -1], V = [2, 1, -1, -2]"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        false,
+        true
+    ],
+    "choice_explanations": [
+        "No, consider the ratings for the first movie this would imply.",
+        "Not quite. Consider the ratings for the last movie.",
+        "Not quite. Consider the ratings for the second and third movie.",
+        "This would have been the correct answer."
+    ]
+}

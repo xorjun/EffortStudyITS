@@ -1,0 +1,57 @@
+.skill-overview-container {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    justify-content: center;
+    align-items: center;
+    text-align: left; /* Center-align text */
+    overflow: auto;
+    margin-top: 10%
+  }
+
+.entry-list {
+  margin: 20px;
+  color: white
+}
+
+label {
+  margin-right: 10px;
+}
+
+select {
+  margin-bottom: 20px;
+  padding: 6px;
+  align-self: left
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1.3rem
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+}
+
+
+.progress-container {
+  width: 100px;
+  background-color: black;
+  border-radius: 5px;
+  overflow: hidden;
+  height: 20px;
+  text-align: center;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #4caf50;
+  color: white;
+  line-height: 20px;
+  white-space: nowrap;
+  transition: width 0.3s ease;
+}
+.overlay-text{
+  position: absolute;
+}

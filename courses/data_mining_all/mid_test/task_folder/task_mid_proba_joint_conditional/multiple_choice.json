@@ -1,0 +1,12 @@
+{
+    "possible_choices": ["p_X(x) = p_{X|Y}(x|y) ⋅ p_Y(y)",
+                         "p_X(x) = Σ_y p_{X|Y}(x|y) ⋅ p_Y(y)",
+                         "p_X(x) = p_{X,Y}(x,y) / p_Y(y)",
+                         "p_X(x) = Σ_y p_{X|Y}(x|y)"],
+    "correct_choices": [false, true, false, false],
+    "choice_explanations": ["No, this would compute the joint density of x and y.", 
+                            "This would have been the correct answer.",
+                            "No, this would compute the conditional density of x given y.",
+                            "No, this formula computes no meaningful quantity in probability."]
+}
+

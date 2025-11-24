@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "M[ks, :] = np.mean(X[ks, :], axis = 0)",
+        "M[k, :] = np.mean(X[ks, :], axis = 0)",
+        "M[ks == k, :] = np.mean(X[ks == k, :], axis = 0)",
+        "M[k, :] = np.mean(X[ks == k, :], axis = 0)"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        false,
+        true
+    ],
+    "choice_explanations": [
+        "No, this would set all means to the same value.",
+        "No, this would set all means to the same value.",
+        "No, this would not execute because the length of ks == k does not match the length of M.",
+        "This would have been the correct answer."
+    ]
+}

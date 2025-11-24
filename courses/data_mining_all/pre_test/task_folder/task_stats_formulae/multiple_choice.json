@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "d = (a+b)/c",
+        "d = (a-b)/c",
+        "d = (a-b)**2 / c**2",
+        "d = (a**2 + b**2) / c**2"
+    ],
+    "correct_choices": [
+        false,
+        true,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "Not quite. This would add the means.",
+        "This would have been the correct answer.",
+        "Not quite. This is the square of Cohen's d.",
+        "No, this is something else."
+    ]
+}

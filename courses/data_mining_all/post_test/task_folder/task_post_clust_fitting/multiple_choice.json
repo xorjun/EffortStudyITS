@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "mu_1 = (-1, 0), mu_2 = (+1, 0), Sigma_1 = diag(0.1, 0.5), Sigma_2 = diag(0.1, 0.1), pi_1 = 0.33, pi_2 = 0.67",
+        "mu_1 = (0, 0), mu_2 = (0, 0), Sigma_1 = diag(1, 1), Sigma_2 = diag(1, 1), pi_1 = 0.5, pi_2 = 0.5",
+        "mu_1 = (-1, 0), mu_2 = (+1, 0), Sigma_1 = diag(0.5, 1), Sigma_2 = diag(1, 1), pi_1 = 0.67, pi_2 = 0.33",
+        "mu_1 = (-1, 0), mu_2 = (+1, 0), Sigma_1 = diag(0.1, 0.5), Sigma_2 = diag(0.1, 0.1), pi_1 = 0.5, pi_2 = 0.5"
+    ],
+    "correct_choices": [
+        true,
+        false,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "This would have been the correct answer.",
+        "No, consider the means.",
+        "Not quite. Consider the variances in the Sigma parameters. Is this compatible with the data?",
+        "Almost. Consider the number of points in each cluster. Is this in line with the pi parameters?"
+    ]
+}

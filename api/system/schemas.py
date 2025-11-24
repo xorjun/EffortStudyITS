@@ -6,6 +6,7 @@ from beanie import Document
 from typing import Optional
 
 class AppSettings(Document):
-    ollama_url: str
-    ollama_key: Optional[str]=None
+    api_type: str
+    api_url: str
+    api_key: Optional[str]=None
     email_whitelist: list

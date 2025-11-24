@@ -5,14 +5,25 @@
     <div class="settings-form">
         <form [formGroup]="settingsForm">
 
+        <p>
+            
+                LLM API-type::
+                  <select  formControlName="api_type">
+                    <option value="ollama">Ollama</option>
+                    <option value="open-ai">Open-AI</option>
+                </select>
+            
+            </p>
+
+
             <p>
-                Ollama-url:
-                <input formControlName="ollama_url">
+                API-url:
+                <input formControlName="api_url">
             </p>
 
             <p>
-                Ollama-key:
-                <input formControlName="ollama_key">
+                API-key:
+                <input formControlName="api_key">
             </p>
 
             <p>

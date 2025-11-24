@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "a = 0, b = 1, c = 0",
+        "a = 1, b = 0, c = 0.2",
+        "a = 2, b = 1, c = 0",
+        "a = 2, b = 1, c = 0.2"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        false,
+        true
+    ],
+    "choice_explanations": [
+        "Not quite. Consider the a parameter. Is a = 0 compatible with the curve?",
+        "Not quite. Consider the b parameter. Is b = 0 compatible with the curve?",
+        "Not quite. Consider the c parameter. Is c = 0 compatible with the curve?",
+        "This would have been the correct answer."
+    ]
+}

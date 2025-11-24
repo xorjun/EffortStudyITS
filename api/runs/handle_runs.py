@@ -1,5 +1,5 @@
 import traceback
-from models.domain.runs import run_code
+from models.domain.runs import handle_run
 from fastapi import APIRouter
 from runs.schemas import Run_code_submission
 from db.db_connector_beanie import User
@@ -12,7 +12,7 @@ router = APIRouter()
 @router.post("/run_code")
 async def handle_run_code(submission: Run_code_submission, user: User = Depends(current_active_verified_user)):
     try:
-        return await run_code(submission, user)
+        return await handle_run(submission, user)
     except Exception as e:
         print(traceback.format_exc())
         {"run_id": 0, "status": 500, "message": f"{type(e)}: {str(e)}"}

@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "That generated recommendations are unreliable at the beginning of training.",
+        "That recommendations are difficult to generate for new users because no data is available for them.",
+        "That matrix factorization cannot easily deal with missing data.",
+        "That gradients are small during training with small data sets."
+    ],
+    "correct_choices": [
+        false,
+        true,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "Not quite. That is true but the cold start problem refers to something else.",
+        "This would have been the correct answer.",
+        "No, that is a different problem.",
+        "No, that is a different problem."
+    ]
+}

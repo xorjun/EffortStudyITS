@@ -63,7 +63,7 @@ export class AuthComponent {
             (data)  => {
             const isVerified = data.is_verified;
             if (!isVerified){
-              const verification_request_complete: boolean = this.request_verify(username);
+              const verification_request_complete: boolean = this.request_verify(username, true);
               if (verification_request_complete){
                 this.login(username, password);
               }
@@ -116,7 +116,7 @@ export class AuthComponent {
     this.http.post<AuthResponse>(`${environment.apiUrl}/auth/register`, body).subscribe(
       response => {
           // Handle successful registration
-          this.request_verify(username);
+          this.request_verify(username, false);
       },
       error => {
         console.error('Registration error:', error);
@@ -125,9 +125,11 @@ export class AuthComponent {
     );
   }
 
-  request_verify(username: string){
+  request_verify(username: string, rerequest: boolean){
     var verification_complete = false;
-      this.http.post<any>(`${environment.apiUrl}/auth/request-verify-token`, {"email": `${username}@anonym.de`}).subscribe()
+      if(!rerequest){
+          this.http.post<any>(`${environment.apiUrl}/auth/request-verify-token`, {"email": `${username}@anonym.de`}).subscribe()
+      }
       const token = window.prompt("Please check your Emails for a verification token and enter it here:")
       this.http.post<any>(`${environment.apiUrl}/auth/verify`, {"token": token}).subscribe(
         () => {this.setForm("login");

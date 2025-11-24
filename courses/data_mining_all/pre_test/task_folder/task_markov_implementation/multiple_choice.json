@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "P[i, :] = P[i, :] / np.sum(P[i, :])",
+        "P[i, :] = np.mean(P[i, :])",
+        "P[:, i] = P[:, i] / np.mean(P[:, i])",
+        "P[:, i] = np.sum(P[:, i])"
+    ],
+    "correct_choices": [
+        true,
+        false,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "This would have been the correct answer.",
+        "No, this would just compute the frequency of character i.",
+        "No, this would normalize for incoming characters, not outgoing ones.",
+        "No, this would just compute the number of times character i occured."
+    ]
+}

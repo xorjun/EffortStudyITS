@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "torch.random.randn(m)",
+        "enc(torch.random.randn(m))",
+        "dec(torch.random.randn(n))",
+        "dec(enc(torch.random.randn(m)))"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "No, this would just sample random Gaussian numbers.",
+        "No, this would just give us random latent space samples.",
+        "This would have been the correct answer.",
+        "No, this would sample from a weird distribution in the latent space."
+    ]
+}

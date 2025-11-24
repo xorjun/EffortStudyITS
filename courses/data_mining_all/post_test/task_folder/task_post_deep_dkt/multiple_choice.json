@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "In contrast to PFA, DKT does not use a sigmoid function at the output.",
+        "In contrast to PFA and BKT, DKT does not provide a direct estimate of the student's skill.",
+        "In contrast to PFA and BKT, DKT does not assume a fixed number of tasks.",
+        "In contrast to BKT, DKT does not need student data for training."
+    ],
+    "correct_choices": [
+        false,
+        true,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "No, both use a sigmoid.",
+        "This would have been the correct answer.",
+        "No, it is the other way around.",
+        "No, all need training data."
+    ]
+}

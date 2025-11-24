@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "F = np.mean(np.diag(C)[:2])",
+        "F = np.sum(eigvals[:2]) / np.sum(eigvals)",
+        "F = np.sum(np.sort(eigvals)[-2:]) / np.sum(eigvals)",
+        "F = np.sum(np.sort(np.diag(C))[-2:]) / np.sum(np.diag(C))"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "No, this would just compute the mean variance in the first two data dimensions.",
+        "No, this would only work if the eigenvalues were sorted in descending order (which they aren't, necessarily).",
+        "This would have been the correct answer.",
+        "No, this would just compute the fraction of variance covered by the two most prominent data dimensions. This would only be equivalent if all covariances are zero."
+    ]
+}

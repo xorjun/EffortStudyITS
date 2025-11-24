@@ -17,12 +17,16 @@ class LLM_conceptual_explanation_generator(Base_feedback_generator):
         instruction, system = self.generate_instruction(predicted_step, previous_state, task_description, test_messages=test_messages)
         course_settings = await database.get_course_settings_for_user(submission.user_id, submission.course_unique_name)
         language_generation_model = course_settings["language_generation_model"]
-        conceptual_explanation = await generate_language(instruction, system=system, model=language_generation_model)
+        if not self.textual_feedback_only:
+            conceptual_explanation = await generate_language(instruction, system=system, model=language_generation_model,
+                                                             custom_stop_tokens=["\n"])
+        else:
+            conceptual_explanation = await generate_language(instruction, system=system, model=language_generation_model)
         conceptual_explanation = conceptual_explanation.strip("'").strip().strip("`")
         if self.textual_feedback_only: 
             return conceptual_explanation
         else:
-            return predicted_step + "\n" + conceptual_explanation
+            return predicted_step + "\n\n" + conceptual_explanation
     
 #    def generate_instruction(self, predicted_step, previous_state, task_description, test_messages):
 #        system = """You are a tutor suporting a student in programming. You are a professional, helpful and kind. 
@@ -49,6 +53,13 @@ class LLM_conceptual_explanation_generator(Base_feedback_generator):
 #        return instruction, system
 
     def generate_instruction(self, predicted_step, previous_state, task_description, test_messages):
+        instruct = """Please explain to the student in a single parapgraph (one or two sentences) the key concept they need to arrive from the current state at this particular next step.
+Note that the predicted step is not known by the student as they have not yet taken it. Be careful to not reveal the full solution or any further step.
+Adress the student directly."""
+        if not self.textual_feedback_only:
+            instruct = """Please explain to the student in a SINGLE paragraph (one or two sentences) the key concept that is needed to arrive from the current state at the above next step.
+Note that the predicted step is shown to the student, so you can refer to it. Be careful to not reveal the full solution or any further step.
+Adress the student directly."""
         system = """You are a **tutor** suporting a student in programming. You are **professional, helpful and kind**. 
 You want to provide **just enough support**, so that the student can continue on their own."""
         instruction = f"""## 1. Examples
@@ -130,9 +141,8 @@ But be careful, the unit-test messages can also be incomplete and misleading. Th
 A prediction model has predicted the following next step: 
 {predicted_step}
 
-Please explain to the student in one or two sentences the key concept they need to arrive from the current state at this particular next step.
-Note that the predicted step is not known by the student as they have not yet taken it. Be careful to not reveal the full solution or any further step.
-Adress the student directly.
+
+{instruct}
 
 ## Explanation:
 """

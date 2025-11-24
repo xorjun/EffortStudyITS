@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "The normality assumption of the t-test may be violated.",
+        "A paired test would be more suitable because pre- and post-test data are paired.",
+        "A correlation analysis would be better to analyze the relation of pre- and post-test results.",
+        "The independence assumption of the t-test may be violated."
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "This may be a problem. While the t-test does not assume that the data is normally distributed, it requires that the means of the samples are - which may be false.",
+        "This may be a problem. With an unpaired test, the variance between students may occlude our results.",
+        "This would have been the correct answer. We are looking for a significant difference between pre- and post-test results. A correlation analysis would not help for this question.",
+        "This may always be a problem, although this is a problem for almost all statistical tests, not only the t-test."
+    ]
+}

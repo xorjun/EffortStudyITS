@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "X = (X - mu) * sigma",
+        "X = np.sqrt(np.mean((X-mu)**2)) / sigma",
+        "X = np.sqrt((X-mu)**2) * sigma",
+        "X = (X - mu) / sigma"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        false,
+        true
+    ],
+    "choice_explanations": [
+        "Not quite. We need to divide by the standard deviation not multiply.",
+        "No, this would always be 1 because we compute the standard deviation and then divide by it.",
+        "No, this would compute the squared deviations and multiply by the standard deviation.",
+        "This would have been the correct answer."
+    ]
+}

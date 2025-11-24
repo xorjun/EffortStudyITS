@@ -40,6 +40,9 @@ export class SettingsElementComponent {
       case "language_generation_model":
           this.settingName = "Language generation Model";
           break;
+      case "visibility":
+        this.settingName = "Visibility";
+        break;
       default: 
           // 
           break;

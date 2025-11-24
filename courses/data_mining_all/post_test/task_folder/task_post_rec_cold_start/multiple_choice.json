@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "That similarities are difficult to measure between items.",
+        "That recommendations are difficult to generate for new items because no data is available for them.",
+        "That recommender systems need a lot of computational resources to get started.",
+        "That recommender systems need pre-training via unsupervised learning to be reliable."
+    ],
+    "correct_choices": [
+        false,
+        true,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "No, this is another problem.",
+        "This would have been the correct answer.",
+        "No, this is another problem.",
+        "No, this is another problem. Also, pre-training is not strictly needed."
+    ]
+}

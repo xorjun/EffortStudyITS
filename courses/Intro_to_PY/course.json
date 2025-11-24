@@ -1,0 +1,19 @@
+{
+    "display_name": "Introduction to Python",
+    "domain": "Simple Python",
+    "sub_domains": [],
+    "unique_name": "Intro_to_PY",
+    "curriculum": ["greet", "square", "variables", "name_check",
+    "shorten", "my_list", "list_copy",
+    "second_sum", "contains_negative", "factorial", "smallest_above", "largest_perfect_square",
+    "plot_square", "compare_lines", "errorbars",
+    "my_arrays", "simulate_dice_rolls", "scatter",
+    "custom_identity_matrix", "apply_mask", "get_corner_sums", "reshape_and_sum", "trigonometry",
+     "eigen_of_diagonal"],
+    "course_settings": {
+        "feedback_init_time": 60,
+        "feedback_cooldown": 30,
+        "pedagogical_model": "prototype",
+        "language_generation_model": "default"
+        }
+}

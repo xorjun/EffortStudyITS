@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "C = eigvals @ eigvecs @ eigvals.T",
+        "C = np.diag(eigvecs) @ eigvals @ np.diag(eigvecs.T)",
+        "C = eigvals * eigvecs * eigvals.T",
+        "C = eigvecs @ np.diag(eigvals) @ eigvecs.T"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        false,
+        true
+    ],
+    "choice_explanations": [
+        "No, this would just return a scalar.",
+        "No, this would just return some random numbers.",
+        "No, this would not even execute because the dimensions don't match.",
+        "This would have been the correct answer."
+    ]
+}

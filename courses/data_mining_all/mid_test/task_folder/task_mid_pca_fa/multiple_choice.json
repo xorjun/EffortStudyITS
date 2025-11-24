@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "PCA normalizes the length of principle components while FA does not.",
+        "PCA is a generative model while FA is not.",
+        "Factors are axis-aligned, while principal components are not.",
+        "PCA reduces the dimensionality while FA does not."
+    ],
+    "correct_choices": [
+        true,
+        false,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "This would have been the correct answer.",
+        "No, it is the other way around.",
+        "No, neither are.",
+        "No, both methods do that."
+    ]
+}

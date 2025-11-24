@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "Computing the network output on a mini-batch of training data.",
+        "Computing the loss between the computed and the desired outputs.",
+        "Computing the gradient of the loss with respect to the network parameters using backpropagation.",
+        "Updating the parameters using an expectation maximization approach."
+    ],
+    "correct_choices": [
+        false,
+        false,
+        false,
+        true
+    ],
+    "choice_explanations": [
+        "No, this is part of the training loop.",
+        "No, this is part of the training loop.",
+        "No, this is part of the training loop.",
+        "This would have been the correct answer. While a parameter update does take place, this is (typically) not done via expectation maximization in deep learning."
+    ]
+}

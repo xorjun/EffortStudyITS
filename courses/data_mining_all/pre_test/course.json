@@ -1,0 +1,52 @@
+{
+    "display_name": "Data Mining: Pre-Test",
+    "domain": "Data Mining",
+    "sub_domains": [],
+    "unique_name": "dm_pre_test",
+    "topics": ["Probability Theory", "Statistical Testing", "Linear Factor Models", "Clustering", "Logistic Models", "Markov Models", "Deep Models", "Recommender Systems"],
+    "default_topic": "Probability Theory",
+    "competencies": ["mathematical reasoning", "implementing methods", "applying models", "interpretation and debugging"],
+    "curriculum": {
+        "Probability Theory" : ["proba_dice", "proba_joint_conditional", "proba_independence"], 
+        "Statistical Testing" : ["stats_p_value", "stats_test", "stats_formulae"], 
+        "Linear Factor Models" : ["pca_eigenvalues", "pca_component", "pca_fa"], 
+        "Clustering" : ["clust_fitting", "clust_implementation", "clust_agglomerative"], 
+        "Logistic Models" : ["logistic_irt", "logistic_implementation", "logistic_pfa"], 
+        "Markov Models" : ["markov_chain", "markov_bkt_derivation","markov_implementation"],
+        "Deep Models" : ["deep_training", "deep_vae","deep_dkt"],
+        "Recommender Systems" : ["rec_collaborative_filtering", "rec_matrix_factorization","rec_cold_start"]
+    },
+    "q_matrix" : {
+        "proba_dice" : [1, 0, 0, 0],
+        "proba_joint_conditional" : [1, 0, 0, 0],
+        "proba_independence" : [1, 0, 0, 1],
+        "stats_p_value" : [1, 0, 0, 1],
+        "stats_test" : [0, 0, 1, 1],
+        "stats_formulae" : [1, 1, 0, 0],
+        "pca_eigenvalues" : [1, 1, 0, 0],
+        "pca_component" : [0, 0, 1, 1],
+        "pca_fa" : [0, 0, 1, 0],
+        "clust_fitting" : [0, 0, 1, 1],
+        "clust_implementation" : [0, 1, 0, 1],
+        "clust_agglomerative" : [0, 0, 1, 1],
+        "logistic_irt" : [0, 0, 1, 1],
+        "logistic_implementation" : [0, 1, 0, 1],
+        "logistic_pfa" : [0, 0, 1, 1],
+        "markov_chain" : [0, 0, 1, 1],
+        "markov_bkt_derivation" : [1, 0, 0, 1],
+        "markov_implementation" : [1, 1, 0, 1],
+        "deep_training" : [0, 1, 1, 0],
+        "deep_vae" : [0, 1, 1, 0],
+        "deep_dkt" : [0, 0, 1, 0],
+        "rec_collaborative_filtering" : [0, 0, 1, 1],
+        "rec_matrix_factorization" : [1, 0, 1, 1],
+        "rec_cold_start" : [0, 0, 0, 1]
+    },
+    "course_settings": {
+        "feedback_init_time": 60,
+        "feedback_cooldown": 30,
+        "pedagogical_model": "prototype",
+        "language_generation_model": "default"
+    }
+}
+

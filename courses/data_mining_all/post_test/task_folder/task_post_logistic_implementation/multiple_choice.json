@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "afterwards, x[t] contains the number of successes up to index t",
+        "afterwards, x[t] contains the number of successes before index t",
+        "afterwards, x[t] contains the number of failures up to index t",
+        "afterwards, x[t] contains the number of failures before index t"
+    ],
+    "correct_choices": [
+        false,
+        true,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "Not quite. Any success at time t is not included.",
+        "This would have been the correct answer.",
+        "No, consider again what a one indicates.",
+        "No, consider again what a one indicates."
+    ]
+}

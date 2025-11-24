@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "The null hypothesis is correct with a probability of 5%.",
+        "The test is insignificant.",
+        "The integral of the density for the test statistic from the observed value to infinity is at least 0.05.",
+        "The null hypothesis can be rejected at 0.05 level."
+    ],
+    "correct_choices": [
+        false,
+        false,
+        false,
+        true
+    ],
+    "choice_explanations": [
+        "No, this is unrelated to the p value.",
+        "Not quite. It is significant.",
+        "No, it is at most 0.05.",
+        "This would have been the correct answer."
+    ]
+}

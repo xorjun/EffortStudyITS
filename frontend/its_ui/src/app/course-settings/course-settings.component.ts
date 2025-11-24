@@ -25,6 +25,7 @@ export class CourseSettingsComponent {
       sample_settings: new FormControl([]),
       feedback_init_time: new FormControl(0),
       feedback_cooldown: new FormControl(0),
+      visibility: new FormControl(""),
     });
   }
 
@@ -40,6 +41,7 @@ export class CourseSettingsComponent {
           sample_settings: this.course["sample_settings"].join(','),
           feedback_init_time: +this.courseSettingsList[0].feedback_init_time,
           feedback_cooldown: +this.courseSettingsList[0].feedback_cooldown,
+          visibility: this.course.visibility,
         });
         this.initializeFormGroupArray();
       }
@@ -50,13 +52,17 @@ export class CourseSettingsComponent {
     const course_id = this.course["id"];
     //var data = this.settingsForm.value;
     var settingsList: any[] = [this.settingsForm.value];
-    this.course["sample_settings"] = settingsList[0]["sample_settings"].split(",").map((i: string) => Number(i));
-    delete settingsList[0]["sample_settings"];
+    if (settingsList[0]["sample_settings"] != undefined){
+        this.course["sample_settings"] = settingsList[0]["sample_settings"].split(",").map((i: string) => Number(i));
+        delete settingsList[0]["sample_settings"];
+    }
     for (let index = 0; index < this.formGroupArray.length; index++) {
       settingsList[index+1] = this.formGroupArray[index].value;
     }
     settingsList[0]["course_id"] = course_id
     this.course["course_settings_list"] = settingsList
+    console.log(this.settingsForm.get("visibility")!.value)
+    this.course["visibility"] = this.settingsForm.get("visibility")!.value;
     //data.course_id = course_id;
     this.client.post<any>(`${environment.apiUrl}/course/update_settings`, this.course, {"withCredentials": true}).subscribe();
   }

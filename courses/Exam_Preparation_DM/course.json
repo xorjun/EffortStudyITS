@@ -1,0 +1,16 @@
+{
+    "display_name": "Data Mining: Exam Preparation",
+    "domain": "Data Mining",
+    "sub_domains": ["Statistical Testing", "Clustering", "IRT and KT", "Recommenders", "Deep Models"],
+    "curriculum": [["mean_and_std","pooled_variance", "nll_functions", "pearson", "wilcoxon"], 
+                   ["pca_fa", "optimal_gmm_clusters", "gmm_vs_kmeans"], 
+                   ["IRT_logreg", "param1_2", "bkt", "case_kt"], 
+                   ["user_similarity", "ndcg_at_k", "bias_rs"], 
+                   ["markov_models", "deep_learning","critical_thinking"]],
+    "course_settings": {
+        "feedback_init_time": 60,
+        "feedback_cooldown": 30,
+        "pedagogical_model": "default",
+        "language_generation_model": "default"
+    }
+}

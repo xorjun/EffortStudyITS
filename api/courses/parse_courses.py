@@ -1,16 +1,23 @@
 import json
 import os
+from models import model_manager
+from models.model_manager import DEFAULT_MODEL_NAME
+from courses.schemas import CourseValidationStatus
+from copy import deepcopy
 from db import database
 import os
 
-async def parse_course(dir):
+
+PRIVILEDGED_SETTINGS = ["course_settings", "course_settings_list", "course_parameters", "sample_settings"]
+
+async def parse_course(dir, overwrite_params: bool):
     with open(dir+"/course.json", "r") as course_file:
         course_json = course_file.read()
-    course_dict = json.loads(course_json)
+    course_dict: dict = json.loads(course_json)
     course_unique_name = os.path.basename(dir)
 
-
-    course_dict["unique_name"] = course_unique_name
+    if course_dict.get("unique_name") is None:
+        course_dict["unique_name"] = course_unique_name
 
     if "course_settings" not in course_dict.keys():
         course_dict["course_settings"] = {}
@@ -29,10 +36,10 @@ async def parse_course(dir):
     if type(course_dict["course_settings"]) != list:
 
         if "pedagogical_model" not in course_dict["course_settings"].keys():
-            course_dict["course_settings"]["pedagogical_model"] = "default"
+            course_dict["course_settings"]["pedagogical_model"] = DEFAULT_MODEL_NAME
 
         if "language_generation_model" not in course_dict.keys():
-            course_dict["course_settings"]["language_generation_model"] = "default"
+            course_dict["course_settings"]["language_generation_model"] = DEFAULT_MODEL_NAME
 
 
         course_dict["course_settings_list"] = [course_dict["course_settings"]]
@@ -48,6 +55,30 @@ async def parse_course(dir):
             course_dict["sample_settings"] = [1/n for i in range(0, n)]
     
     del course_dict["course_settings"]
-
+    
+    # check if course is new or updates existing
+    # TODO check existance only once (gets checked again in create_course)
+    old_course = await database.get_course(course_dict["unique_name"])
+    
+    # Clean course_dict of priviledged keywords if course already exists and overwriting is not allowed
+    if not (overwrite_params or old_course is None):
+        for key in PRIVILEDGED_SETTINGS:
+            if key in course_dict.keys():
+                course_dict[key] = deepcopy(getattr(old_course, key))
+    
+    status, msg = model_manager.validate_course(course_dict)
+    if status in [CourseValidationStatus.Missing]:
+        course_dict = model_manager.set_default_params(course_dict)
+    if status in [CourseValidationStatus.No_Weights]:
+        course_dict = model_manager.set_default_weights(course_dict)
+    if status in [CourseValidationStatus.Faulty]:
+        return status, msg
+    
+    #set visibility to "student by default"
+    if not "visibility" in course_dict.keys():
+        course_dict["visibility"] = "student"
     await database.create_course(course_dict)
-
+    # if course updates another one, trigger learning of model
+    if old_course != None:
+        await model_manager.update_course_weights(course_dict)
+    return status, msg

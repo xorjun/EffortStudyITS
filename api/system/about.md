@@ -1,9 +1,8 @@
-# Welcome to the prototype of our intelligent tutoring system!  
-
+# Welcome to the prototype of our intelligent tutoring system!
 
 We are proud to introduce our teaching and research project - the intelligent tutoring system for programming skills acquisition, created by the research group [Knowledge Representation and Machine Learning](https://www.uni-bielefeld.de/fakultaeten/technische-fakultaet/arbeitsgruppen/kml/). Our primary goal is to elevate programming education within the Faculty of Technology. 
 
-Our approach involves researching new methods that use the power of machine learning and artificial intelligence to improve learning efficiency and experience. Our system is currently deployed to support two courses of the faculty: "Introduction to Machine Learning" and "Introduction to Data Mining." Although it's in the pre-alpha stage, we are actively dedicated to its continuous enhancement. The beta release is scheduled for October 2024. 
+Our approach involves researching new methods that use the power of machine learning and artificial intelligence to improve learning efficiency and experience. Our system is currently deployed to support two courses of the faculty: "Introduction to Machine Learning" and "Introduction to Data Mining." Although it's in the alpha stage, we are actively dedicated to its continuous enhancement.
 
 By actively engaging with our system and sharing your valuable usage data, you play an integral role in developing a new generation of educational software. Your support is greatly appreciated! 
 

@@ -108,6 +108,9 @@ DB_ROOT_PW="SECRET"
 JWT_SECRET="SECRET"
 USER_VERIFICATION_SECRET="SECRET"
 RESET_PWD_SECRET="SECRET"
+
+JUDGE0_MODE = "local"
+
 ```
 
 4. Open a terminal inside the repo and run "docker-compose up"
@@ -138,6 +141,8 @@ DB_ROOT_PW="SECRET"
 JWT_SECRET="SECRET"
 USER_VERIFICATION_SECRET="SECRET"
 RESET_PWD_SECRET="SECRET"
+
+JUDGE0_MODE = "local"
 ```
 
 4. Set up a user in MongoDB with read and write access to "its_db"

@@ -47,6 +47,9 @@ export class AppComponent {
           this.course = this.courseSettingsService.course
           this.pageName = 'tutoringView';
           break;
+      case 'skillOverviewRequest':
+        this.pageName = 'skillOverview'
+        break;
       case 'closedProfile':
         this.initTask = sessionStorage.getItem("taskId")!;
         this.pageName = this.originPage;

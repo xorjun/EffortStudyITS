@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "aaaa",
+        "abab",
+        "bbbb",
+        "aabb"
+    ],
+    "correct_choices": [
+        false,
+        true,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "No, this sequence would be quite likely because transitioning from a to a is likely.",
+        "This would have been the correct answer.",
+        "Not quite. Can you find probabilities that are even lower than transitioning from b to b?",
+        "Not quite. While this sequence is unlikely, there is still at least one high probability (transitioning from a to a). Can you find an even less likely sequence?"
+    ]
+}

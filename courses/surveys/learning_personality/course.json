@@ -1,0 +1,17 @@
+{
+    "display_name": "Learning Personality Questionnaire",
+    "pedagigical_model": "prototype",
+    "domain": "Surveys",
+    "sub_domains": [],
+    "unique_name": "learning_personality",
+    "curriculum": ["introduction", 
+                   "personality_1", "personality_2","personality_3","personality_4","personality_5","personality_6","personality_7","personality_8","personality_9","personality_10",
+                   "problem_1", "problem_2", "problem_3",  "problem_4", "problem_5", "problem_6", "problem_7", 
+                   "preferences_1", "preferences_2", "preferences_3",  "preferences_4", "preferences_5",
+                   "wow!"],
+    "mandatory_curriculum": [],
+    "course_settings": {
+        "feedback_init_time": 60,
+        "feedback_cooldown": 30
+    }
+}

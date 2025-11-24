@@ -1,0 +1,12 @@
+{
+    "possible_choices": ["The vector (1, 0)",
+                         "The vector (1, 1)",
+                         "The vector (1/sqrt(2), 1/sqrt(2))",
+                         "The vector (0, 1)"],
+    "correct_choices": [false, false, true, false],
+    "choice_explanations": ["Check the data once more: In which direction do you observe the largest variance?", 
+                            "Almost. Consider the normalization criterion. Principal components need to have norm 1.",
+                            "This would have been the correct answer.",
+                            "Check the data once more: In which direction do you observe the largest variance?"]
+}
+

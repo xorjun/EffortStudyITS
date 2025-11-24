@@ -1,0 +1,12 @@
+{
+    "possible_choices": ["The vector (1, 0)",
+                         "The vector (1, 1)",
+                         "The vector (1/sqrt(2), 1/sqrt(2))",
+                         "The vector (1/sqrt(2), -1/sqrt(2))"],
+    "correct_choices": [false, false, false, true],
+    "choice_explanations": ["Check the data once more: In which direction do you observe the largest variance?", 
+                            "Not quite, this points in the direction of the first principal component.",
+                            "Not quite, this points in the direction of the first principal component.",
+                            "This would have been the correct answer."]
+}
+

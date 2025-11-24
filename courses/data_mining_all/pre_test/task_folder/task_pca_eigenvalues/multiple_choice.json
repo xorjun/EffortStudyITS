@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "v = eigvecs[:, np.argmax(eigvals)[0]]",
+        "v = np.max(eigvals)",
+        "v = eigvecs[0, :]",
+        "v = np.max(eigvecs, axis = 1)"
+    ],
+    "correct_choices": [
+        true,
+        false,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "This would have been the correct answer.",
+        "No, this would just return the largest eigenvalue.",
+        "No, this would just return the first dimension of each principal component.",
+        "No, this would just return a vector of the largest entries across principal components."
+    ]
+}

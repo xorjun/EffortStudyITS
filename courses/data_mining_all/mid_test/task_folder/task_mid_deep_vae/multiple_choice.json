@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "neg_log_pZ = 0.5 * torch.mean(Z)**2",
+        "neg_log_pZ = 0.5 * np.sum(torch.mean(Z, axis = 0))**2",
+        "neg_log_pZ = -0.5 * np.log(np.pi) + 0.5 * torch.sum(Z**2)",
+        "neg_log_pZ = -0.5 * np.sum(np.log(np.diag(np.cov(Z.T)))) + 0.5 * torch.sum(Z**2)"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "No, this would just compute the square of the mean over Z.",
+        "Not quite, this would compute the squared norm of the mean of Z, which is related, but not the same.",
+        "This would have been the correct answer.",
+        "Not quite, this would be more in line with the KL divergence between the Gaussian matching Z and the prior distribution - but even that is not quite right."
+    ]
+}

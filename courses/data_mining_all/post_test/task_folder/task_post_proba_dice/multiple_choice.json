@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "1/36",
+        "2/36",
+        "3/36",
+        "4/36"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "Not quite. Think about how many possible outcomes of a roll with two dice yields a maximum of 2.",
+        "Not quite. Think about how many possible outcomes of a roll with two dice yields a maximum of 2.",
+        "This would have been the correct answer. For the outcomes (1, 2), (2, 1), and (2, 2) we get a maximum of 2.",
+        "Not quite. Think about how many possible outcomes of a roll with two dice yields a maximum of 2."
+    ]
+}

@@ -4,7 +4,7 @@ from feedback.schemas import Evaluated_feedback_submission
 from db import database
 #import aiohttp
 #import json
-from services.language_generation import generate_language
+from services.language_generation import generate_language, parse_code_response
 
 class Prompt_llm_step_generator(Base_step_generator):
 
@@ -24,12 +24,8 @@ class Prompt_llm_step_generator(Base_step_generator):
         course_settings = await database.get_course_settings_for_user(submission.user_id, submission.course_unique_name)
         language_generation_model = course_settings["language_generation_model"]
         next_step = await generate_language(instruction, system=system, model=language_generation_model)
-        next_step = self.extract_code_block(next_step)
-        return next_step
-
-    def extract_code_block(self, next_step):
-        next_step = next_step.split("```\n")[0] + "```"
-        return(next_step)
+        next_step = parse_code_response(next_step)
+        return f"```python\n{next_step}\n```"
 
     def create_instruction(self, previous_step, task="", test_messages="Not provided"):
         system = """You are a prediction model for human programming behavior. You want to give a hint to students learning programming by providing them with a reasonable next step in programming tasks."""

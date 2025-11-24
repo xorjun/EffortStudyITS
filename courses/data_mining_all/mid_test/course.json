@@ -1,0 +1,52 @@
+{
+    "display_name": "Data Mining: Mid-Test",
+    "domain": "Data Mining",
+    "sub_domains": [],
+    "unique_name": "dm_mid_test",
+    "topics": ["Probability Theory", "Statistical Testing", "Linear Factor Models", "Clustering", "Logistic Models", "Markov Models", "Deep Models", "Recommender Systems"],
+    "default_topic": "Probability Theory",
+    "competencies": ["mathematical reasoning", "implementing methods", "applying models", "interpretation and debugging"],
+    "curriculum": {
+        "Probability Theory" : ["mid_proba_dice", "mid_proba_joint_conditional", "mid_proba_independence"], 
+        "Statistical Testing" : ["mid_stats_p_value", "mid_stats_test", "mid_stats_formulae"], 
+        "Linear Factor Models" : ["mid_pca_eigenvalues", "mid_pca_component", "mid_pca_fa"], 
+        "Clustering" : ["mid_clust_fitting", "mid_clust_implementation", "mid_clust_agglomerative"], 
+        "Logistic Models" : ["mid_logistic_irt", "mid_logistic_implementation", "mid_logistic_pfa"], 
+        "Markov Models" : ["mid_markov_chain", "mid_markov_bkt_derivation","mid_markov_implementation"],
+        "Deep Models" : ["mid_deep_training", "mid_deep_vae","mid_deep_dkt"],
+        "Recommender Systems" : ["mid_rec_collaborative_filtering", "mid_rec_matrix_factorization","mid_rec_cold_start"]
+    },
+    "q_matrix" : {
+        "mid_proba_dice" : [1, 0, 0, 0],
+        "mid_proba_joint_conditional" : [1, 0, 0, 0],
+        "mid_proba_independence" : [1, 0, 0, 1],
+        "mid_stats_p_value" : [1, 0, 0, 1],
+        "mid_stats_test" : [0, 0, 1, 1],
+        "mid_stats_formulae" : [1, 1, 0, 0],
+        "mid_pca_eigenvalues" : [1, 1, 0, 0],
+        "mid_pca_component" : [0, 0, 1, 1],
+        "mid_pca_fa" : [0, 0, 1, 0],
+        "mid_clust_fitting" : [0, 0, 1, 1],
+        "mid_clust_implementation" : [0, 1, 0, 1],
+        "mid_clust_agglomerative" : [0, 0, 1, 1],
+        "mid_logistic_irt" : [0, 0, 1, 1],
+        "mid_logistic_implementation" : [0, 1, 0, 1],
+        "mid_logistic_pfa" : [0, 0, 1, 1],
+        "mid_markov_chain" : [0, 0, 1, 1],
+        "mid_markov_bkt_derivation" : [1, 0, 0, 1],
+        "mid_markov_implementation" : [1, 1, 0, 1],
+        "mid_deep_training" : [0, 1, 1, 0],
+        "mid_deep_vae" : [0, 1, 1, 0],
+        "mid_deep_dkt" : [0, 0, 1, 0],
+        "mid_rec_collaborative_filtering" : [0, 0, 1, 1],
+        "mid_rec_matrix_factorization" : [1, 0, 1, 1],
+        "mid_rec_cold_start" : [0, 0, 0, 1]
+    },
+    "course_settings": {
+        "feedback_init_time": 60,
+        "feedback_cooldown": 30,
+        "pedagogical_model": "prototype",
+        "language_generation_model": "default"
+    }
+}
+

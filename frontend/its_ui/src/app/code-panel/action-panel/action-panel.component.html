@@ -11,7 +11,7 @@
           <div class="argumentFields">
             <div *ngFor="let control of runFormArrayControls; let i = index">
               <label>{{control.get('argname')?.value}}:</label>
-              <input [formControl]="$any(control).get('textField')" placeholder="Text Field {{ i + 1 }}">
+              <input [formControl]="$any(control).get('textField')" placeholder="Argument {{ i + 1 }}">
             </div>
           </div>
         </form>

@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "A Welch t-test.",
+        "A correlation analysis.",
+        "A Wilcoxon signed-rank test.",
+        "A Shapiro-Wilk test."
+    ],
+    "correct_choices": [
+        true,
+        false,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "This would have been the correct answer.",
+        "No, a correlation analysis would not be applicable here.",
+        "No because we don't have paired data.",
+        "No, this would only check whether the data can not be explained by a Gaussian distribution."
+    ]
+}

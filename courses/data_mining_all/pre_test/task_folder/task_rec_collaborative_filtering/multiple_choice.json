@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "movie 1",
+        "movie 2",
+        "movie 3",
+        "movie 4"
+    ],
+    "correct_choices": [
+        true,
+        false,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "This would have been the correct answer.",
+        "No, the user has already seen this movie.",
+        "No, the user has already seen this movie.",
+        "Not quite. Consider which movies other users with a similar rating have rated highly."
+    ]
+}

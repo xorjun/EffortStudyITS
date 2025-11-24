@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "That generated recommendations are unreliable when little data about user preferences has been collected, yet.",
+        "That deep learning-based recommender systems need a lot of data to be trained.",
+        "That data imputation is needed before using data to train recommender systems.",
+        "That a recommender system tends to be slow when it is first initialized."
+    ],
+    "correct_choices": [
+        true,
+        false,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "This would have been the correct answer.",
+        "Not quite. That is true but the cold start problem refers to something else.",
+        "No, that is wrong.",
+        "No, that is wrong."
+    ]
+}

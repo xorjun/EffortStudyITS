@@ -2,14 +2,42 @@
 <dialog #taskSolvedDialog class="popup-dialog-container">
     <div class="popup-dialog">
         <p>Congratulations, you have solved this task!</p>
-        <button class="popup-dialog-button" (click)="actOnValidSolution('stay')">
-            Close
-         </button>
-        <button class="popup-dialog-button" (click)="actOnValidSolution('next task')">
-            Next Task
-         </button>
+        <div class="button-container">
+            <button class="popup-dialog-button" (click)="actOnValidSolution('stay')">
+                Close
+            </button>
+            <button class="popup-dialog-button" (click)="actOnValidSolution('next task')">
+                Next Task
+            </button>
+        </div>
     </div>
 </dialog>
+
+<dialog #graphComparisonDialog class="big-popup-dialog-container">
+    <div class="popup-graph">
+        <div class="graph-display">
+            <p>Solution graph:</p>
+            <app-markdown-panel class="markdown-display" [markdownString]="graph_solution"></app-markdown-panel>
+        </div>
+        <div class="graph-display">
+            <p>Your graph:</p>
+            <app-markdown-panel class="markdown-display" [markdownString]="graph_result"></app-markdown-panel>
+        </div>
+    </div>
+    <br>
+    <div>
+        <p>Does your graph look correct?</p>
+        <div class="button-container">
+            <button class="popup-dialog-button" (click)="actOnGraphComparison('stay')">
+                No, let me fix it.
+            </button>
+            <button class="popup-dialog-button" (click)="actOnGraphComparison('next task')">
+                Yes, it looks correct!
+            </button>
+        </div>
+    </div>
+</dialog>
+
 <div class="feedback-container">
     <div class="feedback-panel">
         <app-markdown-panel [markdownString]="feedback_markdown"></app-markdown-panel>

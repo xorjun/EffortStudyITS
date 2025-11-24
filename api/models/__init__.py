@@ -1,3 +1,3 @@
-from models.model_manager import Model_manager
+from models.model_manager import Model_Manager
 
-manager = Model_manager()
+model_manager = Model_Manager()

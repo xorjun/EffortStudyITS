@@ -1,0 +1,12 @@
+{
+    "possible_choices": ["X and Y are uncorrelated and independent.",
+                         "X and Y are uncorrelated and dependent.",
+                         "X and Y are correlated and independent.",
+                         "X and Y are correlated and dependent."],
+    "correct_choices": [false, true, false, false],
+    "choice_explanations": ["Consider the deifnition of independence at x = -0.8. Is the conditional distribution for y given x = -0.8 the same as the marginal distribution for y?",
+                            "This would have been the correct answer.",
+                            "Consider the definition of correlation. Is there a monotonic relationship between the two variables?",
+                            "Consider the definition of correlation. Is there a monotonic relationship between the two variables? Consider the definition of dependence. For which x value would P(y|x) ever be unequal p(y)?"]
+}
+

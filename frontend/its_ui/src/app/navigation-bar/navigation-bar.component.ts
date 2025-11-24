@@ -166,6 +166,11 @@ export class NavigationBarComponent {
     this.settingButtonClicked.emit("adminSettingsRequest")
   }
 
+  emitSkillOverviewRequested(){
+    this.settingButtonClicked.emit("skillOverviewRequest")
+  }
+
+
   ngOnDestroy(){
     this.taskFetchedSubscription.unsubscribe();
     this.topicInducedSubscription.unsubscribe();

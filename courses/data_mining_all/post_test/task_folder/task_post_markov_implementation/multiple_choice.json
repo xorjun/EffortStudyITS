@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "q + p_trans * (1. - q)",
+        "(1. - p_slip) * q + p_guess * (1. - q)",
+        "q / ((1. - p_slip) * q + p_guess * (1. - q))",
+        "1. / (1 + q * p_trans)"
+    ],
+    "correct_choices": [
+        true,
+        false,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "This would have been the correct answer.",
+        "Not quite, this is the probability for a correct response.",
+        "No, this formula makes no sense.",
+        "No, this formula makes no sense."
+    ]
+}

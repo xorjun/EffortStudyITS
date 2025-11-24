@@ -1,0 +1,12 @@
+{
+    "possible_choices": ["a = 0, b = 1, c = 0",
+                         "a = 1, b = 0, c = 0.2",
+                         "a = 2, b = 1, c = 0",
+                         "a = 2, b = 1, c = 0.2"],
+    "correct_choices": [false, false, true, false],
+    "choice_explanations": ["Not quite. Check the a parameter. How would the curve look like, if a = 0?", 
+                            "Not quite. Check the c parameter. At which height would the curve start if c = 0.02?",
+                            "This would have been the correct answer.",
+                            "Not quite. Check the c parameter. At which height would the curve start if c = 0.02?"]
+}
+

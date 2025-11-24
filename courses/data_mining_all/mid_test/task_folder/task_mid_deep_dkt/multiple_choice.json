@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "In contrast to BKT, DKT estimates the student skill as a logit.",
+        "In contrast to PFA, it estimates the student's success probability via a logistic function.",
+        "In contrast to PFA and BKT, DKT is trained with the help of backpropagation.",
+        "In contrast to PFA, it is guarenteed to converge to a global optimum of the loss function."
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "No, DKT does not estimate the skill explicitly.",
+        "Not quite. PFA does that, as well.",
+        "This would have been the correct answer.",
+        "No, the loss of DKT is generally not convex and, therefore, no global optimum can be guaranteed. PFA does converge though."
+    ]
+}

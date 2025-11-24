@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "Computing the network output on a mini-batch of training data.",
+        "Computing the loss between the computed and the desired outputs.",
+        "Computing the gradient of the loss with respect to the desired outputs using backpropagation.",
+        "Updating the parameters using a gradient-based optimization method, such as ADAM."
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "No, that is part of the training loop.",
+        "No, that is part of the training loop.",
+        "This would have been the correct answer. The gradient with respect to the desired outputs does not help us to train the model. We need the gradient with respect to the model parameters.",
+        "No, that is part of the training loop."
+    ]
+}

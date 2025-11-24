@@ -13,6 +13,7 @@ export class FeedbackPanelComponent {
   show: boolean = true
 
   @ViewChild("taskSolvedDialog", {static: true}) taskSolvedDialog!: ElementRef<HTMLDialogElement>;
+  @ViewChild("graphComparisonDialog", {static: true}) graphComparisonDialog!: ElementRef<HTMLDialogElement>;
 
   private submitSubscription: Subscription;
   private testReadySubscription: Subscription;
@@ -24,6 +25,8 @@ export class FeedbackPanelComponent {
 
   code_language: string = 'python';
   feedback_markdown: string = '';
+  graph_solution: string = '';
+  graph_result: string = '';
   feedback:  { test_results?: Array<any>; task_id?: string; submission_id?: string; 
     valid_solution?: boolean, output?: boolean, feedback?: string} = {};
   submissionId: string = '';
@@ -37,6 +40,8 @@ export class FeedbackPanelComponent {
     //Subscriptions for code submit
     this.submitSubscription = this.eventShareService.submitButtonClick$.subscribe((data) => {
       this.feedback_markdown = 'Code submitted, waiting for feedback...';
+      this.graph_solution = '';
+      this.graph_result = '';
       this.displayFeedbackSurvey = false;
     });
     this.testReadySubscription = this.eventShareService.testReady$.subscribe((data) => {
@@ -110,7 +115,15 @@ export class FeedbackPanelComponent {
           valid_solution: data.valid_solution,
       };
       this.feedback_markdown = this.renderTestResults(this.feedback["test_results"]!, this.feedback["task_id"]!);
-      if(this.feedback["valid_solution"]) {
+      if(sessionStorage.getItem("taskType")! == "plot_function") {
+        this.graph_result = ''
+        for (var test_obj of this.feedback["test_results"]!) {
+          this.graph_result += test_obj["message"];
+        }
+        this.graph_solution = data.reference_output
+        this.openGraphComparisonDialog();
+      }
+      else if(this.feedback["valid_solution"]) {
         this.openValidSolutionDialog();
       }
       //this.evaluateFeedback(this.feedback["valid_solution"]!);
@@ -152,8 +165,7 @@ export class FeedbackPanelComponent {
     });
   }
 
-  openValidSolutionDialog()
-  {
+  openValidSolutionDialog() {
     this.taskSolvedDialog.nativeElement.showModal();
   }
 
@@ -164,6 +176,24 @@ export class FeedbackPanelComponent {
     else if (action == "next task") {
       this.eventShareService.emitNewTaskEvent('personal');
       this.taskSolvedDialog.nativeElement.close();
+    }
+  }
+
+  openGraphComparisonDialog() {
+    this.graphComparisonDialog.nativeElement.showModal();
+  }
+
+  // TODO make solution go valid
+  actOnGraphComparison(action: string) {
+    if (action == "stay") {
+      this.graphComparisonDialog.nativeElement.close();
+    }
+    else if (action == "next task") {
+      this.feedback["valid_solution"] = true
+      const endpoint_url = `${environment.apiUrl}/mark_solved/${sessionStorage.getItem("taskId")}`;
+      this.client.post<any>(endpoint_url, {}, {withCredentials: true}).subscribe((data) => {})
+      this.eventShareService.emitNewTaskEvent('personal');
+      this.graphComparisonDialog.nativeElement.close();
     }
   }
 

@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "A Welch t-test.",
+        "A correlation analysis.",
+        "A Wilcoxon signed-rank test.",
+        "A Shapiro-Wilk test."
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "Not quite. This could be used, but another test on this list is even more suitable.",
+        "Not quite. This would rather analyze whether students with a higher pre-test results also tend to have a higher post-test result.",
+        "This would have been the correct answer.",
+        "No, this would only check whether the data can not be explained by a Gaussian distribution."
+    ]
+}

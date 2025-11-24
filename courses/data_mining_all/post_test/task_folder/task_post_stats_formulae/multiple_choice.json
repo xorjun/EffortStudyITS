@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "t = (a+b)/c",
+        "t = (a-b)/c",
+        "t = (a-b)**2 / c**2",
+        "t = (a**2 + b**2) / c**2"
+    ],
+    "correct_choices": [
+        false,
+        true,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "Not quite, this would add the means.",
+        "This would have been the correct answer.",
+        "Not quite. This would be the square of t.",
+        "No, this would be something else."
+    ]
+}

@@ -2,7 +2,7 @@ from submissions.schemas import Base_Submission
 from beanie import PydanticObjectId
 
 class Run_code_submission(Base_Submission):
-    run_arguments: dict
+    run_arguments: dict = {}
 
     class Settings: 
         name = "Submission"

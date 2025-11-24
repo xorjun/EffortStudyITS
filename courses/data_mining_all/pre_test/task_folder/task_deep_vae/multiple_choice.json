@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "Z = Mu + Sigma",
+        "Z = Mu + torch.randn_like(Mu)",
+        "Z = Mu + torch.randn_like(Mu) @ Sigma",
+        "Z = Mu + torch.randn_like(Mu) * Sigma"
+    ],
+    "correct_choices": [
+        false,
+        false,
+        false,
+        true
+    ],
+    "choice_explanations": [
+        "No, this would just compute one standard deviation above each mean.",
+        "Not quite. This would only work if Sigma = 1.",
+        "Not quite, this would only hold if Sigma contained the square root of a covariance matrix, but Sigma is a matrix of standard deviation vectors.",
+        "This would have been the correct answer."
+    ]
+}

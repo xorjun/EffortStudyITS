@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "The vector [1, 0]",
+        "The vector [1, 1]",
+        "The vector [1/sqrt(2), 1/sqrt(2)]",
+        "The vector [0, 1]"
+    ],
+    "correct_choices": [
+        true,
+        false,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "This would have been the correct answer.",
+        "Not quite. Consider the direction of largest variance in the data.",
+        "Not quite. Consider the direction of largest variance in the data.",
+        "Not quite. Consider the direction of largest variance in the data."
+    ]
+}

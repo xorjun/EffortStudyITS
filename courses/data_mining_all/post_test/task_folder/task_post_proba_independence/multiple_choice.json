@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "X and Y are uncorrelated and independent.",
+        "X and Y are correlated and independent.",
+        "X and Y are uncorrelated and dependent.",
+        "X and Y are correlated and dependent."
+    ],
+    "correct_choices": [
+        false,
+        false,
+        true,
+        false
+    ],
+    "choice_explanations": [
+        "No, consider the conditional probability density p_{Y|X}(y|0). Is this the same as the marginal probability density p_Y(y)?",
+        "No, consider the definition of correlation. Can you find a monotonic relationship between X and Y?",
+        "This would have been the correct answer.",
+        "No, consider the definition of correlation. Can you find a monotonic relationship between X and Y?"
+    ]
+}

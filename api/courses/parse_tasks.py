@@ -146,41 +146,38 @@ async def task_to_json(dir, task_unique_name, db=None):
 
 # replaces markdown images with base64 html containers
 def replace_images(content_docstring: str, task_unique_name: str, dir: str) -> str:
-    # find html images and convert to base64
-    matches = re.findall(r"<img\s+.+>", content_docstring)
-    for match in matches:
-        img_path, img_format = None, None
-        split_match = re.split(r"""['|"]""", match)
-        for i, split in enumerate(split_match):
-            if split.endswith("src="):
-                img_path = split_match[i+1]
-        # skip if already data image
-        if not img_path: continue
-        if "data:image" in img_path: continue
-        img_format = img_path.split('.')[-1]
-        
-        with open(os.path.join(dir, task_unique_name, img_path), mode='rb') as img:
+    def convert_base64(img_name: str):
+        # check if image already is base64
+        if "data:image" in img_name: return img_name
+        # cast into base64 bytes
+        with open(os.path.join(dir, task_unique_name, img_name), mode='rb') as img:
             img_base64 = base64.b64encode(img.read()).decode()
-        # layered replace to ensure only the current one gets replaced
-        match_replacement = f"data:image/{img_format};base64,{img_base64}"
-        replacement = match.replace(img_path, match_replacement)
-        content_docstring = content_docstring.replace(match, replacement)
+        return img_base64
     
-    # find and convert markdown image to html base64 image
-    matches = re.findall(r"!\[[^\]]*\]\([^)]*\)", content_docstring)
-    for match in matches:
-        # split at brackets
-        split_match = re.split(r"[\[|\]|(|)]", match)
-        img_label = split_match[1]
-        img_path = split_match[3]
-        img_format = img_path.split('.')[-1]
-        img_style = "max-width:88%; padding: 0% 5% 0% 5%"
-        
-        # skip if already data image
-        if not "data:image" in img_path:
-            with open(os.path.join(dir, task_unique_name, img_path), mode='rb') as img:
-                img_base64 = base64.b64encode(img.read()).decode()
-        else: img_base64 = img_path
-        replacement = f"<img alt='{img_label}' src='data:image/{img_format};base64,{img_base64}' style='{img_style}'>"
-        content_docstring = content_docstring.replace(match, replacement)
+    img_style = "height:100%; padding: 0% 5% 0% 5%"
+    
+    # convert all html image contents to base64
+    def replace_html_image(matchobj: re.Match):
+        img_name = matchobj[1]
+        img_format = img_name.split('.')[-1]
+        base64_img = f"data:image/{img_format};base64,{convert_base64(img_name)}"
+        html_tag: str = matchobj[0]
+        # insert standard style if none present
+        if "style=" not in html_tag:
+            html_tag = html_tag.replace(">", f""" style="{img_style}">""")
+        return html_tag.replace(img_name, base64_img)
+    
+    regex_html = re.compile(r"""<img[^>]+src="([^">]+)"[^>]*>""")
+    content_docstring = re.sub(regex_html, replace_html_image, content_docstring)
+    
+    # convert all markdown images to base64 html
+    def replace_markdown_image(matchobj: re.Match):
+        img_alt = matchobj[1]
+        img_name = matchobj[2]
+        img_format = img_name.split('.')[-1]
+        return f"<img alt='{img_alt}' src='data:image/{img_format};base64,{convert_base64(img_name)}' style='{img_style}'>"
+    
+    regex = re.compile(r"""!\[([^\]]*)\]\((.*?)\s*("(?:.*[^"])")?\s*\)""")
+    content_docstring = re.sub(regex, replace_markdown_image, content_docstring)
+    
     return content_docstring

@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "P[current, -1] += 1",
+        "P[next, -1] += 1",
+        "P[:, -1] = 1. - np.mean(P[:, :-1])",
+        "P[:, -1] = len(string) - np.sum(P[:, :-1])"
+    ],
+    "correct_choices": [
+        false,
+        true,
+        false,
+        false
+    ],
+    "choice_explanations": [
+        "Not quite. The letter in current would be the symbol before the last one in the string.",
+        "This would have been the correct answer.",
+        "No, this would compute no meaningful quantity.",
+        "No, this would compute no meaningful quantity."
+    ]
+}

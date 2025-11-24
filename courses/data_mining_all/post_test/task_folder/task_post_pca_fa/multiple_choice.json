@@ -1,0 +1,20 @@
+{
+    "possible_choices": [
+        "PCA reduces the dimensionality while FA does not.",
+        "Factors are axis-aligned, while principal components are not.",
+        "PCA is a generative model while FA is not.",
+        "FA explicitly considers noise while PCA does not."
+    ],
+    "correct_choices": [
+        false,
+        false,
+        false,
+        true
+    ],
+    "choice_explanations": [
+        "No, both do.",
+        "No, neither are.",
+        "No, it's the other way around.",
+        "This would have been the correct answer."
+    ]
+}

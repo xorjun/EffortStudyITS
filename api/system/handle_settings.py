@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from services.study_metrics import collect_study_metrics
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from services.study_metrics import collect_study_metrics, _metrics_cache_invalidate
 from db import database
 from users.handle_users import current_active_verified_user
 from db.db_connector_beanie import User
 from system.schemas import AppSettings, EditorPolicy, StudyMetricsResponse
 from users.schemas import UserLevel
+from datetime import datetime
 
 router = APIRouter()
 
@@ -31,9 +32,18 @@ async def get_settings(user: User = Depends(current_active_verified_user)) -> Ap
 
 
 @router.get("/study_metrics")
-async def get_study_metrics(user: User = Depends(current_active_verified_user)) -> StudyMetricsResponse:
+async def get_study_metrics(
+    user: User = Depends(current_active_verified_user),
+    from_date: str | None = Query(None, description="Filter from date (ISO format, e.g. 2026-05-01)"),
+    to_date: str | None = Query(None, description="Filter to date (ISO format, e.g. 2026-05-28)"),
+    force: bool = Query(False, description="Bypass cache and compute fresh metrics"),
+) -> StudyMetricsResponse:
     _require_admin(user)
-    return await collect_study_metrics()
+    from_dt = datetime.fromisoformat(from_date) if from_date else None
+    to_dt = datetime.fromisoformat(to_date) if to_date else None
+    if force:
+        _metrics_cache_invalidate()
+    return await collect_study_metrics(from_date=from_dt, to_date=to_dt, force_refresh=force)
 
 
 @router.get("/editor_policy")

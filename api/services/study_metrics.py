@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import ast
+import asyncio
 import re
+import time
 from collections import defaultdict
 from datetime import datetime, timedelta
 
@@ -130,7 +132,7 @@ def _estimate_cyclomatic_complexity(code: str) -> int:
 
 def _compose_task_code(task, code: str) -> str:
     normalized_code = code or ""
-    task_prefix = getattr(task, "prefix", "") or ""
+    task_prefix = _task_attr(task, "prefix", "")
     if task_prefix in ["", "no_prefix"]:
         return normalized_code
     if normalized_code.startswith(task_prefix):
@@ -203,20 +205,144 @@ def _collect_attempt_activity(attempt: Attempt) -> tuple[timedelta, timedelta, i
     )
 
 
-async def _get_task_cached(task_unique_name: str, task_cache: dict[str, object]):
-    cached_task = task_cache.get(task_unique_name)
-    if cached_task is not None:
-        return cached_task
-    cached_task = await database.get_task(task_unique_name)
-    task_cache[task_unique_name] = cached_task
-    return cached_task
+async def _preload_task_cache(task_unique_names: set[str]) -> dict[str, dict]:
+    """Fetch all referenced tasks in one batch query.
+
+    Returns a dict mapping task_id → raw MongoDB document for fast lookups.
+    """
+    if not task_unique_names:
+        return {}
+    tasks = await database.db["tasks"].find(
+        {"task_id": {"$in": list(task_unique_names)}}
+    ).to_list(length=None)
+    return {t["task_id"]: t for t in tasks}
 
 
-async def collect_study_metrics() -> StudyMetricsResponse:
-    enrollments = await CourseEnrollment.find().to_list()
+def _task_attr(task: dict | None, attr: str, default=""):
+    """Safely read an attribute from a task dict or Beanie object."""
+    if task is None:
+        return default
+    if isinstance(task, dict):
+        return task.get(attr, default)
+    return getattr(task, attr, default)
+
+
+# ── Metrics response cache ───────────────────────────────────────────
+
+_metrics_cache: dict = {"response": None, "timestamp": 0.0, "ttl": 300.0}
+
+
+def _metrics_cache_get() -> StudyMetricsResponse | None:
+    if _metrics_cache["response"] is not None:
+        if time.monotonic() - _metrics_cache["timestamp"] < _metrics_cache["ttl"]:
+            return _metrics_cache["response"]
+    return None
+
+
+def _metrics_cache_set(response: StudyMetricsResponse) -> None:
+    _metrics_cache["response"] = response
+    _metrics_cache["timestamp"] = time.monotonic()
+
+
+def _metrics_cache_invalidate() -> None:
+    _metrics_cache["response"] = None
+    _metrics_cache["timestamp"] = 0.0
+
+
+async def collect_study_metrics(
+    from_date: datetime | None = None,
+    to_date: datetime | None = None,
+    force_refresh: bool = False,
+) -> StudyMetricsResponse:
+    """Collect per-enrollment study metrics.
+
+    Parameters
+    ----------
+    from_date / to_date : Optional[datetime]
+        Filter submissions, feedback, and runs to this time window.
+    force_refresh : bool
+        Bypass the 5‑minute response cache.
+    """
+    if not force_refresh:
+        cached = _metrics_cache_get()
+        if cached is not None:
+            return cached
+
+    # ── 1. Fetch all data in 6 parallel queries (not N×6) ──────────
+    (
+        enrollments,
+        all_users,
+        all_attempts,
+        all_tested,
+        all_feedback,
+        all_runs,
+    ) = await asyncio.gather(
+        CourseEnrollment.find().to_list(),
+        User.find().to_list(),
+        Attempt.find().to_list(),
+        Tested_Submission.find().to_list(),
+        Evaluated_feedback_submission.find().to_list(),
+        Evaluated_run_code_submission.find().to_list(),
+    )
+
+    # ── 2. Build lookup indexes ────────────────────────────────────
+    users_by_id: dict[str, User] = {str(u.id): u for u in all_users}
+
+    attempts_by_key: dict[tuple[str, str], list[Attempt]] = defaultdict(list)
+    for a in all_attempts:
+        attempts_by_key[(str(a.user_id), a.course_unique_name)].append(a)
+
+    tested_by_key: dict[tuple[str, str], list[Tested_Submission]] = defaultdict(list)
+    for ts in all_tested:
+        if from_date and ts.submission_time:
+            parsed = _parse_timestamp(ts.submission_time)
+            if parsed and parsed < from_date:
+                continue
+        if to_date and ts.submission_time:
+            parsed = _parse_timestamp(ts.submission_time)
+            if parsed and parsed > to_date:
+                continue
+        tested_by_key[(str(ts.user_id), ts.course_unique_name)].append(ts)
+
+    feedback_by_key: dict[tuple[str, str], list[Evaluated_feedback_submission]] = defaultdict(list)
+    for fb in all_feedback:
+        if from_date and fb.submission_time:
+            parsed = _parse_timestamp(fb.submission_time)
+            if parsed and parsed < from_date:
+                continue
+        if to_date and fb.submission_time:
+            parsed = _parse_timestamp(fb.submission_time)
+            if parsed and parsed > to_date:
+                continue
+        feedback_by_key[(str(fb.user_id), fb.course_unique_name)].append(fb)
+
+    runs_by_key: dict[tuple[str, str], list[Evaluated_run_code_submission]] = defaultdict(list)
+    for r in all_runs:
+        if from_date and r.submission_time:
+            parsed = _parse_timestamp(r.submission_time)
+            if parsed and parsed < from_date:
+                continue
+        if to_date and r.submission_time:
+            parsed = _parse_timestamp(r.submission_time)
+            if parsed and parsed > to_date:
+                continue
+        runs_by_key[(str(r.user_id), r.course_unique_name)].append(r)
+
+    # ── 3. Preload task cache from all referenced task names ────────
+    all_task_names: set[str] = set()
+    for a in all_attempts:
+        all_task_names.add(a.task_unique_name)
+    for ts in all_tested:
+        all_task_names.add(ts.task_unique_name)
+    for fb in all_feedback:
+        all_task_names.add(fb.task_unique_name)
+    for r in all_runs:
+        all_task_names.add(r.task_unique_name)
+    task_cache = await _preload_task_cache(all_task_names)
+
+    # ── 4. Compute per-enrollment metrics ───────────────────────────
     rows: list[StudyMetricsRow] = []
     participant_ids: set[str] = set()
-    task_cache: dict[str, object] = {}
 
     summary_totals = {
         "tasks_attempted": 0,
@@ -243,33 +369,16 @@ async def collect_study_metrics() -> StudyMetricsResponse:
     }
 
     for enrollment in enrollments:
-        try:
-            user = await User.get(PydanticObjectId(enrollment.user_id))
-        except Exception:
+        user = users_by_id.get(str(enrollment.user_id))
+        if user is None:
             continue
-
         participant_ids.add(str(user.id))
+        key = (str(user.id), enrollment.course_unique_name)
 
-        attempts = await Attempt.find(
-            Attempt.user_id == str(user.id),
-            Attempt.course_unique_name == enrollment.course_unique_name,
-        ).to_list()
-        tested_submissions = await Tested_Submission.find(
-            Tested_Submission.user_id == user.id,
-            Tested_Submission.course_unique_name == enrollment.course_unique_name,
-        ).to_list()
-        feedback_submissions = await Evaluated_feedback_submission.find(
-            {
-                "user_id": user.id,
-                "course_unique_name": enrollment.course_unique_name,
-            }
-        ).to_list()
-        run_submissions = await Evaluated_run_code_submission.find(
-            {
-                "user_id": user.id,
-                "course_unique_name": enrollment.course_unique_name,
-            }
-        ).to_list()
+        attempts = attempts_by_key.get(key, [])
+        tested_submissions = tested_by_key.get(key, [])
+        feedback_submissions = feedback_by_key.get(key, [])
+        run_submissions = runs_by_key.get(key, [])
 
         total_duration = timedelta(0)
         attempt_sessions = 0
@@ -310,7 +419,7 @@ async def collect_study_metrics() -> StudyMetricsResponse:
                     latest_activity_candidates.append(parsed_time)
 
             if attempt.current_state.strip() != "":
-                task = await _get_task_cached(attempt.task_unique_name, task_cache)
+                task = task_cache.get(attempt.task_unique_name)
                 max_code_complexity = max(
                     max_code_complexity,
                     _estimate_cyclomatic_complexity(_compose_task_code(task, attempt.current_state)),
@@ -343,7 +452,7 @@ async def collect_study_metrics() -> StudyMetricsResponse:
                 continue
             if submission.valid_solution:
                 completion_times_by_task[submission.task_unique_name].append(parsed_time)
-            task = await _get_task_cached(submission.task_unique_name, task_cache)
+            task = task_cache.get(submission.task_unique_name)
             follow_up_artifacts_by_task[submission.task_unique_name].append(
                 (parsed_time, _compose_task_code(task, submission.code))
             )
@@ -352,7 +461,7 @@ async def collect_study_metrics() -> StudyMetricsResponse:
             parsed_time = _parse_timestamp(run_submission.submission_time)
             if parsed_time is None:
                 continue
-            task = await _get_task_cached(run_submission.task_unique_name, task_cache)
+            task = task_cache.get(run_submission.task_unique_name)
             follow_up_artifacts_by_task[run_submission.task_unique_name].append(
                 (parsed_time, _compose_task_code(task, run_submission.code))
             )
@@ -376,7 +485,7 @@ async def collect_study_metrics() -> StudyMetricsResponse:
             if "```" not in feedback_submission.feedback:
                 continue
 
-            task = await _get_task_cached(task_unique_name, task_cache)
+            task = task_cache.get(task_unique_name)
             suggested_code = _compose_task_code(task, parse_code_response(feedback_submission.feedback))
             normalized_suggested_code = _normalize_code(suggested_code)
             if normalized_suggested_code == "":
@@ -502,4 +611,6 @@ async def collect_study_metrics() -> StudyMetricsResponse:
         ai_exact_acceptance_rate=ai_exact_acceptance_rate,
         average_ai_modification_distance=average_ai_modification_distance,
     )
-    return StudyMetricsResponse(summary=summary, rows=rows)
+    response = StudyMetricsResponse(summary=summary, rows=rows)
+    _metrics_cache_set(response)
+    return response

@@ -2,17 +2,25 @@ FROM python:3.11
 
 WORKDIR /app
 
-COPY ./requirements.txt /app/requirements.txt
+# Install uv for fast, reproducible dependency installs
+RUN pip install uv
 
-#ENV ITS_ENV=production
+# Enable bytecode compilation for faster startup
+ENV UV_COMPILE_BYTECODE=1
+# Use copy mode for Docker (avoid hardlinks across layers)
+ENV UV_LINK_MODE=copy
 
-RUN apt-get update \
-    && apt-get clean
+# Copy dependency files first for Docker layer caching
+COPY pyproject.toml uv.lock ./
 
-RUN pip install -r /app/requirements.txt \
-    && rm -rf /root/.cache/pip
+# Install dependencies into a virtual env (cached layer)
+RUN uv sync --frozen --no-install-project
 
+# Copy application source
 COPY . /app/
 
-#CMD ["uvicorn", "main:app", "--host=0.0.0.0", "--port=80"]
-#CMD ["python", "main.py"]
+# Install the project itself
+RUN uv sync --frozen
+
+# Put the venv Python on PATH so compose's "python main.py" picks it up
+ENV PATH="/app/.venv/bin:$PATH"

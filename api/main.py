@@ -40,6 +40,13 @@ from asyncio import run
 
 REQUEST_TIMEOUT_ERROR = 45  # Threshold
 
+# Created at module level so all uvicorn worker processes can access it on import
+db_connection_beanie = db_connector_beanie.database(
+    database_host=config.database_host,
+    database_user=config.database_usr,
+    database_pwd=config.database_pwd,
+)
+
 
 #Api prefix
 prefix = "/api"
@@ -194,11 +201,9 @@ async def initialize_global_accounts_list(database):
     return args """
 
 if __name__ == "__main__":
-    database_host = config.database_host
-    db_connection_beanie = db_connector_beanie.database(database_host=database_host, 
-                                                        database_user=config.database_usr, database_pwd=config.database_pwd)
-
-    uvicorn.run(app, host="0.0.0.0", port=8000, )
+    import os as _os
+    workers = int(_os.environ.get("UVICORN_WORKERS", "1"))
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, workers=workers)
 
 
 # -- SPA static file serving (standalone Docker image) --

@@ -1,0 +1,5 @@
+{
+    "arguments": {
+        "my_name": {"example": "'Max'", "type": "str"}
+    }
+}

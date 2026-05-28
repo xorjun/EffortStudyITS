@@ -1,18 +1,104 @@
 <div class="course-selection-container">
-    <h2 class="title-course-selection"> Please select a course</h2>
-    <ul class="styled-list">
-    <li 
-        class="course-list-element" 
-        *ngFor="let course of courses"
-        (click)="selectCourse(course.unique_name)"
-        >{{ course.display_name }}</li>
-    </ul>
-    <p *ngIf="roles.includes('admin') || roles.includes('tutor')">
-        Upload new Course (.zip):
-        <input type="file" class="file-upload" (change)="onCourseFolderSelected($any($event).target)">
-        <br>
-        <mat-checkbox [checked]="upload_overwrite" (change)="onForceUpload($event)">
-            Overwrite course settings and parameters on upload.
+  <!-- Enrolled Courses Section -->
+  <mat-card class="course-section-card enrolled-card" *ngIf="enrolledCourses.length > 0">
+    <mat-card-header>
+      <mat-card-title>Enrolled Courses</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div class="list-container">
+        <mat-list class="course-list">
+          <mat-list-item *ngFor="let course of enrolledCourses; let last = last" class="course-list-item enrolled-item">
+            <span class="course-text">{{ course.display_name }}</span>
+            <button 
+              mat-icon-button 
+              color="primary" 
+              (click)="selectCourse(course.unique_name)"
+              matTooltip="Access course"
+              matTooltipPosition="left">
+              <mat-icon>login</mat-icon>
+            </button>
+            <mat-divider *ngIf="!last"></mat-divider>
+          </mat-list-item>
+        </mat-list>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Available Courses Section -->
+  <mat-card class="course-section-card available-card">
+    <mat-card-header>
+      <mat-card-title>Available Courses</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <!-- Search Bar -->
+      <mat-form-field class="search-field" appearance="outline">
+        <mat-label>Search courses</mat-label>
+        <input matInput [(ngModel)]="searchQuery" (ngModelChange)="onSearchChange()" placeholder="Search by name...">
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <!-- Available Courses List -->
+      <div class="list-container" *ngIf="filteredAvailableCourses.length > 0">
+        <mat-list class="course-list">
+          <mat-list-item *ngFor="let course of filteredAvailableCourses; let last = last" class="course-list-item available-item">
+            <span class="course-text">{{ course.display_name }}</span>
+            <button 
+              mat-icon-button 
+              color="accent" 
+              (click)="enrollInCourse(course.unique_name)"
+              matTooltip="Enroll in course"
+              matTooltipPosition="left">
+              <mat-icon>add_circle</mat-icon>
+            </button>
+            <mat-divider *ngIf="!last"></mat-divider>
+          </mat-list-item>
+        </mat-list>
+      </div>
+      
+      <p *ngIf="filteredAvailableCourses.length === 0 && availableCourses.length > 0" class="no-results">
+        No courses match your search.
+      </p>
+      <p *ngIf="availableCourses.length === 0" class="no-results">
+        No courses available for enrollment.
+      </p>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Admin/Upload Section -->
+  <mat-card class="course-section-card admin-card" *ngIf="roles.includes('admin') || roles.includes('tutor')">
+    <mat-card-header>
+      <mat-icon mat-card-avatar color="primary">admin_panel_settings</mat-icon>
+      <mat-card-title>Course Administration</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content class="admin-content">
+      <div class="admin-row">
+        <button 
+          mat-stroked-button 
+          color="primary" 
+          class="upload-button"
+          (click)="fileInput.click()"
+          matTooltip="Upload course from .zip file">
+          <mat-icon>cloud_upload</mat-icon>
+          Upload Course
+        </button>
+        <input 
+          type="file" 
+          #fileInput 
+          class="file-input-hidden" 
+          accept=".zip"
+          (change)="onCourseFolderSelected($any($event).target)">
+        
+        <mat-checkbox 
+          [checked]="upload_overwrite" 
+          (change)="onForceUpload($event)" 
+          color="primary"
+          class="overwrite-checkbox">
+          <span class="checkbox-label">Overwrite existing course settings and parameters.</span>
         </mat-checkbox>
-    </p>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>

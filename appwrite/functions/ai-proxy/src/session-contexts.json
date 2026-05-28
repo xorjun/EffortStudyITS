@@ -1,0 +1,10 @@
+{
+  "1": {
+    "title": "Session 1 tutor context",
+    "context": "The learner is in day 1. Prioritize orientation, code reading, decomposition, and debugging guidance over direct implementation."
+  },
+  "2": {
+    "title": "Session 2 tutor context",
+    "context": "The learner is in day 2. Prioritize transfer, comparison of approaches, error diagnosis, and concise hints that keep ownership with the learner."
+  }
+}

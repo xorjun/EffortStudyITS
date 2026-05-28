@@ -1,0 +1,136 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://its.techfak.de/course_schema.json",
+    "title": "Course",
+    "description": "A course in the ITS system provided by a teacher.",
+    "type": "object",
+    "properties": {
+        "unique_name": {
+            "type": "string",
+            "minLength": 1,
+            "default": "{course directory}"
+        },
+        "display_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "default": "{unique_name}"
+        },
+        "visibility": {
+            "type": "string",
+            "enum": [
+                "student",
+                "tutor",
+                "admin"
+            ],
+            "default": "student"
+        },
+        "domain": {
+            "type": "string",
+            "minLength": 1,
+            "default": "Unknown"
+        },
+        "curriculum": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+            }
+        },
+        "mandatory_curriculum": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        },
+        "default_topic": {
+            "type": "string",
+            "minLength": 1
+        },
+        "course_parameters": {
+            "type": "object",
+            "description": "Parameters of the course, such as for A/B-testing or learned PFA parameters.",
+            "properties": {
+                "skill_weights_pfa": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "minItems": 1
+                }
+            },
+            "additionalProperties": true,
+            "minItems": 1,
+            "uniqueItems": true
+        },
+        "course_settings": {
+            "type": "object",
+            "description": "The Course's settings in relevance to functional settings like pedgogical- or language-model settings.",
+            "properties": {
+                "feedback_init_time": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "feedback_cooldown": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "pedagogical_model": {
+                    "type": "string",
+                    "default": "default"
+                },
+                "language_generation_model": {
+                    "type": "string",
+                    "default": "default"
+                }
+            },
+            "additionalProperties": true,
+            "minItems": 1,
+            "uniqueItems": true
+        },
+        "competencies": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        },
+        "q_matrix": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "array",
+                "items": {
+                    "enum": [
+                        0,
+                        1
+                    ]
+                },
+                "minItems": 1
+            },
+            "minProperties": 1
+        },
+        "introduction": {
+            "type": "string",
+            "description": "Markdown text shown to students as a course introduction page before they start any tasks."
+        }
+    },
+    "required": [
+        "curriculum"
+    ],
+    "additionalProperties": false,
+    "dependentRequired": {
+        "competencies": [
+            "q_matrix"
+        ],
+        "q_matrix": [
+            "competencies"
+        ]
+    }
+}

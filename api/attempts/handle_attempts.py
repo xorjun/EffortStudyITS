@@ -1,8 +1,8 @@
 from fastapi import APIRouter
 from fastapi import Depends
-from attempts.schemas import Attempt, AttemptState, NestedAttemptState
+from attempts.schemas import Attempt, AttemptState, ClipboardEvent, ClipboardTelemetry, NestedAttemptState
 from users.schemas import User
-from users.handle_users import current_active_verified_user
+from users.handle_users import current_active_verified_user, user_has_data_collection_consent
 from db import database
 from beanie import PydanticObjectId
 from datetime import datetime, timedelta, timezone
@@ -15,10 +15,56 @@ from attempts.exceptions import EditorFileSizeException
 router = APIRouter(prefix="/attempt")
 
 
+def _current_timestamp_dict() -> dict:
+    local_now = datetime.now().astimezone()
+    utc_now = local_now.astimezone(timezone.utc)
+    return {
+        "local": local_now.strftime("%d.%m.%Y %H:%M:%S.%f"),
+        "utc": utc_now.strftime("%d.%m.%Y %H:%M:%S.%f"),
+    }
+
+
+def _seed_state_log_from_current_state(attempt: Attempt) -> bool:
+    if len(attempt.state_log or []) > 0:
+        return False
+    if attempt.current_state.strip() == "":
+        return False
+
+    diff = get_diff("", ([-1, attempt.current_state],))
+    storage_diff = [transform_edit(edit) for edit in diff]
+    attempt.state_log.append(
+        AttemptState(
+            state_datetime=_current_timestamp_dict(),
+            diff=storage_diff,
+            submission_id="",
+        )
+    )
+    return True
+
+
+@router.post("/clipboard_event")
+async def log_clipboard_event(event: ClipboardTelemetry, user: User = Depends(current_active_verified_user)):
+    attempt = await database.get_attempt(event.attempt_id)
+    if attempt.user_id != str(user.id):
+        raise HTTPException(403, "Attempt does not belong to the current user.")
+    if user_has_data_collection_consent(user):
+        attempt.clipboard_log.append(
+            ClipboardEvent(
+                action=event.action,
+                blocked=event.blocked,
+                event_datetime=event.event_datetime,
+            )
+        )
+        await database.update_attempt(attempt)
+    return {"response": "Clipboard event logged"}
+
+
 @router.get("/get_state/{task_unique_name}")
 async def get_attempt_state(task_unique_name, user: User = Depends(current_active_verified_user)):
-    attempt = await database.find_attempt(task_unique_name, user.id, user.current_course)
-    if attempt is None:
+    try:
+        attempt = await database.find_attempt(task_unique_name, user.id, user.current_course)
+    except ValueError as err:
+        print(err)
         attempt = Attempt(user_id = str(user.id), task_unique_name=task_unique_name, state_log=[], 
                           course_unique_name=user.current_course, current_state="",
                           start_time_list=[datetime.now().astimezone(timezone.utc).strftime("%d.%m.%Y %H:%M:%S")], 
@@ -31,17 +77,19 @@ async def get_attempt_state(task_unique_name, user: User = Depends(current_activ
             tasks_attempted.append(task_unique_name)
         await database.update_course_enrollment(course_enrollment, {"tasks_attempted": tasks_attempted})
         return({"attempt_id": str(attempt.id), "code": ""})
-    else:
-        logged_current_state = attempt.current_state
-        attempt.start_time_list.append(datetime.now().astimezone(timezone.utc).strftime("%d.%m.%Y %H:%M:%S"))
-        attempt.duration_list.append(str(timedelta(0)))
-        await database.update_attempt(attempt)
-        if user.settings["dataCollection"] == True:
-            compiled_current_state = compile_state_log("", attempt.state_log)
-            if compiled_current_state.strip() != logged_current_state.strip():
-                state = f"\nA problem occured. We are not sure what your last state is.\nWe have compiled the following state:\n{compiled_current_state}\n but logged the following:\n{logged_current_state}"
-                return({"attempt_id": str(attempt.id), "code": state})
-        return({"attempt_id": str(attempt.id), "code": logged_current_state})
+
+    logged_current_state = attempt.current_state
+    attempt.start_time_list.append(datetime.now().astimezone(timezone.utc).strftime("%d.%m.%Y %H:%M:%S"))
+    attempt.duration_list.append(str(timedelta(0)))
+    if user_has_data_collection_consent(user):
+        _seed_state_log_from_current_state(attempt)
+    await database.update_attempt(attempt)
+    if user_has_data_collection_consent(user):
+        compiled_current_state = compile_state_log("", attempt.state_log)
+        if compiled_current_state.strip() != logged_current_state.strip():
+            state = f"\nA problem occured. We are not sure what your last state is.\nWe have compiled the following state:\n{compiled_current_state}\n but logged the following:\n{logged_current_state}"
+            return({"attempt_id": str(attempt.id), "code": state})
+    return({"attempt_id": str(attempt.id), "code": logged_current_state})
 
 
 def compile_state_log(previous_state, change_log: list[AttemptState]):
@@ -143,11 +191,12 @@ async def log_attempt_state(state: NestedAttemptState, user: User = Depends(curr
     attempt = await database.get_attempt(state.attempt_id)
     state.current_state =  "\n".join(state.current_state.splitlines())
     #TODO: Handle case where data collection settings are changed!
-    if user.settings["dataCollection"] == True:
+    if user_has_data_collection_consent(user):
         state.id = str(PydanticObjectId())
+        _seed_state_log_from_current_state(attempt)
         if len(attempt.state_log) > 0:
             previous_code = compile_state_log("", attempt.state_log)
-        else: 
+        else:
             previous_code = ""
         for i, code in enumerate(state.code_list):
             try:
@@ -159,7 +208,7 @@ async def log_attempt_state(state: NestedAttemptState, user: User = Depends(curr
             code_state = AttemptState(state_datetime=state.state_datetime_list[i], 
                                 diff=storage_diff,
                                 submission_id=submission_id)
-            if user.settings["dataCollection"] == True:
+            if user_has_data_collection_consent(user):
                 attempt.state_log.append(code_state)
             previous_code = apply_diff(previous_code, diff)
         if previous_code != state.current_state:

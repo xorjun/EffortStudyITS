@@ -1,10 +1,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormGroup, FormControl} from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormGroup, FormControl, ReactiveFormsModule} from '@angular/forms';
+import { StarRatingModule } from 'angular-star-rating';
 
 @Component({
-  selector: 'app-feedback-survey',
-  templateUrl: './feedback-survey.component.html',
-  styleUrls: ['./feedback-survey.component.css']
+    selector: 'app-feedback-survey',
+    templateUrl: './feedback-survey.component.html',
+    styleUrls: ['./feedback-survey.component.css'],
+    imports: [CommonModule, ReactiveFormsModule, StarRatingModule]
 })
 export class FeedbackSurveyComponent {
 

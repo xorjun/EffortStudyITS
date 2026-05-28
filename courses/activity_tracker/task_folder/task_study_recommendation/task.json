@@ -1,0 +1,5 @@
+{
+    "arguments": {
+        "total_minutes": {"example": "45", "type": "int"}
+    }
+}

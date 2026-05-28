@@ -8,6 +8,7 @@ from submissions.schemas import Base_Submission, Tested_Submission
 from tasks import handle_tasks
 from feedback import handle_feedback
 from courses import handle_courses
+from skills import handle_skills
 from surveys import handle_surveys
 from surveys.schemas import Survey
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,14 +28,13 @@ import time
 import asyncio
 from fastapi.responses import JSONResponse
 from starlette.status import HTTP_504_GATEWAY_TIMEOUT
-from system.schemas import AppSettings
+from system.schemas import AppSettings, FinalPreviewLink
 from feedback.schemas import Url
 from models.domain.skill_weights_pfa_update import update_skill_parameters
 from apscheduler.triggers.interval import IntervalTrigger  
 from apscheduler.schedulers.asyncio import AsyncIOScheduler  
 from contextlib import asynccontextmanager
 from asyncio import run
-from services.text_embedding.embedding_model_manager import embedding_model_manager
 
 
 
@@ -52,8 +52,8 @@ app = FastAPI(docs_url=f'{prefix}/docs',
 # Adding a middleware returning a 504 error if the request processing time is above a certain threshold
 @app.middleware("http")
 async def timeout_middleware(request: Request, call_next):
+    start_time = time.time()
     try:
-        start_time = time.time()
         return await asyncio.wait_for(call_next(request), timeout=REQUEST_TIMEOUT_ERROR)
 
     except asyncio.TimeoutError:
@@ -68,6 +68,7 @@ app.include_router(handle_tasks.router, prefix=f"{prefix}")
 app.include_router(handle_feedback.router, prefix=f"{prefix}")
 app.include_router(handle_attempts.router, prefix=f"{prefix}")
 app.include_router(handle_courses.router, prefix=f"{prefix}")
+app.include_router(handle_skills.router, prefix=f"{prefix}")
 app.include_router(handle_runs.router, prefix=f"{prefix}/run")
 app.include_router(retrieve_info.router, prefix=f"{prefix}/info")
 app.include_router(handle_settings.router, prefix=f"{prefix}/settings")
@@ -111,7 +112,7 @@ async def on_startup():
         document_models=[
             User, Base_Submission, Tested_Submission,
             Course, CourseInfo, CourseEnrollment, CourseSelection, CourseSettings,
-              Task, Attempt, AttemptState, NestedAttemptState, AppSettings, Url,
+                            Task, Attempt, AttemptState, NestedAttemptState, AppSettings, FinalPreviewLink, Url,
             user_schemas.GlobalAccountList, Survey, PackedStateSpace, PackedState
         ],
     )
@@ -129,13 +130,17 @@ async def on_startup():
 
 @app.on_event("shutdown")
 async def shutdown_event():
+    try:
+        from services.text_embedding.embedding_model_manager import embedding_model_manager
+    except ModuleNotFoundError:
+        return
     embedding_model_manager.cleanup()
 
 async def course_parameter_update():
     # TODO: schedule the updates of the course: exact timing not decided yet
     courses = await database.get_courses()
     for course in courses:
-        await model_manager.update_course_weights(course=course)
+        await course.trigger_model_update()
 
 
 origins = ["http://localhost:4200", "http://localhost:8080",
@@ -157,8 +162,24 @@ async def get_status():
 
 async def initialize_settings(database):
     #TODO: Enable initialization of settings via optional environment variables
-    settings = AppSettings(api_url="", api_key="", api_type="", email_whitelist=[".*"])
+    settings = AppSettings(
+        api_url=config.llm_api_url,
+        api_key=config.llm_api_key or None,
+        api_type=config.llm_api_type,
+        pedagogical_system_prompt="",
+        email_whitelist=[".*"],
+    )
     await database.create_settings(settings)
+    current_settings = await database.get_settings()
+    update_dict = {}
+    if not current_settings.api_type and config.llm_api_type:
+        update_dict["api_type"] = config.llm_api_type
+    if not current_settings.api_url and config.llm_api_url:
+        update_dict["api_url"] = config.llm_api_url
+    if not current_settings.api_key and config.llm_api_key:
+        update_dict["api_key"] = config.llm_api_key
+    if update_dict:
+        await database.update_settings(update_dict)
 
 async def initialize_global_accounts_list(database):
     global_accounts_list = user_schemas.GlobalAccountList(hashed_email_list=[])

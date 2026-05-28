@@ -1,0 +1,102 @@
+.banner-shell {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1000;
+  width: min(420px, calc(100vw - 32px));
+}
+
+.banner-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(18, 44, 52, 0.15);
+  background: linear-gradient(160deg, #fff9ef 0%, #f4fbff 100%);
+  box-shadow: 0 24px 60px rgba(18, 44, 52, 0.18);
+}
+
+.banner-blocking {
+  border-color: rgba(170, 82, 22, 0.4);
+}
+
+.banner-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.banner-eyebrow {
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: #7c6a3b;
+}
+
+.banner-header h3,
+.banner-message {
+  margin: 0;
+}
+
+.dismiss-button,
+.banner-actions button,
+.option-row button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: #123c45;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.dismiss-button {
+  background: rgba(18, 60, 69, 0.1);
+  color: #123c45;
+}
+
+.banner-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.banner-input {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.banner-input input,
+.banner-input textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(18, 60, 69, 0.18);
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.option-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.option-row .option-active {
+  background: #d96b1f;
+}
+
+.banner-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .banner-shell {
+    right: 16px;
+    left: 16px;
+    bottom: 16px;
+    width: auto;
+  }
+}

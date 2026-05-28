@@ -1,6 +1,6 @@
 #!function!#
 import math 
-def largest_perfect_square(numbers):
+def largest_perfect_square(numbers: list):
 #!prefix!#
     largest_square = None
 

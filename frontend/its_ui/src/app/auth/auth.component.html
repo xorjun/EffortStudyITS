@@ -1,100 +1,186 @@
-<div class="login-container" *ngIf="currentForm==='login'">
-  <div class="login-form">
-    <h2>Login</h2>
-    <input #loginUsername placeholder="Username" /><br />
-    <input #loginPassword type="password" placeholder="Password" /><br />
-    <div class="centered-button">
-      <button (click)="login(loginUsername.value, loginPassword.value)">Login</button>
-    </div>
-    <p>Don't have an account yet? You can <a (click)="setForm('register')"><u>register here!</u></a></p>
-    <p> <a (click)="setForm('forgot-pw')"><u>Forgot your password?</u></a> Request a reset-token using the reset key you
-      received on registration.</p>
-    <div class="impressum">
-      <p><a href="https://www.uni-bielefeld.de/impressum/">Impressum</a></p>
-    </div>
-  </div>
+<div class="auth-container" *ngIf="currentForm==='login'">
+  <mat-card class="auth-outer-card">
+    <mat-card-header>
+      <mat-card-title>Login</mat-card-title>
+    </mat-card-header>
+    
+    <form (ngSubmit)="login(loginUsername.value, loginPassword.value)">
+      <mat-card class="auth-card">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Username</mat-label>
+            <input matInput #loginUsername placeholder="Enter your username">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput #loginPassword type="password" placeholder="Enter your password">
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="auth-card">
+        <mat-card-content>
+          <div class="button-container">
+            <button mat-raised-button color="primary" type="submit" class="full-width-button">
+              Login
+            </button>
+          </div>
+
+          <p class="auth-text">Don't have an account yet? You can <a (click)="setForm('register')">register here!</a></p>
+          <p class="auth-text"><a (click)="setForm('forgot-pw')">Forgot your password?</a> Request a reset-token using the reset key you received on registration.</p>
+        </mat-card-content>
+        <mat-card-actions class="impressum-actions">
+          <button mat-button color="accent" type="button" (click)="showImprintPopup()">Impressum</button>
+        </mat-card-actions>
+      </mat-card>
+    </form>
+  </mat-card>
 </div>
 
-<div class="login-container" *ngIf="currentForm==='forgot-pw'">
-  <div class="login-form">
-    <h2>Forgot Password</h2>
-    <input #loginUsername placeholder="Username" /><br />
-    <input #verificationEmail placeholder="Email for verification" /><br />
-    <input #resetTokenKey placeholder="Reset key" /><br />
-    <div class="centered-button">
-      <button (click)="forgotPassword(loginUsername.value, resetTokenKey.value, verificationEmail.value)">Request
-        reset-token</button>
-    </div>
-    <p>Don't have an account yet? You can <a (click)="setForm('register')"><u>register here!</u></a></p>
-    <div class="impressum">
-      <p><a href="https://www.uni-bielefeld.de/impressum/">Impressum</a></p>
-    </div>
-  </div>
+<div class="auth-container" *ngIf="currentForm==='forgot-pw'">
+  <mat-card class="auth-outer-card">
+    <mat-card-header>
+      <mat-card-title>Forgot Password</mat-card-title>
+    </mat-card-header>
+    
+    <form (ngSubmit)="forgotPassword(loginUsername.value, resetTokenKey.value, verificationEmail.value)">
+      <mat-card class="auth-card">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Username</mat-label>
+            <input matInput #loginUsername placeholder="Enter your username">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email for verification</mat-label>
+            <input matInput #verificationEmail placeholder="Enter your email">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Reset key</mat-label>
+            <input matInput #resetTokenKey placeholder="Enter your reset key">
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="auth-card">
+        <mat-card-content>
+          <div class="button-container">
+            <button mat-raised-button color="primary" type="submit" class="full-width-button">
+              Request reset-token
+            </button>
+          </div>
+
+          <p class="auth-text">Don't have an account yet? You can <a (click)="setForm('register')">register here!</a></p>
+        </mat-card-content>
+        <mat-card-actions class="impressum-actions">
+          <button mat-button color="accent" type="button" (click)="showImprintPopup()">Impressum</button>
+        </mat-card-actions>
+      </mat-card>
+    </form>
+  </mat-card>
 </div>
 
-<div class="login-container" *ngIf="currentForm==='reset-pw'">
-  <div class="login-form">
-    <h2>Reset Password</h2>
-    <input #loginPassword type="password" placeholder="New Password" /><br />
-    <input #resetToken type="password" placeholder="Reset Token" /><br />
-    <div class="centered-button">
-      <button (click)="resetPassword(loginPassword.value, resetToken.value)">Reset Password</button>
-    </div>
-    <p>Don't have an account yet? You can <a (click)="setForm('register')"><u>register here!</u></a></p>
-    <div class="impressum">
-      <p><a href="https://www.uni-bielefeld.de/impressum/">Impressum</a></p>
-    </div>
-  </div>
+<div class="auth-container" *ngIf="currentForm==='reset-pw'">
+  <mat-card class="auth-outer-card">
+    <mat-card-header>
+      <mat-card-title>Reset Password</mat-card-title>
+    </mat-card-header>
+    
+    <form (ngSubmit)="resetPassword(loginPassword.value, resetToken.value)">
+      <mat-card class="auth-card">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>New Password</mat-label>
+            <input matInput #loginPassword type="password" placeholder="Enter new password">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Reset Token</mat-label>
+            <input matInput #resetToken type="password" placeholder="Enter your reset token">
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="auth-card">
+        <mat-card-content>
+          <div class="button-container">
+            <button mat-raised-button color="primary" type="submit" class="full-width-button">
+              Reset Password
+            </button>
+          </div>
+
+          <p class="auth-text">Don't have an account yet? You can <a (click)="setForm('register')">register here!</a></p>
+        </mat-card-content>
+        <mat-card-actions class="impressum-actions">
+          <button mat-button color="accent" type="button" (click)="showImprintPopup()">Impressum</button>
+        </mat-card-actions>
+      </mat-card>
+    </form>
+  </mat-card>
 </div>
 
-<div class="login-container" *ngIf="currentForm==='register'">
-  <div class="login-form">
-    <h2>Register</h2>
+<div class="auth-container" *ngIf="currentForm==='register'">
+  <mat-card class="auth-outer-card">
+    <mat-card-header>
+      <mat-card-title>Register</mat-card-title>
+    </mat-card-header>
+    
+    <form (ngSubmit)="register(email.value, registerUsername.value, registerPassword.value, consentRadioYes.checked)">
+      <mat-card class="auth-card">
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput #email placeholder="Enter your email">
+          </mat-form-field>
 
-    <input #email placeholder="Email" /><br />
-    <input #registerUsername placeholder="Username" /><br />
-    <input #registerPassword type="password" placeholder="Password" /><br />
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Username</mat-label>
+            <input matInput #registerUsername placeholder="Choose a username">
+          </mat-form-field>
 
-    <hr>
-    <div class="checkbox-container">
-      <div class="data-checkbox">
-        <p>
-          <input type="radio" id="radio-select-yes" name="consentRadio" #consentCheckboxYes />
-          <label for="radio-select-yes">Yes</label>
-        </p>
-        <p>
-          <input type="radio" id="radio-select-no" name="consentRadio" #consentCheckboxNo />
-          <label for="radio-select-no">No</label>
-        </p>
-      </div>
-      <label class="consent-label" for="data-checkbox">I consent to anonymized data collection for purely scientific
-        purposes.</label>
-    </div>
-    <div class="checkbox-info">
-      <div class="invisible-checkbox"></div>
-      <p>
-        <a (click)="showDataTermPopup()">Learn more about the data we gather and its potential uses.</a>
-      </p>
-      <app-data-terms-popup #dataTermsPopupComponent></app-data-terms-popup>
-    </div>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput #registerPassword type="password" placeholder="Choose a password">
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
 
-    <hr>
-    <div class="checkbox-container">
-      <div class="data-checkbox">
-        <p>
-          <input type="checkbox" id="privacy-checkbox" #privacyCheckbox>
-        </p>
-      </div>
-      <label class="consent-label">I have read and agree to the
-        <a (click)="showPrivacyPolicyPopup()">Privacy Policy</a>.</label>
-      <app-privacy-policy-popup #privacyPolicyPopupComponent></app-privacy-policy-popup>
-    </div>
+      <mat-card class="auth-card">
+        <mat-card-content>
+          <mat-divider class="consent-divider"></mat-divider>
 
-    <hr>
-    <div class="centered-button">
-      <button
-        (click)="register(email.value, registerUsername.value, registerPassword.value, consentCheckboxYes.checked)">Register</button>
-    </div>
-    <p>Do you already have an account? If so, you can <a (click)="setForm('login')"><u>login here!</u></a></p>
-  </div>
+          <div class="consent-section">
+            <p class="consent-label">I consent to anonymized data collection for purely scientific purposes.</p>
+            <mat-radio-group class="consent-radio-group" #consentRadioGroup>
+              <mat-radio-button value="yes" #consentRadioYes>Yes</mat-radio-button>
+              <mat-radio-button value="no" #consentRadioNo>No</mat-radio-button>
+            </mat-radio-group>
+            <p class="consent-info">
+              <a (click)="showDataTermPopup()">Learn more about the data we gather and its potential uses.</a>
+            </p>
+          </div>
+
+          <mat-divider class="consent-divider"></mat-divider>
+
+          <div class="consent-section">
+            <mat-checkbox #privacyCheckbox class="consent-checkbox">
+              I have read and agree to the <a (click)="showPrivacyPolicyPopup()">Privacy Policy</a>.
+            </mat-checkbox>
+          </div>
+
+          <mat-divider class="consent-divider"></mat-divider>
+
+          <div class="button-container">
+            <button mat-raised-button color="primary" type="submit" class="full-width-button">
+              Register
+            </button>
+          </div>
+
+          <p class="auth-text">Do you already have an account? If so, you can <a (click)="setForm('login')">login here!</a></p>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </mat-card>
 </div>

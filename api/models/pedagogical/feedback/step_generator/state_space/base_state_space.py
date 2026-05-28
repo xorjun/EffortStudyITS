@@ -115,7 +115,10 @@ class Base_state_space():
                 to_index = state_index_sequence[i+1]
                 adj_matrix[from_index, to_index] += 1
             #Self-loops for final state for generelisability
-            adj_matrix[to_index, to_index] += 1
+            try:
+                adj_matrix[to_index, to_index] += 1
+            except UnboundLocalError:
+                pass
         self.adj_matrix = adj_matrix
 
     def get_states(self):

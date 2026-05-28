@@ -1,5 +1,5 @@
 from models.pedagogical.feedback.base import Base_step_feedback_module
-from models.pedagogical.content_selection.base import Base_task_selector
+from models.pedagogical.content_selection.base_selector import Base_task_selector
 from users.schemas import User
 from submissions.schemas import Base_Submission
 
@@ -8,10 +8,10 @@ class Base_pedagogical_model():
 
     feedback_module: Base_step_feedback_module
     task_selector: Base_task_selector
-    feedback_methid: str = "Not provided!"
+    feedback_method: str = "Not provided!"
 
     #Outer Loop
-    async def select_task(self, user: User, topic: str = None):
+    async def select_task(self, user: User, topic: str | None = None):
         return await self.task_selector.select(user, topic)
     
     #Inner Loop

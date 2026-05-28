@@ -1,0 +1,5 @@
+{
+    "arguments": {
+        "my_list": {"example": "['elem',1,2,[3]]"}
+    }
+}

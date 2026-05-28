@@ -1,0 +1,13 @@
+{
+  "name": "its03-appwrite-functions",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "validate": "node ./scripts/validate-functions.mjs",
+    "deploy": "node ./scripts/deploy-functions.mjs"
+  },
+  "dependencies": {
+    "archiver": "^7.0.1",
+    "node-appwrite": "^17.0.0"
+  }
+}

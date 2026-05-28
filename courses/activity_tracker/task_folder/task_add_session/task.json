@@ -1,0 +1,7 @@
+{
+    "arguments": {
+        "sessions": {"example": "[]", "type": "list"},
+        "subject": {"example": "\"Mathematics\"", "type": "str"},
+        "duration_text": {"example": "\"45\"", "type": "str"}
+    }
+}

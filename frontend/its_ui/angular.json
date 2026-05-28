@@ -30,7 +30,7 @@
               }
             ],
             "styles": [
-              "src/styles.css",
+              "src/styles.scss",
               "node_modules/katex/dist/katex.min.css"
             ],
             "scripts": [
@@ -105,16 +105,16 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "staging": {
-              "browserTarget": "its_ui:build:staging"
+              "buildTarget": "its_ui:build:staging"
             },
             "production": {
-              "browserTarget": "its_ui:build:production"
+              "buildTarget": "its_ui:build:production"
             },
             "development": {
-              "browserTarget": "its_ui:build:development"
+              "buildTarget": "its_ui:build:development"
             },
             "development-docker": {
-              "browserTarget": "its_ui:build:staging"
+              "buildTarget": "its_ui:build:staging"
             }
           },
           "defaultConfiguration": "development"
@@ -122,7 +122,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "its_ui:build" 
+            "buildTarget": "its_ui:build"
           }
         },
         "test": {
@@ -143,7 +143,7 @@
               }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.scss"
             ],
             "scripts": []
           }

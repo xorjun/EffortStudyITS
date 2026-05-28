@@ -1,6 +1,6 @@
 #!function!#
 import numpy as np 
-def eigen_of_diagonal(matrix):
+def eigen_of_diagonal(matrix: np.ndarray):
 #!prefix!#
     # Extract the diagonal elements
     diagonal = np.diag(np.diag(matrix))

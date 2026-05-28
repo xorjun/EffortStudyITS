@@ -1,12 +1,18 @@
 import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { EventShareService } from '../shared/services/event-share.service';
 import { DatetimeService } from '../shared/services/datetime.service';
-
+import { MarkdownDialogService } from '../shared/services/markdown-dialog.service';
 import { environment } from 'src/environments/environment';
-import { DataTermsPopupComponent } from '../shared/components/data-terms-popup/data-terms-popup.component';
-import { PrivacyPolicyPopupComponent } from '../shared/components/privacy-policy-popup/privacy-policy-popup.component'
-import { timeout } from 'rxjs';
+import { MatCardModule } from '@angular/material/card';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatRadioModule, MatRadioButton } from '@angular/material/radio';
+import { MatCheckboxModule, MatCheckbox } from '@angular/material/checkbox';
+import { MatDividerModule } from '@angular/material/divider';
 
 interface AuthResponse {
   message: string;
@@ -14,26 +20,28 @@ interface AuthResponse {
 }
 
 @Component({
-  selector: 'app-auth',
-  templateUrl: './auth.component.html',
-  styleUrls: ['./auth.component.css']
+    selector: 'app-auth',
+    templateUrl: './auth.component.html',
+    styleUrls: ['./auth.component.css'],
+    imports: [CommonModule, FormsModule, MatCardModule, MatInputModule, MatButtonModule, MatFormFieldModule, MatRadioModule, MatCheckboxModule, MatDividerModule]
 })
 
 export class AuthComponent {
 
-  @ViewChild('dataTermsPopupComponent', {static: false}) dataTermsPopupComponent!: DataTermsPopupComponent;
-  @ViewChild('privacyPolicyPopupComponent', {static: false}) privacyPolicyPopupComponent!: PrivacyPolicyPopupComponent;
-  @ViewChild('consentCheckboxYes', {static: false}) consentCheckboxYes!: ElementRef;
-  @ViewChild('consentCheckboxNo', {static: false}) consentCheckboxNo!: ElementRef;
-  @ViewChild('privacyCheckbox', {static: false}) privacyCheckbox!: ElementRef;
+  @ViewChild('consentRadioYes', {static: false}) consentRadioYes!: MatRadioButton;
+  @ViewChild('consentRadioNo', {static: false}) consentRadioNo!: MatRadioButton;
+  @ViewChild('privacyCheckbox', {static: false}) privacyCheckbox!: MatCheckbox;
   
-  //showDataTermPopup: boolean = false;
   showDataTermPopup() {
-    this.dataTermsPopupComponent!.showPopup();
+    this.markdownDialogService.openDataTerms();
   }
 
   showPrivacyPolicyPopup() {
-    this.privacyPolicyPopupComponent!.showPopup();
+    this.markdownDialogService.openPrivacyPolicy();
+  }
+
+  showImprintPopup() {
+    this.markdownDialogService.openImprint();
   }
 
   apiUrl = environment.apiUrl;
@@ -44,21 +52,21 @@ export class AuthComponent {
 
   currentForm: string = "login";
 
-  constructor(private http: HttpClient,
-              private eventShareService: EventShareService,
-              private datetimeService: DatetimeService) {}
+  constructor(
+    private http: HttpClient,
+    private eventShareService: EventShareService,
+    private datetimeService: DatetimeService,
+    private markdownDialogService: MarkdownDialogService
+  ) {}
 
   login(username: string, password: string): void {
-    // unfortunatley, the fastapi-users package requres logins to be FormData and not JSON.
     const formData = new FormData()
-    formData.append('username', `${username}@anonym.de`); //At some later point we may want to prefer e-mail based login
+    formData.append('username', `${username}@anonym.de`);
     formData.append('password', password);
 
     this.http.post<any>(`${this.apiUrl}/auth/jwt/login`, formData, { withCredentials: true}).subscribe(
       () => {
-          // Handle successful login
           this.loginStatus = "loggedIn";
-          //Find if user is verified.
           this.http.get<any>(`${this.apiUrl}/users/me`, {"withCredentials": true}).subscribe(
             (data)  => {
             const isVerified = data.is_verified;
@@ -93,19 +101,18 @@ export class AuthComponent {
   }
 
   register(email: string, username: string, password: string, dataCollectionConsent: boolean): void {
-    if(!this.consentCheckboxNo.nativeElement.checked && !this.consentCheckboxYes.nativeElement.checked){
+    if(!this.consentRadioNo.checked && !this.consentRadioYes.checked){
       window.alert("Please select (Yes/No) whether we can use your data for scientific purposes.")
       return;
     }
 
-    if(!this.privacyCheckbox.nativeElement.checked){
+    if(!this.privacyCheckbox.checked){
       window.alert("Please acknowledge the Privacy Policy to proceed.")
       return;
     }
 
     const body = {"username": username,
                   "verification_email": email,
-                  // email has to be a "dummy" as of the requirements of the fastapi-users module.
                   "email": `${username}@anonym.de`,
                   "password": password,
                   "enrolled_courses": [],
@@ -115,7 +122,6 @@ export class AuthComponent {
                 };
     this.http.post<AuthResponse>(`${environment.apiUrl}/auth/register`, body).subscribe(
       response => {
-          // Handle successful registration
           this.request_verify(username, false);
       },
       error => {
@@ -183,7 +189,6 @@ export class AuthComponent {
     this.http.get<any>(`${this.apiUrl}/users/me`, {withCredentials: true}).subscribe(
       (data) => {
         const settings = data.settings
-        //for (var key in Object.keys(settings)) {
           for (const key in settings) {
             sessionStorage.setItem(key, settings[key]);
         }

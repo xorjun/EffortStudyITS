@@ -1,4 +1,4 @@
 #!function!#
-def square(x):
+def square(x: float):
 #!prefix!#
     return(x**2)

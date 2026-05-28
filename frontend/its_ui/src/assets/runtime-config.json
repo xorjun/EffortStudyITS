@@ -1,0 +1,23 @@
+{
+  "appwrite": {
+    "endpoint": "https://cloud.appwrite.io/v1",
+    "projectId": "69f428890006458b8889",
+    "databaseId": "study_db",
+    "downloadBucketId": "download_zips",
+    "adminTeamId": "admins",
+    "functions": {
+      "authInit": "auth-init",
+      "sessionStart": "session-start",
+      "sessionComplete": "session-complete",
+      "generateSurveyUrl": "generate-survey-url",
+      "aiProxy": "ai-proxy",
+      "checkBanners": "check-banners",
+      "submitBannerResponse": "submit-banner-response",
+      "listBanners": "list-banners",
+      "saveBanner": "save-banner",
+      "deleteBanner": "delete-banner",
+      "exportParticipants": "export-participants",
+      "exportBannerResponses": "export-banner-responses"
+    }
+  }
+}

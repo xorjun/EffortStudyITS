@@ -8,6 +8,7 @@
           <app-settings-element *ngIf="formGroupArray.length > 0" setting="sample_settings" [form]="settingsForm"></app-settings-element>
           <app-settings-element setting="pedagogical_model" [form]="settingsForm"></app-settings-element>
           <app-settings-element setting="language_generation_model" [form]="settingsForm"></app-settings-element>
+          <app-settings-element setting="ai_assistance_mode" [form]="settingsForm"></app-settings-element>
           <app-settings-element setting="visibility" [form]="settingsForm"></app-settings-element>
           <p>
             Update Task-files (.zip):
@@ -42,6 +43,8 @@
                value="pedagogical_model">Pedagogical Model</option>
             <option *ngIf='!courseSettingsList[id+1].hasOwnProperty("language_generation_model")'
                value="language_generation_model">Language generation Model</option>
+            <option *ngIf='!courseSettingsList[id+1].hasOwnProperty("ai_assistance_mode")'
+              value="ai_assistance_mode">AI Assistance Mode</option>
           </select>
         </div>
       </div>

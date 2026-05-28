@@ -2,7 +2,8 @@
 
     <h1>Admin Settings</h1>
 
-    <div class="settings-form">
+    <div class="settings-section settings-form">
+        <h2>Pedagogical LLM and Access Settings</h2>
         <form [formGroup]="settingsForm">
 
         <p>
@@ -11,6 +12,7 @@
                   <select  formControlName="api_type">
                     <option value="ollama">Ollama</option>
                     <option value="open-ai">Open-AI</option>
+                                        <option value="mistral">Mistral</option>
                 </select>
             
             </p>
@@ -27,16 +29,417 @@
             </p>
 
             <p>
+                Pedagogical system prompt:
+                <textarea formControlName="pedagogical_system_prompt" rows="6" placeholder="Optional additional tutor instructions for pedagogical AI hints and explanations."></textarea>
+            </p>
+            <p class="settings-hint prompt-hint">
+                This text is appended to the built-in pedagogical system prompt before hint generation, so you can steer the Mistral tutor behavior without replacing the default guardrails.
+            </p>
+
+            <p>
                 Email-whitelist:
                 <input formControlName="email_whitelist">
+            </p>
+
+            <div class="toggle-row">
+                <label for="disable-editor-copy-paste">Disable copy, cut, and paste in the code playground</label>
+                <input id="disable-editor-copy-paste" type="checkbox" formControlName="disable_editor_copy_paste">
+            </div>
+            <p class="settings-hint">
+                When enabled, clipboard shortcuts and clipboard events are blocked in the editable Monaco code field for all learners.
+            </p>
+
+            <div class="toggle-row">
+                <label for="live-preview-mode">Enable live preview mode for admins</label>
+                <input id="live-preview-mode" type="checkbox" formControlName="live_preview_mode">
+            </div>
+            <p class="settings-hint">
+                When enabled, admins open courses from the first curriculum task and advance through the local task order instead of being sent straight to the completed-course showcase.
+            </p>
+
+            <p>
+                Final preview link TTL (minutes):
+                <input formControlName="final_preview_link_ttl_minutes" type="number" min="5" max="1440">
+            </p>
+            <p class="settings-hint">
+                Controls how long the temporary final-app preview link stays valid after the learner completes the course.
             </p>
 
         </form>
 
     </div>
 
+    <div class="settings-section metrics-section">
+        <div class="section-header">
+            <h2>Study Metrics</h2>
+            <button type="button" (click)="loadMetrics()">Refresh Metrics</button>
+        </div>
+
+        <p class="settings-hint">
+            This section focuses on the study metrics this platform can actually support: clipboard interactions, estimated active versus idle time, code snapshots, run and submission failures, code complexity, and AI-hint follow-up behavior. Prompt iteration is intentionally omitted because learners currently request one-click hints instead of writing their own prompts.
+        </p>
+
+        <div class="metrics-groups" *ngIf="metricsSummary as summary">
+            <section class="metrics-group">
+                <h3>Overview</h3>
+                <div class="metrics-summary">
+                    <div class="summary-card">
+                        <span class="summary-label">Participants</span>
+                        <span class="summary-value">{{ summary.participants }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Enrollments</span>
+                        <span class="summary-value">{{ summary.enrollments }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Attempt Sessions</span>
+                        <span class="summary-value">{{ summary.attempt_sessions }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Logged Minutes</span>
+                        <span class="summary-value">{{ summary.total_logged_minutes | number:'1.0-1' }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">AI Hint Requests</span>
+                        <span class="summary-value">{{ summary.feedback_requests }}</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="metrics-group">
+                <h3>Behavior &amp; Integrity</h3>
+                <div class="metrics-summary">
+                    <div class="summary-card">
+                        <span class="summary-label">Clipboard Events</span>
+                        <span class="summary-value">{{ summary.clipboard_events }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Paste Events</span>
+                        <span class="summary-value">{{ summary.paste_events }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Blocked Clipboard</span>
+                        <span class="summary-value">{{ summary.blocked_clipboard_events }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Estimated Active Min</span>
+                        <span class="summary-value">{{ summary.active_logged_minutes | number:'1.0-1' }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Estimated Idle Min</span>
+                        <span class="summary-value">{{ summary.idle_logged_minutes | number:'1.0-1' }}</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="metrics-group">
+                <h3>Granular Code Evolution</h3>
+                <div class="metrics-summary">
+                    <div class="summary-card">
+                        <span class="summary-label">Snapshots</span>
+                        <span class="summary-value">{{ summary.state_snapshots }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Runs</span>
+                        <span class="summary-value">{{ summary.runs }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Run Errors</span>
+                        <span class="summary-value">{{ summary.failed_runs }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Failed Submissions</span>
+                        <span class="summary-value">{{ summary.failed_submissions }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Peak Complexity</span>
+                        <span class="summary-value">{{ summary.max_code_complexity }}</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="metrics-group">
+                <h3>AI Assistance</h3>
+                <div class="metrics-summary">
+                    <div class="summary-card">
+                        <span class="summary-label">Tasks Completed After Hints</span>
+                        <span class="summary-value">{{ summary.ai_assisted_completed_tasks }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Hint Follow-ups</span>
+                        <span class="summary-value">{{ summary.ai_follow_up_actions }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Exact Acceptance</span>
+                        <span class="summary-value">{{ summary.ai_follow_up_actions > 0 ? (summary.ai_exact_acceptance_rate | number:'1.0-1') + '%' : 'n/a' }}</span>
+                    </div>
+                    <div class="summary-card">
+                        <span class="summary-label">Avg Mod Distance</span>
+                        <span class="summary-value">{{ summary.ai_follow_up_actions > 0 ? (summary.average_ai_modification_distance | number:'1.0-1') + '%' : 'n/a' }}</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <p class="settings-hint" *ngIf="metricsLoading">Loading study metrics...</p>
+        <p class="settings-hint" *ngIf="!metricsLoading && metricsRows.length === 0">No study metrics are available yet.</p>
+
+        <div class="metrics-table-wrapper" *ngIf="!metricsLoading && metricsRows.length > 0">
+            <table class="metrics-table">
+                <thead>
+                    <tr class="metrics-group-row">
+                        <th colspan="4">Participant</th>
+                        <th colspan="5">Behavior &amp; Integrity</th>
+                        <th colspan="5">Granular Code Evolution</th>
+                        <th colspan="5">AI Assistance</th>
+                    </tr>
+                    <tr>
+                        <th>User</th>
+                        <th>Course</th>
+                        <th>Consent</th>
+                        <th>Last Activity (UTC)</th>
+                        <th>Sessions</th>
+                        <th>Clipboard</th>
+                        <th>Paste</th>
+                        <th>Active Min</th>
+                        <th>Idle Min</th>
+                        <th>Snapshots</th>
+                        <th>Submissions</th>
+                        <th>Failed Submissions</th>
+                        <th>Runs</th>
+                        <th>Run Errors</th>
+                        <th>Max Complexity</th>
+                        <th>AI Hints</th>
+                        <th>Hint Completions</th>
+                        <th>Hint Follow-ups</th>
+                        <th>Exact Acceptance</th>
+                        <th>Mod Distance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let row of metricsRows">
+                        <td>
+                            <div class="user-cell">
+                                <strong>{{ row.username }}</strong>
+                                <span>{{ row.roles.join(', ') }}</span>
+                            </div>
+                        </td>
+                        <td>{{ row.course_unique_name }}</td>
+                        <td>{{ row.data_collection_enabled ? 'yes' : 'no' }}</td>
+                        <td>{{ row.last_activity_utc || 'n/a' }}</td>
+                        <td>{{ row.attempt_sessions }}</td>
+                        <td>{{ row.clipboard_events }}</td>
+                        <td>{{ row.paste_events }}</td>
+                        <td>{{ row.active_logged_minutes | number:'1.0-1' }}</td>
+                        <td>{{ row.idle_logged_minutes | number:'1.0-1' }}</td>
+                        <td>{{ row.state_snapshots }}</td>
+                        <td>{{ row.submissions }}</td>
+                        <td>{{ row.failed_submissions }}</td>
+                        <td>{{ row.runs }}</td>
+                        <td>{{ row.failed_runs }}</td>
+                        <td>{{ row.max_code_complexity }}</td>
+                        <td>{{ row.feedback_requests }}</td>
+                        <td>{{ row.ai_assisted_completed_tasks }}</td>
+                        <td>{{ row.ai_follow_up_actions }}</td>
+                        <td>{{ row.ai_follow_up_actions > 0 ? (row.ai_exact_acceptance_rate | number:'1.0-1') + '%' : 'n/a' }}</td>
+                        <td>{{ row.ai_follow_up_actions > 0 ? (row.average_ai_modification_distance | number:'1.0-1') + '%' : 'n/a' }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="settings-section settings-form" *ngIf="studyFunctionsService.isConfigured">
+        <h2>Appwrite Study Exports</h2>
+        <form [formGroup]="appwriteAdminForm">
+            <p>
+                Appwrite email:
+                <input formControlName="email" type="email">
+            </p>
+
+            <p>
+                Appwrite password:
+                <input formControlName="password" type="password">
+            </p>
+
+            <p>
+                Banner ID for banner-response export:
+                <input formControlName="bannerId">
+            </p>
+
+            <div class="manage-settings">
+                <button type="button" (click)="loginAppwriteAdmin()">Connect Appwrite Admin</button>
+                <button type="button" [disabled]="!appwriteAdminReady" (click)="exportParticipants()">Export Participants CSV</button>
+                <button type="button" [disabled]="!appwriteAdminReady" (click)="exportBannerResponses()">Export Banner Responses CSV</button>
+            </div>
+        </form>
+
+        <p class="settings-hint">{{ appwriteExportStatus }}</p>
+    </div>
+
+    <div class="settings-section settings-form" *ngIf="studyFunctionsService.isConfigured && appwriteAdminReady">
+        <div class="section-header">
+            <h2>AI Abuse Controls</h2>
+            <button type="button" (click)="loadStudyControls()">Refresh Controls</button>
+        </div>
+
+        <form [formGroup]="studyControlForm" class="banner-editor-form">
+            <div class="banner-grid">
+                <p>
+                    Max AI queries per session:
+                    <input formControlName="max_ai_queries_per_session" type="number" min="1" max="1000">
+                </p>
+                <p>
+                    Max AI queries per day:
+                    <input formControlName="max_ai_queries_per_day" type="number" min="1" max="10000">
+                </p>
+                <p>
+                    AI cooldown seconds:
+                    <input formControlName="ai_query_cooldown_seconds" type="number" min="0" max="3600">
+                </p>
+                <p>
+                    Max prompt chars:
+                    <input formControlName="ai_max_prompt_chars" type="number" min="256" max="20000">
+                </p>
+                <p>
+                    Max code chars sent to AI:
+                    <input formControlName="ai_max_code_chars" type="number" min="256" max="50000">
+                </p>
+                <p>
+                    Final preview link TTL (minutes):
+                    <input formControlName="final_preview_link_ttl_minutes" type="number" min="5" max="1440">
+                </p>
+            </div>
+            <div class="manage-settings manage-settings-wide">
+                <button type="button" (click)="saveStudyControls()">Save AI Controls</button>
+            </div>
+        </form>
+        <p class="settings-hint">{{ studyControlStatus }}</p>
+    </div>
+
+    <div class="settings-section settings-form" *ngIf="studyFunctionsService.isConfigured && appwriteAdminReady">
+        <div class="section-header">
+            <h2>Appwrite Banners</h2>
+            <button type="button" (click)="loadBanners()">Refresh Banners</button>
+        </div>
+
+        <form [formGroup]="bannerForm" class="banner-editor-form">
+            <div class="banner-grid">
+                <p>
+                    Name:
+                    <input formControlName="name">
+                </p>
+
+                <p>
+                    Trigger position:
+                    <select formControlName="triggerPosition">
+                        <option value="session-arrival">session-arrival</option>
+                        <option value="first-code-run">first-code-run</option>
+                        <option value="first-error">first-error</option>
+                        <option value="first-hint-open">first-hint-open</option>
+                        <option value="time-based">time-based</option>
+                    </select>
+                </p>
+
+                <p>
+                    Target condition:
+                    <select formControlName="targetCondition">
+                        <option value="all">all</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                    </select>
+                </p>
+
+                <p>
+                    Session from:
+                    <input formControlName="triggerSessionFrom" type="number" min="1">
+                </p>
+
+                <p>
+                    Session to:
+                    <input formControlName="triggerSessionTo" type="number" min="1">
+                </p>
+
+                <p>
+                    Trigger after minutes:
+                    <input formControlName="triggerAfterMinutes" type="number" min="0">
+                </p>
+            </div>
+
+            <p>
+                Message:
+                <textarea formControlName="message" rows="4"></textarea>
+            </p>
+
+            <p>
+                Inputs JSON:
+                <textarea formControlName="inputsJson" rows="8" placeholder='[{"type":"text","label":"Why did you stop here?"}]'></textarea>
+            </p>
+
+            <div class="toggle-grid">
+                <label class="toggle-row">
+                    <span>Active</span>
+                    <input type="checkbox" formControlName="isActive">
+                </label>
+                <label class="toggle-row">
+                    <span>Dismissable</span>
+                    <input type="checkbox" formControlName="isDismissable">
+                </label>
+                <label class="toggle-row">
+                    <span>Blocks progress</span>
+                    <input type="checkbox" formControlName="blocksProgress">
+                </label>
+            </div>
+
+            <div class="manage-settings manage-settings-wide">
+                <button type="button" (click)="saveBanner()">{{ bannerForm.value.id ? 'Update Banner' : 'Create Banner' }}</button>
+                <button type="button" (click)="resetBannerForm()">Clear Form</button>
+            </div>
+        </form>
+
+        <p class="settings-hint">{{ bannerCrudStatus }}</p>
+        <p class="settings-hint" *ngIf="bannerLoading">Loading Appwrite banners...</p>
+
+        <div class="metrics-table-wrapper" *ngIf="!bannerLoading && banners.length > 0">
+            <table class="metrics-table banner-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Trigger</th>
+                        <th>Condition</th>
+                        <th>Window</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let banner of banners; trackBy: trackBanner">
+                        <td>
+                            <div class="user-cell">
+                                <strong>{{ banner.name }}</strong>
+                                <span>{{ banner.message }}</span>
+                            </div>
+                        </td>
+                        <td>{{ banner.triggerPosition }}</td>
+                        <td>{{ banner.targetCondition }}</td>
+                        <td>S{{ banner.triggerSessionFrom }}-S{{ banner.triggerSessionTo }} / {{ banner.triggerAfterMinutes }}m</td>
+                        <td>{{ banner.isActive ? 'active' : 'inactive' }}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button type="button" (click)="editBanner(banner)">Edit</button>
+                                <button type="button" (click)="appwriteAdminForm.patchValue({ bannerId: banner.id })">Use for Export</button>
+                                <button type="button" (click)="deleteBanner(banner.id)">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <div class="manage-settings">
         <button   (click)="closeSettings()">Close</button>
+        <span *ngIf="saveStatus" class="save-status">{{ saveStatus }}</span>
         <button  [disabled]="!settingsForm.valid" (click)="saveSettings()">Save Settings</button>
     </div>
 </div>

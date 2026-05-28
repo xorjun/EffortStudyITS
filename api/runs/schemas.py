@@ -3,6 +3,7 @@ from beanie import PydanticObjectId
 
 class Run_code_submission(Base_Submission):
     run_arguments: dict = {}
+    show_console_output: bool = False
 
     class Settings: 
         name = "Submission"
@@ -10,6 +11,7 @@ class Run_code_submission(Base_Submission):
 class Evaluated_run_code_submission(Base_Submission):
     run_arguments: dict
     run_output: str
+    console_output: str
     user_id: PydanticObjectId
     plot_uri: str | None = None
 

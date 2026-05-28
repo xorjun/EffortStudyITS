@@ -3,13 +3,12 @@ from fastapi_users.authentication import JWTStrategy
 from fastapi import Depends, Request, Response
 from fastapi_users import BaseUserManager, FastAPIUsers, exceptions
 from typing import Optional
-#from db.db_connector_beanie import User
-from users.schemas import User, GlobalAccountList
-from db import User, get_user_db, database
+from db.db_connector_beanie import get_user_db
+from users.schemas import User, UserLevel
+from db import database
 from beanie import PydanticObjectId
-from fastapi_users.db import BeanieUserDatabase, ObjectIDIDMixin
+from fastapi_users.db import ObjectIDIDMixin
 import os
-from config import config
 import random
 import hashlib
 from services.email_sending import send_mail
@@ -21,11 +20,11 @@ https://fastapi-users.github.io/fastapi-users/12.1/configuration/overview/"""
 filedir = os.path.dirname(__file__)
 
 class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
-    reset_password_token_secret = os.environ.get("RESET_PWD_SECRET")
-    verification_token_secret = os.environ.get("USER_VERIFICATION_SECRET")
+    reset_password_token_secret = os.environ["RESET_PWD_SECRET"]
+    verification_token_secret = os.environ["USER_VERIFICATION_SECRET"]
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
-        update_dict = {"roles": ["student"]}
+        update_dict = {"roles": [UserLevel("student")]}
         await database.update_user(user, update_dict)
         print(f"User {user.id} has registered.")
 
@@ -33,6 +32,8 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
     async def on_after_forgot_password(
         self, user: User, token: str, request: Optional[Request] = None
     ):
+        if request is None:
+            raise AttributeError("Request is none.")
         verification_email = request._json["verificationEmail"]
         reset_token_key = request._json["resetKey"]
         verification_hash = hashlib.sha256((verification_email + str(reset_token_key)).encode("utf-8")).hexdigest()
@@ -52,6 +53,8 @@ Please use the following reset-token to generate a new password.
     ):
         reset_token_key = random.randint(100000000000, 900000000000)
         #Only the hashed concatenation of email+reset_token_key is stored, so that users real identities stay unknown to the admins.
+        if user.verification_email is None:
+            raise ValueError("User's verification email is None!")
         encrypted_email = hashlib.sha256((user.verification_email + str(reset_token_key)).encode("utf-8")).hexdigest()
 
         message = f"""Hello new User,
@@ -96,6 +99,7 @@ Since it is possible to reset your password with the reset token, please keep th
         hashed_user_email = hashlib.sha256((user_create.verification_email).encode("utf-8")).hexdigest()
         if hashed_user_email in hashed_emails:
             raise exceptions.UserAlreadyExists()
+        print(user_create.email)
         settings = await database.get_settings()
         allowed_mail_adress = False
         for regex in settings.email_whitelist:
@@ -107,7 +111,8 @@ Since it is possible to reset your password with the reset token, please keep th
             send_mail("Dear User,\n\nan account using this email-adress already exists. Please try to recover it or contact your admin.\n",
                         "ITS Account already exists",
                       user_create.verification_email)
-            raise EmailDomainNotAllowedException
+            raise EmailDomainNotAllowedException()
+        user_create.roles = []
         return await BaseUserManager.create(self, user_create, safe, request)
 
 async def get_user_manager(user_db=Depends(get_user_db)):
@@ -116,7 +121,7 @@ async def get_user_manager(user_db=Depends(get_user_db)):
 cookie_transport = CookieTransport(cookie_max_age=7200, cookie_secure=True, cookie_samesite='none', cookie_httponly=False)
 
 def get_jwt_strategy() -> JWTStrategy:
-    return JWTStrategy(secret=os.environ.get("JWT_SECRET"), lifetime_seconds=7200)
+    return JWTStrategy(secret=os.environ["JWT_SECRET"], lifetime_seconds=7200)
 
 auth_backend = AuthenticationBackend(
     name="jwt",
@@ -129,3 +134,8 @@ fastapi_users = FastAPIUsers[User, PydanticObjectId](get_user_manager, [auth_bac
 current_active_user = fastapi_users.current_user(active=True)
 
 current_active_verified_user = fastapi_users.current_user(active=True, verified=True)
+
+
+def user_has_data_collection_consent(user: User) -> bool:
+    settings = user.settings if isinstance(user.settings, dict) else {}
+    return bool(settings.get("dataCollection", False))

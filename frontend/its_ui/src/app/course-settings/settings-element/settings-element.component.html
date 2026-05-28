@@ -36,6 +36,16 @@
             </p>
         </div>
 
+        <div *ngSwitchCase="'ai_assistance_mode'">
+            <p>
+                {{settingName}}:
+                <select formControlName="ai_assistance_mode">
+                    <option value="disabled">Disabled</option>
+                    <option value="hints">AI hints</option>
+                </select>
+            </p>
+        </div>
+
         <div *ngSwitchCase="'visibility'">
             <p>
                 {{settingName}}:

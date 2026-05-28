@@ -8,6 +8,16 @@
  <dialog #courseCompleteDialog class="popup-dialog-container">
   <div class="popup-dialog">
       <p>Awesome, you have completed the course! There are no tasks left to solve.</p>
+      <p *ngIf="studyFunctionsService.isConfigured">You can now prepare your session archive and continue to the linked survey.</p>
+      <p *ngIf="sessionCompletionError" class="settings-hint">{{ sessionCompletionError }}</p>
+      <div class="ok-button-container" *ngIf="studyFunctionsService.isConfigured">
+        <button class="popup-dialog-button" [disabled]="sessionCompletionPending" (click)="completeStudySession()">
+          {{ sessionCompletionPending ? 'Preparing…' : 'Prepare Download' }}
+        </button>
+        <a *ngIf="sessionPreviewUrl" class="popup-dialog-button" [href]="sessionPreviewUrl" target="_blank" rel="noopener noreferrer">Open Final App Preview</a>
+        <a *ngIf="sessionDownloadUrl" class="popup-dialog-button" [href]="sessionDownloadUrl">Download Session ZIP</a>
+        <a *ngIf="sessionSurveyUrl" class="popup-dialog-button" [href]="sessionSurveyUrl" target="_blank" rel="noopener noreferrer">Continue to Survey</a>
+      </div>
       <div class="ok-button-container">
         <button class="popup-dialog-button" (click)="courseCompleteDialog.close()">
           OK
@@ -15,4 +25,10 @@
       </div>
   </div>
 </dialog>
- <app-markdown-panel #taskPanelElement [markdownString]="task_markdown"></app-markdown-panel>
+<div class="task-panel">
+  <div class="panel-icon" matTooltip="Task Panel">
+    <mat-icon>assignment</mat-icon>
+  </div>
+  <app-markdown-panel #taskPanelElement [markdownString]="task_markdown" ></app-markdown-panel>
+</div>
+ 

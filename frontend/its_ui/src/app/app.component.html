@@ -3,14 +3,35 @@
     <div *ngSwitchCase="'loginView'" class="login-view"><app-auth (loginEvent)="setView($event)"></app-auth></div>
     <div *ngSwitchCase="'profileView'" class="profile-view"><app-profile (profileAction)="setView($event)" ></app-profile></div>
 
-    <div *ngSwitchCase="'tutoringView'" class="tutoring-view tutoring-grid-container">
+    <div *ngSwitchCase="'courseIntroView'" class="course-intro-view">
+        <div class="navbar"><app-navigation-bar (profileButtonClicked)="setView($event)"
+                                                 (homeButtonClicked)="setView($event)"
+                                                  [currentPageName]="pageName"
+                                                  (settingButtonClicked)="setView($event)"></app-navigation-bar></div>
+        <app-course-intro (introCompleted)="setView($event)"></app-course-intro>
+    </div>
+
+    <div *ngSwitchCase="'tutoringView'" class="tutoring-view">
         <div class="navbar"><app-navigation-bar (profileButtonClicked)="setView($event)"
                                                     (homeButtonClicked)="setView($event)"
                                                      [currentPageName]="pageName" 
                                                      (settingButtonClicked)="setView($event)"></app-navigation-bar></div>
-        <div class="task-panel"><app-task-panel [initTask]="initTask"></app-task-panel></div>
-        <div class="feedback-panel"><app-feedback-panel></app-feedback-panel></div>
-        <div class="code-panel"><app-code-panel></app-code-panel></div>
+        <as-split unit="percent" direction="horizontal" gutterSize="4" class="split-container split-container-outer">
+            <as-split-area size="50">
+                <as-split unit="percent" direction="vertical" gutterSize="4" class="split-container split-container-inner">
+                    <as-split-area size="50">
+                        <div class="task-panel"><app-task-panel [initTask]="initTask"></app-task-panel></div>
+                    </as-split-area>
+                    <as-split-area size="50">
+                        <div class="feedback-panel"><app-feedback-panel></app-feedback-panel></div>
+                    </as-split-area>
+                </as-split>
+            </as-split-area>
+            <as-split-area size="50">
+                <div class="code-panel"><app-code-panel></app-code-panel></div>
+            </as-split-area>
+        </as-split>
+        <app-study-banner></app-study-banner>
     </div>
 
     <div *ngSwitchCase="'welcomePage'" class="welcome-page">
@@ -46,6 +67,15 @@
              (settingButtonClicked)="setView($event)"></app-navigation-bar></div>
 
              <app-admin-settings class="settings" (settingsClosedEvent)="setView($event)"></app-admin-settings>
+    </div>
+
+    <div *ngSwitchCase="'finalShowcase'" class="final-showcase-view">
+        <div class="navbar"><app-navigation-bar (profileButtonClicked)="setView($event)"
+            (homeButtonClicked)="setView($event)"
+             [currentPageName]="pageName" 
+             (settingButtonClicked)="setView($event)"></app-navigation-bar></div>
+
+             <app-final-showcase></app-final-showcase>
     </div>
 
 </ng-container>

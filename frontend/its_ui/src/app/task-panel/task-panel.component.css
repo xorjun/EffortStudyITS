@@ -1,3 +1,30 @@
 .ok-button-container {
     text-align: center;
 }
+
+.task-panel {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.panel-icon {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 10;
+    pointer-events: auto;
+}
+
+.panel-icon mat-icon {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: black;
+    transition: color 0.2s ease;
+}
+
+.panel-icon:hover mat-icon {
+    color: #444;
+}

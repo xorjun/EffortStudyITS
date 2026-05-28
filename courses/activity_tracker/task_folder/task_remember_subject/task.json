@@ -1,0 +1,5 @@
+{
+    "arguments": {
+        "subject": {"example": "\"Mathematics\"", "type": "str"}
+    }
+}

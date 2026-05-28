@@ -1,2 +1,18 @@
-<div class="measure-fonts" #fontMeasure>W</div>
-<div class="editor-container" #editorContainer></div>
+<div class="editor-wrapper">
+  <div class="tab-bar" *ngIf="additionalFiles.length > 0">
+    <div class="tab" 
+         [class.active]="currentFileName === mainFileName"
+         (click)="switchToFile(mainFileName)">
+      {{ mainFileName }}
+    </div>
+    <div class="tab" 
+         *ngFor="let file of additionalFiles"
+         [class.active]="currentFileName === file.name"
+         [class.read-only]="file.readOnly"
+         (click)="switchToFile(file.name)">
+      {{ file.name }}
+    </div>
+  </div>
+  <div class="measure-fonts" #fontMeasure>W</div>
+  <div class="editor-container" #editorContainer></div>
+</div>

@@ -1,21 +1,27 @@
 .grid-container-code {
   display: grid;
-  /* grid-template-rows: minmax(0, 10fr) minmax(0, 0.7fr); */
   grid-template-rows: 10fr 0.7fr;
-  gap: 0.3rem;
+  gap: 4px;
   align-items: self-start;
   height: 100%;
   width: minmax(0, 100%);
+  background-color: #121212;
 }
 
 .code-editor {
   height: 100%;
   width: 100%;
   overflow: hidden;
+  background-color: #1E1E1E;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
 }
 
 .actionPanel {
   height: 100%;
   width: 100%;
   display: block;
+  background-color: #1E1E1E;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
 }

@@ -1,0 +1,5 @@
+{
+    "arguments": {
+        "num_rolls": {"example": "30"}
+    }
+}

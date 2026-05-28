@@ -1,126 +1,113 @@
-import { Component, Output, EventEmitter, ElementRef, ViewChild, Input, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
+import { Component, Output, EventEmitter, OnInit, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { EventShareService } from 'src/app/shared/services/event-share.service';
 import { CourseSettingsService } from 'src/app/shared/services/course-settings-service.service';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { RunParametersDialogComponent, RunParametersDialogResult } from './run-parameters-dialog/run-parameters-dialog.component';
 
 @Component({
-  selector: 'app-action-panel',
-  templateUrl: './action-panel.component.html',
-  styleUrls: ['./action-panel.component.css']
+    selector: 'app-action-panel',
+    templateUrl: './action-panel.component.html',
+    styleUrls: ['./action-panel.component.css'],
+    standalone: true,
+    imports: [CommonModule, MatIconModule, MatTooltipModule, MatButtonModule, MatDialogModule]
 })
 export class ActionPanelComponent {
 
-  @Output() runEvent: EventEmitter<string> = new EventEmitter<any>();
+  @Output() runEvent: EventEmitter<{ parameters: any, showConsoleOutput: boolean }> = new EventEmitter<{ parameters: any, showConsoleOutput: boolean }>();
   @Output() submitEvent : EventEmitter<string> = new EventEmitter<string>();
   @Output() feedbackEvent : EventEmitter<string> = new EventEmitter<string>();
 
   taskFetchedSubscription?: Subscription;
 
-
-  @ViewChild("runDialog", {static: true}) runDialog!: ElementRef<HTMLDialogElement>
-
   submissionId: string = '';
-  runParametersForm!: FormGroup;
   course?: any;
   inCooldown: boolean = false;
+  previousParameters: { [key: string]: string } = {};
+  previousShowConsoleOutput: boolean = false;
+  aiAssistanceMode: string = 'disabled';
+  private cooldownTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   @Input() showRunButton: boolean = true;
   @Input() showFeedbackButton!: boolean;
 
 
-  constructor(private eventShareService: EventShareService,
-              private fb: FormBuilder, private courseSettingsService: CourseSettingsService){
-              }
+  constructor(
+    private eventShareService: EventShareService,
+    private courseSettingsService: CourseSettingsService,
+    private dialog: MatDialog
+  ){}
 
   ngOnInit(){
     this.courseSettingsService.getCourse().subscribe((course)  =>
     {
       this.course = course
-      this.taskFetchedSubscription = this.eventShareService.newTaskFetched$.subscribe((data) => {
-        this.inCooldown = true;
-        setTimeout(() => {
-          this.inCooldown = false;
-        }, this.course.course_settings.feedback_init_time*1000);
+      this.aiAssistanceMode = this.course.course_settings_list?.[0]?.ai_assistance_mode || 'disabled';
+      this.taskFetchedSubscription = this.eventShareService.newTaskFetched$.subscribe(() => {
+        this.resetHintAvailability();
       }
       );
     });
   }
 
-  parameterFormArrayControls() {
-    const controls: FormGroup[] = [];
-
-    const argArray: string[] = JSON.parse(sessionStorage.getItem("taskArguments")!);
-    if (!argArray) {
-      console.error("taskArguments is not present in sessionStorage.");
-    }
-    for (let i = 0; i < argArray.length; i++) {
-      controls.push(this.fb.group({
-        // You can add any validators or default values here
-        argname: argArray[i],
-        textField: [''],
-      }));
-    }
-    return controls;
+  ngOnDestroy() {
+    this.taskFetchedSubscription?.unsubscribe();
+    this.clearCooldownTimer();
   }
 
-  get runFormArrayControls() {
-    return (this.runParametersForm.get('fields') as FormArray).controls;
+  get showHintButton(): boolean {
+    return this.showFeedbackButton && this.aiAssistanceMode === 'hints';
+  }
+
+  get feedbackButtonLabel(): string {
+    return this.aiAssistanceMode === 'hints' ? 'AI Hint' : 'Hint';
+  }
+
+  get feedbackTooltip(): string {
+    if (this.inCooldown) {
+      return 'Hint on cooldown';
+    }
+    return this.aiAssistanceMode === 'hints' ? 'Request an AI hint' : 'Request a hint';
   }
 
   runButtonClicked() {
-    if(sessionStorage.getItem("taskType") == "function") {
-      if (!this.runParametersForm ||  this.shouldReinitializeForm(this.parameterFormArrayControls())) {
-      this.runParametersForm = this.fb.group({
-        fields: this.fb.array(this.parameterFormArrayControls())
+    const taskType = sessionStorage.getItem("taskType");
+    const taskArguments = sessionStorage.getItem("taskArguments");
+    
+    if (taskType === "function" && taskArguments) {
+      const argumentsList: string[] = JSON.parse(taskArguments);
+      const dialogRef = this.dialog.open(RunParametersDialogComponent, {
+        data: {
+          arguments: argumentsList,
+          previousParameters: this.previousParameters,
+          previousShowConsoleOutput: this.previousShowConsoleOutput
+        },
+        width: '500px'
       });
-    }
-      this.runDialog.nativeElement.showModal();
-    }
-    else {
-      this.emitRunEvent({});
-    }
-  }
 
-private shouldReinitializeForm(expectedControls: FormGroup[]): boolean {
-  const currentArray = this.runParametersForm?.get('fields') as FormArray;
-  const currentFormGroups = currentArray.controls as FormGroup[];
-
-  if (!currentFormGroups) return true;
-
-  if (currentFormGroups.length !== expectedControls.length) return true;
-
-  for (let i = 0; i < currentFormGroups.length; i++) {
-    const currentKey = currentFormGroups[i].get('argname')?.value;
-    const expectedKey = expectedControls[i].get('argname')?.value;
-    if (currentKey != expectedKey) {
-      return true; 
+      dialogRef.afterClosed().subscribe((result: RunParametersDialogResult | undefined) => {
+        if (result) {
+          this.previousParameters = result.parameters;
+          this.previousShowConsoleOutput = result.showConsoleOutput;
+          this.emitRunEvent(result.parameters, result.showConsoleOutput);
+        }
+      });
+    } else {
+      this.emitRunEvent({}, this.previousShowConsoleOutput);
     }
   }
-  return false; 
-}
 
-  sendWithParameters() {
-    var parameters: any = {};
-    const count = JSON.parse(sessionStorage.getItem("taskArguments")!).length;
-    for (let i = 0; i < count; i++) {
-      const control = this.runFormArrayControls.at(i)!;
-      const key = control.get('argname')!.value;
-      const value = control.get('textField')!.value;
-      parameters[key] = value;
-    }
-    this.runDialog.nativeElement.close();
-    this.emitRunEvent(parameters);
-  }
-
-  emitRunEvent(parameters: any) {
-    this.runEvent.emit(parameters);
+  emitRunEvent(parameters: any, showConsoleOutput: boolean = true) {
+    this.runEvent.emit({ parameters, showConsoleOutput });
     this.eventShareService.emitRunButtonClick();
   }
 
-  //Submit Button
   submitButtonClicked() {
-    this.emitSubmitEvent()
+    this.emitSubmitEvent();
   }
 
   emitSubmitEvent() {
@@ -128,15 +115,36 @@ private shouldReinitializeForm(expectedControls: FormGroup[]): boolean {
     this.eventShareService.emitSubmitButtonClick();
   }
 
-  // Feedback Button
+  private clearCooldownTimer(): void {
+    if (this.cooldownTimeoutId !== null) {
+      clearTimeout(this.cooldownTimeoutId);
+      this.cooldownTimeoutId = null;
+    }
+  }
+
+  private resetHintAvailability(): void {
+    this.clearCooldownTimer();
+    this.inCooldown = false;
+  }
+
+  private startHintCooldown(durationMs: number): void {
+    this.clearCooldownTimer();
+    if (durationMs <= 0) {
+      this.inCooldown = false;
+      return;
+    }
+    this.inCooldown = true;
+    this.cooldownTimeoutId = setTimeout(() => {
+      this.inCooldown = false;
+      this.cooldownTimeoutId = null;
+    }, durationMs);
+  }
+
   feedbackButtonClicked() {
     if (!this.inCooldown) {
       this.feedbackEvent.emit();
       this.eventShareService.emitFeedbackButtonClick();
-      this.inCooldown = true;
-      setTimeout(() => {
-        this.inCooldown = false;
-      }, this.course.course_settings.feedback_cooldown*1000);
+      this.startHintCooldown(this.course.course_settings_list[0].feedback_cooldown*1000);
     }
     else {
       window.alert("New Feedback will not be available for a short time. Please Try to implement the suggestions of the last feedback first or try a new approach.")

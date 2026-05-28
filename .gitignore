@@ -374,3 +374,9 @@ codellama-7b-nxt.gguf
 *.zip
 
 api/services/text_embedding/embedding_models/*
+# Sensitive / deployment files
+id_ed25519
+id_ed25519.pub
+appwrite.config.json
+appwrite.json
+.env

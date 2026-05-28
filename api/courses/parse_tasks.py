@@ -55,10 +55,36 @@ def extract_argument_names(func_str):
         # Find the function definition node
         func_def = next(node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef))
         # Extract parameter names
-        param_names = [param.arg for param in func_def.args.args]
-        return param_names
+        params = [[param.arg, param.annotation] for param in func_def.args.args]
+        for i, param in enumerate(params):
+            annotation = param[1]
+            if annotation is None:
+                params[i][1] = None
+            elif hasattr(annotation, "id"):
+                params[i][1] = annotation.id
+            elif hasattr(annotation, "attr"):
+                params[i][1] = annotation.attr
+        #params = [(arg, annotation.id) if not annotation is None else (arg, None) for arg, annotation in params]
+        param_dict = dict([(param_name, {"type": annotation}) for param_name, annotation in params])
+        return param_dict
     except Exception as e:
         raise ValueError(f"Error extracting arguments: {e}")
+    
+def parse_additional_files(dir: str):
+    file_paths = os.listdir(dir)
+    file_paths = [os.path.join(dir, file_name) for file_name in file_paths]
+    additional_files = []
+    for file_path in file_paths:
+        if os.path.isdir(file_path):
+            print("Ignoring directory in additional_files (not supported)")
+            continue
+        with open(file_path, "r") as f:
+            content = f.read()
+        file = {"filename": os.path.basename(file_path),
+                "content": content}
+        additional_files.append(file)
+    return additional_files
+
 
 async def parse_all_tasks(dir, db=None):
     for location in os.listdir(dir):
@@ -67,8 +93,7 @@ async def parse_all_tasks(dir, db=None):
             try:
                 await task_to_json(dir, location, db)
             except Exception as e:
-                print(f"A problem occured during uploading task {location}")
-                raise e
+                raise Exception(f"A problem occured during uploading task {location}: {e}")
         else:
             await parse_all_tasks(os.path.join(dir, location), db=db)
 
@@ -80,13 +105,21 @@ async def task_to_json(dir, task_unique_name, db=None):
     for file_name in os.listdir(os.path.join(dir, task_unique_name)):
         file_path = os.path.join(dir, task_unique_name, file_name)
         if os.path.isdir(file_path):
-            print(f"'{file_name}' is a directory was ignored.")
-            continue
+            if file_path.endswith("additional_files"):
+                task_dict["additional_files"] = parse_additional_files(file_path)
+                continue
+                
+            else:
+                print(f"'{file_name}' is a directory was ignored.")
+                continue
         # PNGs cannot be read with utf-8
         elif file_name.endswith("png"):
             continue
         content_docstring = process_file(file_path)
-        if file_name.startswith("test"):
+        if file_name == "task.json":
+            task_json = json.loads(content_docstring)
+            task_dict.update(task_json)
+        elif file_name.startswith("test"):
             #test_name = file_name.split("_", 1)[1]
             test_name = file_name.split(".")[0]
             test_name_alt = get_function_names(file_path)
@@ -122,7 +155,18 @@ async def task_to_json(dir, task_unique_name, db=None):
             task_dict["function_name"] = get_function_names(file_path)[0] #TODO: Secure for example solutions with multiple functions.
             if task_type in [TaskType.Function, TaskType.PlotFunction]:
                 arguments = extract_argument_names(task_dict["prefix"] + "\n" + task_dict["example_solution"])
-                task_dict["arguments"] = arguments
+                if not "arguments" in task_dict.keys():
+                    task_dict["arguments"] = arguments
+                else:
+                    if not set(task_dict["arguments"].keys()).issubset(set(arguments.keys())):
+                        raise Exception("Some of the configured arguments do not exist in the function signature.")
+                    for key, value in arguments.items():
+                        if key not in task_dict["arguments"]:
+                            task_dict["arguments"][key] = value
+                        elif "type" in task_dict["arguments"][key].keys():
+                            if task_dict["arguments"][key]["type"] != arguments[key]["type"]:
+                                if (not task_dict["arguments"][key]["type"] is None) and (not arguments[key]["type"] is None):
+                                    raise Exception("Annotated argument type does not match type declared in task.json")
                 if task_type == TaskType.PlotFunction:
                     # check that plt is imported as plt
                     if not "import matplotlib.pyplot as plt" in prefix:
@@ -160,7 +204,11 @@ def replace_images(content_docstring: str, task_unique_name: str, dir: str) -> s
     def replace_html_image(matchobj: re.Match):
         img_name = matchobj[1]
         img_format = img_name.split('.')[-1]
-        base64_img = f"data:image/{img_format};base64,{convert_base64(img_name)}"
+        try:
+            base64_img = f"data:image/{img_format};base64,{convert_base64(img_name)}"
+        except FileNotFoundError as err:
+            print(err)
+            base64_img = f"[Image file not found: {img_name}]"
         html_tag: str = matchobj[0]
         # insert standard style if none present
         if "style=" not in html_tag:
@@ -175,7 +223,12 @@ def replace_images(content_docstring: str, task_unique_name: str, dir: str) -> s
         img_alt = matchobj[1]
         img_name = matchobj[2]
         img_format = img_name.split('.')[-1]
-        return f"<img alt='{img_alt}' src='data:image/{img_format};base64,{convert_base64(img_name)}' style='{img_style}'>"
+        try:
+            base64_img = f"<img alt='{img_alt}' src='data:image/{img_format};base64,{convert_base64(img_name)}' style='{img_style}'>"
+        except FileNotFoundError as err:
+            print(err)
+            base64_img = f"[Image file not found: {img_name}]"
+        return base64_img
     
     regex = re.compile(r"""!\[([^\]]*)\]\((.*?)\s*("(?:.*[^"])")?\s*\)""")
     content_docstring = re.sub(regex, replace_markdown_image, content_docstring)

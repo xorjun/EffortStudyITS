@@ -1,10 +1,12 @@
 import { Component, Input, Output, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-settings-element',
-  templateUrl: './settings-element.component.html',
-  styleUrls: ['./settings-element.component.css']
+    selector: 'app-settings-element',
+    templateUrl: './settings-element.component.html',
+    styleUrls: ['./settings-element.component.css'],
+    imports: [CommonModule, ReactiveFormsModule]
 })
 export class SettingsElementComponent {
 
@@ -39,6 +41,9 @@ export class SettingsElementComponent {
           break;
       case "language_generation_model":
           this.settingName = "Language generation Model";
+          break;
+        case "ai_assistance_mode":
+          this.settingName = "AI Assistance Mode";
           break;
       case "visibility":
         this.settingName = "Visibility";

@@ -1,5 +1,8 @@
 <h4 class="mc-title">Select your answer(s):</h4>
 <div class="mc-container">
+  <div class="panel-icon" matTooltip="Multiple Choice">
+    <mat-icon>checklist</mat-icon>
+  </div>
   <p class="mc-checkbox" *ngFor="let choice of choices">
     <mat-checkbox #checkBox [value]="choice" (change)="getCheckbox(checkBox)">
       {{choice}}

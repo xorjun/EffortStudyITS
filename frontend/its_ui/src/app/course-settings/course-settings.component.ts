@@ -1,12 +1,15 @@
 import { Component, EventEmitter, Output, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { FormGroup, FormControl} from '@angular/forms';
+import { FormGroup, FormControl, ReactiveFormsModule} from '@angular/forms';
 import { environment } from 'src/environments/environment';
+import { SettingsElementComponent } from './settings-element/settings-element.component';
 
 @Component({
-  selector: 'app-course-settings',
-  templateUrl: './course-settings.component.html',
-  styleUrls: ['./course-settings.component.css']
+    selector: 'app-course-settings',
+    templateUrl: './course-settings.component.html',
+    styleUrls: ['./course-settings.component.css'],
+    imports: [CommonModule, ReactiveFormsModule, SettingsElementComponent]
 })
 export class CourseSettingsComponent {
 
@@ -22,6 +25,7 @@ export class CourseSettingsComponent {
     this.settingsForm = new FormGroup({
       pedagogical_model: new FormControl("default"),
       language_generation_model: new FormControl("default"),
+      ai_assistance_mode: new FormControl("disabled"),
       sample_settings: new FormControl([]),
       feedback_init_time: new FormControl(0),
       feedback_cooldown: new FormControl(0),
@@ -38,6 +42,7 @@ export class CourseSettingsComponent {
         this.settingsForm.patchValue({
           pedagogical_model: this.course.course_settings_list[0].pedagogical_model,
           language_generation_model: this.course.course_settings_list[0].language_generation_model,
+          ai_assistance_mode: this.course.course_settings_list[0].ai_assistance_mode || 'disabled',
           sample_settings: this.course["sample_settings"].join(','),
           feedback_init_time: +this.courseSettingsList[0].feedback_init_time,
           feedback_cooldown: +this.courseSettingsList[0].feedback_cooldown,

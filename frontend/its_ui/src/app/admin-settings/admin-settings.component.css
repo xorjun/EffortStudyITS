@@ -1,18 +1,250 @@
 .settings-container {
     display: flex;
     flex-direction: column; /* Stack items vertically */
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     text-align: center; /* Center-align text */
     overflow-y: auto;
-    margin-top: 5%;
+    margin-top: 3%;
+    padding: 0 1.5rem 2rem;
+}
+
+.settings-container h1 {
+    color: rgba(255, 255, 255, 0.92);
+    margin-bottom: 1.5rem;
+}
+
+.settings-section {
+    width: min(1100px, 100%);
+    background: #1e1e1e;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+    text-align: left;
+    color: rgba(255, 255, 255, 0.87);
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.24);
+}
+
+.settings-section h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.settings-form form p {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    color: rgba(255, 255, 255, 0.87);
+}
+
+.settings-form input,
+.settings-form select,
+.settings-form textarea {
+    min-height: 2.2rem;
+    padding: 0.35rem 0.5rem;
+    background: #121212;
+    color: rgba(255, 255, 255, 0.87);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 0.35rem;
+}
+
+.settings-form input:focus,
+.settings-form select:focus,
+.settings-form textarea:focus {
+    outline: 2px solid rgba(38, 166, 154, 0.35);
+    border-color: #26a69a;
+}
+
+.settings-form textarea {
+    min-height: 7rem;
+    resize: vertical;
+}
+
+.prompt-hint {
+    margin-top: -0.35rem;
+    margin-bottom: 1rem;
+}
+
+.metrics-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    margin: 1rem 0;
+}
+
+.metrics-group h3 {
+    margin: 0 0 0.75rem;
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.toggle-row input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: #26a69a;
+}
+
+.settings-hint {
+    color: rgba(255, 255, 255, 0.68);
+    margin-top: 0.5rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.section-header button {
+    border: none;
+    border-radius: 0.4rem;
+    background-color: #455a64;
+    color: rgba(255, 255, 255, 0.92);
+    padding: 0.45rem 0.8rem;
+    cursor: pointer;
+}
+
+.section-header button:hover {
+    background-color: #546e7a;
+}
+
+.metrics-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin: 1rem 0;
+}
+
+.summary-card {
+    background: #252526;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.6rem;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.summary-label {
+    color: rgba(255, 255, 255, 0.64);
+    font-size: 0.85rem;
+}
+
+.summary-value {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.metrics-table-wrapper {
+    overflow-x: auto;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.65rem;
+}
+
+.banner-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.85rem;
+}
+
+.toggle-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.85rem;
+    margin-top: 0.5rem;
+}
+
+.manage-settings-wide {
+    width: min(720px, 100%);
+}
+
+.manage-settings-wide button {
+    width: 30%;
+}
+
+.table-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.table-actions button {
+    border: none;
+    border-radius: 0.35rem;
+    padding: 0.4rem 0.65rem;
+    background: #455a64;
+    color: rgba(255, 255, 255, 0.92);
+    cursor: pointer;
+}
+
+.table-actions button:hover {
+    background: #546e7a;
+}
+
+.metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #1a1a1a;
+}
+
+.metrics-table th,
+.metrics-table td {
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    vertical-align: top;
+    color: rgba(255, 255, 255, 0.87);
+}
+
+.metrics-table th {
+    background: #455a64;
+    text-align: left;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.metrics-group-row th {
+    background: #263238;
+    text-align: center;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.user-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.user-cell span {
+    color: rgba(255, 255, 255, 0.64);
+    font-size: 0.85rem;
+}
+
+.save-status {
+    font-size: 0.85rem;
+    color: #8bc34a;
+    align-self: center;
+    flex: 1;
+    text-align: center;
 }
 
 .manage-settings {
     margin-top: 2rem;
     display: flex;
     justify-content: space-evenly;
-    width: 40%;
+    width: min(480px, 100%);
 }
 
 .manage-settings button {
@@ -21,8 +253,8 @@
     box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1);
     cursor: pointer;
     padding: 0.25rem 0.5rem; /* Adjusted padding to make the button smaller */
-    background-color: #777777;
-    color: #fff;
+    background-color: #455a64;
+    color: rgba(255, 255, 255, 0.92);
     border: none;
     border-radius: 0.3rem;
     cursor: pointer;
@@ -31,5 +263,27 @@
 }
 
 .manage-settings button:hover {
-    background-color: #252525;
+    background-color: #546e7a;
+}
+
+.manage-settings button:disabled {
+    background-color: #37474f;
+    color: rgba(255, 255, 255, 0.52);
+    cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+    .toggle-row,
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .manage-settings {
+        width: 100%;
+    }
+
+    .manage-settings-wide button {
+        width: 100%;
+    }
 }

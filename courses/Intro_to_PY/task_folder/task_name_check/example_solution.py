@@ -1,5 +1,5 @@
 #!function!#
-def name_check(my_name):
+def name_check(my_name: str):
 #!prefix!#
     lowercase_name = my_name.lower()
     my_name_tuple = tuple(lowercase_name)

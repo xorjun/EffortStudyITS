@@ -139,7 +139,7 @@ async def run_tests(task_json, code: str):
         prefix_lines = list(range(1, task_json.prefix.strip().count("\n")+2))
         try:
             if not code.strip().startswith(task_json.prefix):
-                submission_code = task_json.prefix + code
+                submission_code = task_json.prefix.rstrip("\n") + "\n" + code.lstrip("\n")
             else:
                 submission_code = code
             safe = check_user_code(submission_code, prefix_lines)
@@ -162,6 +162,7 @@ async def get_test_results(test_code, test_name, submission_code, task_type: Tas
     elif task_type in [TaskType.PlotFunction]:
         test_submission_code = getExecutableString_plotFunction(test_code, test_name, submission_code)
     else: raise ValueError(f"Task type {task_type} not recognized.")
+    print(test_submission_code)
     result_string = await execute_code_judge0(test_submission_code)
     
     if "##!serialization!##" in result_string:

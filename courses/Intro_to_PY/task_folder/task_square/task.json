@@ -1,0 +1,5 @@
+{
+    "arguments": {
+        "x": {"example": "2", "type": "float"}
+    }
+}

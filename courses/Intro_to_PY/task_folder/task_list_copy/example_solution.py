@@ -2,8 +2,11 @@
 def list_copy(my_list):
 #!prefix!#
     # Check if the input list has at least two elements
-    if len(my_list) < 2:
-        return [], []  # Return empty lists if there are fewer than two elements in the input list
+    if len(my_list) == 0:
+        return [], []
+
+    if len(my_list) == 1:
+        return [], my_list
 
     # Create a new list by slicing the original list
     new_list = my_list[1:-1]

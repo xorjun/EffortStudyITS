@@ -1,151 +1,71 @@
-import warnings
+import itertools
+
 from models.knowledge_tracing.kt_base import KT_Factor_Analysis_Model_Base
-from courses.schemas import Course, CourseValidationStatus
-from tasks.schemas import Task
+from courses.schemas import Course, CourseEnrollment, CourseValidationError
 from users.schemas import User
 from db import database
 
 from sklearn.linear_model import LogisticRegression
 import numpy as np
+from collections.abc import Iterable
+from submissions.schemas import Tested_Submission
 
 
 DEFAULT_COMPETENCY = ["default_competency"]
-DEFAULT_SKILL_WEIGHT = [0]
+DEFAULT_SKILL_WEIGHT = 0.0
+N = 3
+
 
 class PFA_Model(KT_Factor_Analysis_Model_Base):
-    current_user: User
-    q_matrix: dict
-    competencies: list
-    skill_weights: np.ndarray
-    succ_rate: np.ndarray
-    fail_rate: np.ndarray
-    
-    def __init__(self, n_parameters: int = 3):
-        self.n = n_parameters
-        super().__init__()
-    
-    async def set_user(self, user: User, course: Course = None):
-        self.current_user = user
-        if course == None:
-            course = await database.get_course(user.current_course)
-        course_enrollment = await database.get_course_enrollment(user, course.unique_name)
-        
-        #await self.validate_course(course)
-        
-        self.q_matrix = course.q_matrix
-        self.competencies = course.competencies
-        self.skill_weights = np.array(course.course_parameters.get("skill_weights_pfa"))
-        
-        self.succ_rate, self.fail_rate = self.get_sf_rate(course_enrollment)
-        return self
-    
-    """Checks the course if all required paramters are present."""
-    def check_missing_params(self, course: Course | dict):
-        if type(course) == Course:
-            course = course.__dict__
-        q_matrix_exists = course.get("q_matrix") != None
-        comp_exists = course.get("competencies") != None
-        params_exist = course.get("course_parameters") != None
-        weights_exist = course.get("course_parameters", {}).get("skill_weights_pfa") != None
-        
-        if not (q_matrix_exists or comp_exists or params_exist or weights_exist):
-            warn_msg = f"""PFA: Generating default PFA components (Q-Matrix, Competencies, and Skill Weights) for '{course.get("unique_name")}' as none have been found."""
-            status = CourseValidationStatus.Missing
-        elif not q_matrix_exists:
-            warn_msg = f"""PFA: Q-Matrix not found for course '{course.get("unique_name")}'."""
-            status = CourseValidationStatus.Faulty
-        elif not comp_exists:
-            warn_msg = f"""PFA: Course competencies not found for course '{course.get("unique_name")}'."""
-            status = CourseValidationStatus.Faulty
-        elif not params_exist:
-            warn_msg = f"""PFA: Generating default parameters for course '{course.get("unique_name")}' as none have been found."""
-            status = CourseValidationStatus.No_Weights
-        elif not weights_exist:
-            warn_msg = f"""PFA: Skill weights not found for course '{course.get("unique_name")}'."""
-            status = CourseValidationStatus.Faulty
-        else: 
-            warn_msg = ""
-            status = CourseValidationStatus.Valid
-        if warn_msg != "": warnings.warn(warn_msg)
-        return status, warn_msg
     
     """Validates the given course for a functioning Q-Matrix. Assumes all parameters are present (can be generated default)."""
-    def validate_course(self, course: Course | dict):
-        if type(course) == Course:
-            course = course.__dict__
-        status, warn_msg = self.check_missing_params(course)
-        if status != CourseValidationStatus.Valid:
-            return status, warn_msg
+    @staticmethod
+    def validate_course(course: Course) -> None:
+        # Check q-matrix against curriculum
+        if set(course.q_matrix.keys()) != set(course.get_local_curriculum()):
+            raise CourseValidationError("PFA: Q-Matrix does not match the curriculum.")
         
-        weights_exist = "skill_weights_pfa" in course.get("course_parameters").keys()
-        #matching_curriculum = set(course.get("curriculum")).issubset(course.get("q_matrix").keys())
-        curriculum = course.get("curriculum", {})
-        if isinstance(curriculum, list):
-            matching_curriculum = set(curriculum).issubset(course.get("q_matrix").keys())
-        elif isinstance(curriculum, dict):
-            curriculum_tasks_set = curriculum.values()
-            curriculum_tasks_set = set([task for topic in curriculum_tasks_set for task in topic])
-            matching_curriculum = curriculum_tasks_set.issubset(course.get("q_matrix").keys())
-        else:
-            raise ValueError("Curriculum malformatted.")
-        if weights_exist:
-            matching_qmatrix = len(course.get("competencies")) * self.n == len(course.get("course_parameters").get("skill_weights_pfa"))
-            q_matrix: dict = course.get("q_matrix")
-            matching_qmatrix = matching_qmatrix and all([len(course.get("competencies")) == len(q_matrix.get(key)) for key in q_matrix.keys()])
-        
-        if not weights_exist:
-            warn_msg = f"""PFA: Generating default skill weights for course '{course.get("unique_name")}' as none have been found."""
-            status = CourseValidationStatus.No_Weights
-        # also set faulty if q-matrix is not matching the curriculum anymore
-        # (for example if course has been updated with new tasks)
-        elif not matching_curriculum:
-            warn_msg = f"""PFA: Q-matrix not matching curriculum for course '{course.get("unique_name")}'."""
-            status = CourseValidationStatus.Faulty
-        elif not matching_qmatrix:
-            warn_msg = f"""PFA: Course competencies do not match skill weights or q-matrix for course '{course.get("unique_name")}'."""
-            status = CourseValidationStatus.Faulty
-        else:
-            warn_msg = ""
-            status = CourseValidationStatus.Valid
-        if warn_msg != "": warnings.warn(warn_msg)
-        return status, warn_msg
-
-    def unset_user(self):
-        self.current_user = None
-        self.q_matrix = None
-        self.competencies = None
-        self.skill_weights = None
-        self.succ_rate = None
-        self.fail_rate = None
+        # Check q-matrix against skill weights and competencies
+        for value in course.q_matrix.values():
+            if len(value) * N != len(course.course_parameters["skill_weights_pfa"]):
+                raise CourseValidationError("PFA: Q-Matrix does not fit to the skill weights.")
+            if len(value) != len(course.competencies):
+                raise CourseValidationError("PFA: Q-Matrix does not fit to the competencies.")
     
-    def completion_probability(self, task: Task):
-        if self.current_user == None:
-            raise AttributeError("PFA Model has not been set to a user. Call 'set_user' before calculating completion probability.")
+    @classmethod
+    async def completion_probability(cls, task_names: str | list[str], user: User, course: Course | None = None) -> list[float]:
+        if course == None:
+            course = await database.get_course(user.current_course)
+        if type(task_names) == str:
+            task_names = [task_names]
         
-        new_task_skills = self.q_matrix.get(task)
-        if new_task_skills == None:
-            raise AttributeError(f"Task '{task}' not found in Q-Matrix! Try deleting and regenerating it.")
-        new_task_skills = np.repeat(new_task_skills, self.n)
-        new_task_weights = new_task_skills * self.skill_weights
+        # preprocessing
+        course_enrollment = await database.get_course_enrollment(user, course.unique_name)
+        succ_rate, fail_rate = cls.get_sf_rate(course_enrollment, course)
+        skill_weights = np.array(course.course_parameters.get("skill_weights_pfa"))
+        
+        # calculate probability of completion for each given task
+        competion_probabilities = []
+        for task_name in task_names:
+            task_weights = np.repeat(course.q_matrix[task_name], N) * skill_weights
 
-        logit = 0
-        for i in range(len(self.competencies)):
-            logit += new_task_weights[self.n*i]*self.succ_rate[i]
-            + new_task_weights[self.n*i+1]*self.fail_rate[i]
-            + new_task_weights[self.n*i+2]
-        return 1 / (1 + np.exp(-logit))
-        
-    async def update_course_weights(self, course: Course | list = None):
-        if course == None: 
-            if self.current_user == None: raise ValueError("No current user has been set.")
-            course = await database.get_course(self.current_user.current_course)
-        elif type(course) == dict:
-            course = await database.get_course(course.get("unique_name"))
-        
+            # TODO could probably be optimized with numpy
+            logit = 0
+            for i in range(len(course.competencies)):
+                logit += (task_weights[N*i] * succ_rate[i]
+                + task_weights[N*i+1] * fail_rate[i]
+                + task_weights[N*i+2])
+            competion_probabilities.append(1 / (1 + np.exp(-logit)))
+        return competion_probabilities
+    
+    @staticmethod
+    async def update_course_weights(course: Course) -> None:
         if course.domain == "Surveys": return
         
         #get all the task completions and order it for users and time stamps (last submissions available?) call all_course_submissions + correctness
         all_course_enrollments = await database.get_all_enrolled_users(course.unique_name)
+        # Only update if there are any actual enrollments
+        if len(all_course_enrollments) == 0: return
 
         q_matrix = course.q_matrix
         num_skills = len(course.competencies)
@@ -161,8 +81,8 @@ class PFA_Model(KT_Factor_Analysis_Model_Base):
             attempted_tasks = course_enrollment.tasks_attempted
             attempted_tasks = [task for task in attempted_tasks if task in q_matrix.keys()]
             for task in attempted_tasks:     
-                task_skills = q_matrix.get(task)
-                new_row= np.zeros(num_skills*self.n)
+                task_skills = q_matrix[task]
+                new_row= np.zeros(num_skills*N)
                 for j in range(num_skills):
                 # adding the entry  
                     new_row[3*j + 0] = s[j]
@@ -183,52 +103,61 @@ class PFA_Model(KT_Factor_Analysis_Model_Base):
         course_parameters_new["skill_weights_pfa"] = coefficients
 
         await database.update_course(course, {"course_parameters": course_parameters_new})
-        return 
     
-    def get_sf_rate(self, course_enrollment):
+    @staticmethod
+    def get_sf_rate(course_enrollment: CourseEnrollment, course: Course):
         attempted_tasks = course_enrollment.tasks_attempted
-        attempted_tasks = [task for task in attempted_tasks if task in self.q_matrix.keys()]
+        attempted_tasks = [task for task in attempted_tasks if task in course.q_matrix.keys()]
         completed_tasks = course_enrollment.tasks_completed
-        completed_tasks = [task for task in completed_tasks if task in self.q_matrix.keys()]
+        completed_tasks = [task for task in completed_tasks if task in course.q_matrix.keys()]
         
-        succ_rate = np.zeros(len(self.competencies))
-        fail_rate = np.zeros(len(self.competencies))
+        succ_rate = np.zeros(len(course.competencies))
+        fail_rate = np.zeros(len(course.competencies))
         for task in attempted_tasks:
             if task in completed_tasks:
-                succ_rate = np.add(succ_rate, self.q_matrix.get(task))
+                succ_rate = np.add(succ_rate, course.q_matrix[task])
             else:
-                fail_rate = np.add(fail_rate, self.q_matrix.get(task))
+                fail_rate = np.add(fail_rate, course.q_matrix[task])
         return succ_rate, fail_rate
 
-    def set_default_params(self, course: Course | dict):
-        # Need to distinguish between course and course_dict
-        
-        if type(course) == Course:
-            course.competencies = DEFAULT_COMPETENCY
-            course.q_matrix = {task: [1] for task in course.curriculum}
-            
-        elif type(course) == dict:
-            course["competencies"] = DEFAULT_COMPETENCY
-            course["q_matrix"] = {task: [1] for task in course["curriculum"]}  
-        
-        course = self.set_default_weights(course)
-        return course
+    @staticmethod
+    def get_sf_rate_based_on_submissions(tested_submissions : Iterable[Tested_Submission], course: Course):
+        succ_rate = np.zeros(len(course.competencies))
+        fail_rate = np.zeros(len(course.competencies))
 
-    def set_default_weights(self, course: Course | dict):
-        # Need to distinguish between course and course_dict
-        
-        if type(course) == Course:
-            skill_weights_pfa = DEFAULT_SKILL_WEIGHT * self.n
-            if course.course_parameters == None:
-                course.course_parameters = {"skill_weights_pfa": skill_weights_pfa}
+        for tested_submission in tested_submissions:
+            if tested_submission.valid_solution:
+                succ_rate += course.q_matrix[tested_submission.task_unique_name]
             else:
-                course.course_parameters["skill_weights_pfa"] = skill_weights_pfa
-        
-        elif type(course) == dict:    
-            skill_weights_pfa = DEFAULT_SKILL_WEIGHT * self.n
-            if course.get("course_parameters") == None:
-                course["course_parameters"] = {"skill_weights_pfa": skill_weights_pfa}
-            else:
-                course["course_parameters"]["skill_weights_pfa"] = skill_weights_pfa
-        
-        return course
+                fail_rate += course.q_matrix[tested_submission.task_unique_name]
+        return succ_rate, fail_rate
+
+    @classmethod
+    def set_default_parameters(cls, course_dict: dict) -> None:
+        print(f"""Generating default PFA parameters for course '{course_dict.get("unique_name", "undefined")}'.""")
+        cls.set_default_q_matrix(course_dict)
+        cls.set_default_weights(course_dict)
+
+    @classmethod
+    def set_missing_default_parameters(cls, course_dict: dict) -> None:
+        print(f"""Generating missing default PFA parameters for course '{course_dict.get("unique_name", "undefined")}'.""")
+        # Pydantic is assigning weird default values on object creation
+        if ("q_matrix" not in course_dict
+            or "competencies"not in course_dict):
+            cls.set_default_q_matrix(course_dict)
+        if ("course_parameters" not in course_dict
+            or course_dict.get("course_parameters", {}).get("skill_weights_pfa") is None):
+            cls.set_default_weights(course_dict)
+
+    # Sets the course's q-matrix and competencies to default
+    @staticmethod
+    def set_default_q_matrix(course_dict: dict) -> None:
+        course_dict["competencies"] = DEFAULT_COMPETENCY
+        flat_curriculum = list(itertools.chain.from_iterable(course_dict["curriculum"].values()))
+        course_dict["q_matrix"] = {task: [1]*len(DEFAULT_COMPETENCY) for task in flat_curriculum}
+    
+    # Sets the course's skill weights to default
+    @staticmethod
+    def set_default_weights(course_dict: dict) -> None:
+        skill_weights_pfa = [DEFAULT_SKILL_WEIGHT] * N * len(course_dict.get("competencies", DEFAULT_COMPETENCY))
+        course_dict.setdefault("course_parameters", {})["skill_weights_pfa"] = skill_weights_pfa

@@ -1,2 +1,10 @@
-<app-monaco-code-editor [language]="language"
-                        (contentChangeEvent)="onEditorContentChange($event)"></app-monaco-code-editor>
+<div class="code-editor-wrapper">
+  <div class="panel-icon" [matTooltip]="clipboardLocked ? 'Code editor. Copy, cut, and paste are disabled for this study.' : 'Code Editor'">
+    <mat-icon>code</mat-icon>
+  </div>
+  <app-monaco-code-editor [language]="language"
+                          [additionalFiles]="additionalFiles"
+                          [clipboardLocked]="clipboardLocked"
+                          (contentChangeEvent)="onEditorContentChange($event)"
+                          (clipboardTelemetryEvent)="handleClipboardTelemetryEvent($event)"></app-monaco-code-editor>
+</div>

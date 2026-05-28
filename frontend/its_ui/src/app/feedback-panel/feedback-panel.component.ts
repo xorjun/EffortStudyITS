@@ -1,15 +1,23 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { EventShareService } from '../shared/services/event-share.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconModule } from '@angular/material/icon';
+import { MarkdownPanelComponent } from '../shared/components/markdown-panel/markdown-panel.component';
+import { FeedbackSurveyComponent } from './feedback-survey/feedback-survey.component';
+import { StudyTelemetryService } from '../shared/services/study-telemetry.service';
+import { ExternalFeedbackPayload } from '../shared/services/event-share.service';
 
 @Component({
-  selector: 'app-feedback-panel',
-  templateUrl: './feedback-panel.component.html',
-  styleUrls: ['./feedback-panel.component.css']
+    selector: 'app-feedback-panel',
+    templateUrl: './feedback-panel.component.html',
+    styleUrls: ['./feedback-panel.component.css'],
+    imports: [CommonModule, MarkdownPanelComponent, FeedbackSurveyComponent, MatTooltipModule, MatIconModule]
 })
-export class FeedbackPanelComponent {
+export class FeedbackPanelComponent implements OnDestroy {
   show: boolean = true
 
   @ViewChild("taskSolvedDialog", {static: true}) taskSolvedDialog!: ElementRef<HTMLDialogElement>;
@@ -22,6 +30,7 @@ export class FeedbackPanelComponent {
   private codeRunReadySubscription: Subscription;
   private feedbackRequestSubscription: Subscription;
   private feedbackReadySubscription: Subscription;
+  private externalFeedbackSubscription: Subscription;
 
   code_language: string = 'python';
   feedback_markdown: string = '';
@@ -36,7 +45,8 @@ export class FeedbackPanelComponent {
 
   constructor(
     private eventShareService: EventShareService,
-    private client: HttpClient,){
+    private client: HttpClient,
+    private studyTelemetryService: StudyTelemetryService,){
     //Subscriptions for code submit
     this.submitSubscription = this.eventShareService.submitButtonClick$.subscribe((data) => {
       this.feedback_markdown = 'Code submitted, waiting for feedback...';
@@ -72,7 +82,7 @@ export class FeedbackPanelComponent {
       () => {
         this.displayFeedbackSurvey = false;
         console.log("Request arrived")
-        this.feedback_markdown = 'Feedback requested, waiting for results...'
+        this.feedback_markdown = 'AI hint requested, waiting for results...'
       }
     );
     this.feedbackReadySubscription = this.eventShareService.feedbackReady$.subscribe(
@@ -83,7 +93,19 @@ export class FeedbackPanelComponent {
           this.displayFeedbackSurvey = true;
         }
         setTimeout(() => {}, 0);
-    })
+    });
+    this.externalFeedbackSubscription = this.eventShareService.externalFeedback$.subscribe(
+      (payload: ExternalFeedbackPayload) => {
+        this.displayFeedbackSurvey = false;
+        this.feedback_markdown = payload.markdown;
+        this.currentFeedbackID = payload.feedbackId || payload.source;
+        this.studyTelemetryService.logContextEvent('feedback-result', {
+          feedbackId: this.currentFeedbackID,
+          source: payload.source,
+          feedbackLength: payload.markdown.length,
+        });
+      }
+    );
   }
 
   sendSurveyResults(surveyValue: any){
@@ -108,12 +130,21 @@ export class FeedbackPanelComponent {
     console.log("fetchSubmissionFeedback", submission_id)
     const endpoint_url = `${environment.apiUrl}/submission/feedback/${submission_id}`;
     this.client.get<any>(endpoint_url, ).subscribe((data) => { 
+      const failedTests = Array.isArray(data.test_results)
+        ? data.test_results.filter((result: { status?: boolean }) => !result.status).length
+        : 0;
       this.feedback = {
           test_results: data.test_results,
           task_id: data.task_unique_name,
           submission_id: data.submission_id,
           valid_solution: data.valid_solution,
       };
+      this.studyTelemetryService.logContextEvent('submission-result', {
+        submissionId: data.submission_id,
+        validSolution: data.valid_solution,
+        testCount: Array.isArray(data.test_results) ? data.test_results.length : 0,
+        failedTests,
+      });
       this.feedback_markdown = this.renderTestResults(this.feedback["test_results"]!, this.feedback["task_id"]!);
       if(sessionStorage.getItem("taskType")! == "plot_function") {
         this.graph_result = ''
@@ -124,6 +155,10 @@ export class FeedbackPanelComponent {
         this.openGraphComparisonDialog();
       }
       else if(this.feedback["valid_solution"]) {
+        this.studyTelemetryService.logContextEvent('task-solved', {
+          submissionId: data.submission_id,
+          via: 'submission',
+        });
         this.openValidSolutionDialog();
       }
       //this.evaluateFeedback(this.feedback["valid_solution"]!);
@@ -144,12 +179,24 @@ export class FeedbackPanelComponent {
   fetchRunExperiment(runId: string) {
       console.log("fetchRunExperiment", runId)
       const endpoint_url = `${environment.apiUrl}/submission/feedback/${runId}`;
-      this.client.get<any>(endpoint_url, ).subscribe((data) => { 
+      this.client.get<any>(endpoint_url, ).subscribe((data) => {
+        const combinedOutput = `${data.run_output || ''}\n${data.console_output || ''}`.toLowerCase();
+        const looksLikeError = ['traceback', 'error', 'exception'].some((needle) => combinedOutput.includes(needle));
         this.feedback = {
           output: data.run_output,
           task_id: data.task_unique_name,
       };
-      this.feedback_markdown = data.run_output;
+      this.studyTelemetryService.logContextEvent('run-result', {
+        runId,
+        outputLength: typeof data.run_output === 'string' ? data.run_output.length : 0,
+        consoleOutputLength: typeof data.console_output === 'string' ? data.console_output.length : 0,
+        looksLikeError,
+      });
+      let markdown = '## Result\n\n' + data.run_output;
+      if (data.console_output && data.console_output.trim() !== '') {
+        markdown += '\n\n## Console Output\n\n```\n' + data.console_output + '\n```';
+      }
+      this.feedback_markdown = markdown;
     });
   }
 
@@ -161,6 +208,11 @@ export class FeedbackPanelComponent {
           feedback: data.feedback,
           task_id: data.task_unique_name,
       };
+      this.studyTelemetryService.logContextEvent('feedback-result', {
+        feedbackId: feedbackID,
+        source: 'legacy',
+        feedbackLength: typeof data.feedback === 'string' ? data.feedback.length : 0,
+      });
       this.feedback_markdown = data.feedback;
     });
   }
@@ -191,7 +243,11 @@ export class FeedbackPanelComponent {
     else if (action == "next task") {
       this.feedback["valid_solution"] = true
       const endpoint_url = `${environment.apiUrl}/mark_solved/${sessionStorage.getItem("taskId")}`;
-      this.client.post<any>(endpoint_url, {}, {withCredentials: true}).subscribe((data) => {})
+      this.client.post<any>(endpoint_url, {}, {withCredentials: true}).subscribe((data) => {
+        this.studyTelemetryService.logContextEvent('task-solved', {
+          via: 'plot-comparison',
+        });
+      })
       this.eventShareService.emitNewTaskEvent('personal');
       this.graphComparisonDialog.nativeElement.close();
     }
@@ -205,5 +261,6 @@ export class FeedbackPanelComponent {
     this.codeRunReadySubscription.unsubscribe();
     this.feedbackRequestSubscription.unsubscribe();
     this.feedbackReadySubscription.unsubscribe();
+    this.externalFeedbackSubscription.unsubscribe();
   }
 }

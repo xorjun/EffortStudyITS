@@ -1,31 +1,42 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-import os
+from services.study_metrics import collect_study_metrics
 from db import database
 from users.handle_users import current_active_verified_user
 from db.db_connector_beanie import User
-from system.schemas import AppSettings
+from system.schemas import AppSettings, EditorPolicy, StudyMetricsResponse
+from users.schemas import UserLevel
 
 router = APIRouter()
 
-@router.post("/update")
-async def update_settings(settings: AppSettings, user: User = Depends(current_active_verified_user)):
-    if (not "admin" in user.roles):
+
+def _require_admin(user: User) -> None:
+    if max([UserLevel(role) for role in user.roles]) < UserLevel.admin:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authorized to access this resource"
         )
-    else:
-        await database.update_settings(vars(settings))
-        return {"response": "Settings updated"}
+
+@router.post("/update")
+async def update_settings(settings: AppSettings, user: User = Depends(current_active_verified_user)):
+    _require_admin(user)
+    await database.update_settings(settings.model_dump(exclude={"id"}))
+    return {"response": "Settings updated"}
     
 
 @router.get("/get")
 async def get_settings(user: User = Depends(current_active_verified_user)) -> AppSettings:
-    if (not "admin" in user.roles):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authorized to access this resource"
-        )
-    else:
-        settings = await database.get_settings()
-        return settings
+    _require_admin(user)
+    settings = await database.get_settings()
+    return settings
+
+
+@router.get("/study_metrics")
+async def get_study_metrics(user: User = Depends(current_active_verified_user)) -> StudyMetricsResponse:
+    _require_admin(user)
+    return await collect_study_metrics()
+
+
+@router.get("/editor_policy")
+async def get_editor_policy() -> EditorPolicy:
+    settings = await database.get_settings()
+    return EditorPolicy(disable_editor_copy_paste=settings.disable_editor_copy_paste)

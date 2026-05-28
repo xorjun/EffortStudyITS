@@ -1,5 +1,5 @@
 from models.pedagogical.feedback.feedback_generator.base import Base_feedback_generator
-from services.language_generation import generate_language
+from services.language_generation import generate_language, get_pedagogical_system_prompt
 from feedback.schemas import Evaluated_feedback_submission
 from db import database
 
@@ -15,6 +15,7 @@ class LLM_conceptual_explanation_generator(Base_feedback_generator):
         task_description = task_json.task
         test_messages = "\n".join([test["message"] for test in submission.test_results])
         instruction, system = self.generate_instruction(predicted_step, previous_state, task_description, test_messages=test_messages)
+        system = await get_pedagogical_system_prompt(system)
         course_settings = await database.get_course_settings_for_user(submission.user_id, submission.course_unique_name)
         language_generation_model = course_settings["language_generation_model"]
         if not self.textual_feedback_only:

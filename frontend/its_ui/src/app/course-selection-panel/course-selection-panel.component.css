@@ -1,50 +1,252 @@
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
 .course-selection-container {
-    display: flex;
-    flex-direction: column; /* Stack items vertically */
-    justify-content: center;
-    align-items: center;
-    text-align: center; /* Center-align text */
-    overflow: auto;
-    margin-top: 10%
-  }
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding: 1.5rem;
+  gap: 1rem;
+  background-color: #121212;
+  overflow: hidden;
+  box-sizing: border-box;
+}
 
-  .title-course-selection {
-    margin-bottom: 2rem; /* Add space between title and list */
-    font-size: 1.6rem;
-    font-weight: bold;
-  }
+/* Course Section Cards - dynamic sizing */
+.course-section-card {
+  width: 100%;
+  max-width: 700px;
+  background-color: #1E1E1E;
+  color: #FFFFFF;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
 
-/* Reset default list styles */
-.styled-list {
-    justify-content: center;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    width: 30%
+/* Enrolled card shrinks to fit content, max 40% height */
+.enrolled-card {
+  flex: 0 1 auto;
+  max-height: 40%;
+}
+
+/* Available card expands to fill remaining space */
+.available-card {
+  flex: 1;
+}
+
+.course-section-card mat-card-header {
+  padding-bottom: 0.5rem;
+  flex-shrink: 0;
+}
+
+.course-section-card mat-card-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #FFFFFF;
+}
+
+.course-section-card mat-card-content {
+  padding-top: 0.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Scrollable list container */
+.list-container {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Course List Styling */
+.course-list {
+  padding: 0;
+}
+
+.course-list-item {
+  height: auto !important;
+  min-height: 48px;
+  padding: 0.75rem 16px !important;
+  transition: background-color 0.2s ease;
+}
+
+/* Direct text styling - ensure visibility */
+.course-text {
+  color: #FFFFFF;
+  font-size: 1rem;
+  flex: 1;
+  text-align: left;
+  padding-right: 1rem;
+}
+
+/* Enrolled courses - subtle primary tint on hover */
+.enrolled-item:hover {
+  background-color: rgba(96, 125, 139, 0.15);
+}
+
+.enrolled-item:hover .course-text {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Available courses - subtle accent tint on hover */
+.available-item:hover {
+  background-color: rgba(0, 121, 107, 0.15);
+}
+
+.available-item:hover .course-text {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Icon Buttons */
+.course-list-item button[mat-icon-button] {
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+  color: #FFFFFF;
+  flex-shrink: 0;
+}
+
+.course-list-item button[mat-icon-button]:hover {
+  opacity: 1;
+}
+
+/* List item content layout */
+.course-list-item ::ng-deep .mat-mdc-list-item-unscoped-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Search Field Styling */
+.search-field {
+  width: 100%;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
+}
+
+.search-field ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+/* No Results Message */
+.no-results {
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  text-align: center;
+  padding: 1.5rem;
+  margin: 0;
+}
+
+/* Admin Section - compact toolbar style */
+.admin-card {
+  flex: 0 0 auto;
+  min-height: auto;
+  padding: 0.75rem 1rem;
+}
+
+.admin-card mat-card-header {
+  padding: 0 0 0.5rem 0;
+}
+
+.admin-card mat-card-title {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.admin-card mat-card-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+}
+
+.admin-content {
+  padding: 0.25rem 0 0 0 !important;
+}
+
+.admin-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.upload-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.overwrite-checkbox {
+  margin: 0;
+}
+
+.checkbox-label {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Scrollbar styling for dark theme */
+.list-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.list-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.list-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.list-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+  .course-selection-container {
+    padding: 1rem;
   }
   
-  /* Style list items */
-  .styled-list li {
-    margin-bottom: 0.5rem;
-    border-radius: 0.5rem;
-    box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    padding: 1rem 2rem; /* Adjusted padding to make the button smaller */
-    background-color: #777777;
-    color: #fff;
-    border: none;
-    border-radius: 0.3rem;
-    cursor: pointer;
-    width: 85%;
-    font-size: 1.1rem;
+  .course-section-card {
+    max-width: 100%;
   }
-  
-  /* Add hover effect */
-  .styled-list li:hover {
-    background-color: #252525;
-  }
-  
-  /* Add transition for smooth hover effect */
-  .styled-list li {
-    transition: background-color 0.3s ease;
-  }
+}
+
+/* Material List overrides for dark theme */
+::ng-deep .course-list .mat-mdc-list-item {
+  color: #FFFFFF;
+}
+
+::ng-deep .course-list .mat-divider {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Ensure dividers are positioned correctly */
+.course-list-item mat-divider {
+  position: absolute;
+  bottom: 0;
+  left: 16px;
+  right: 16px;
+}

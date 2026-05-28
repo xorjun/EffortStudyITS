@@ -1,30 +1,32 @@
 from courses.schemas import Course
-from tasks.schemas import Task
 from users.schemas import User
 
 from abc import ABC, abstractmethod
-import numpy as np
+
 
 class KT_Factor_Analysis_Model_Base(ABC):
-    current_user: User
-    q_matrix: np.ndarray
     
+    @staticmethod
     @abstractmethod
-    async def validate_course(self, course: Course):
-        raise NotImplementedError()
-    
-    @abstractmethod
-    def completion_probability(self, task: Task):
-        raise NotImplementedError()
-    
-    @abstractmethod
-    async def update_course_weights(self, course: Course = None):
-        raise NotImplementedError()
+    def validate_course(course: Course) -> None:
+        pass
 
+    @classmethod
     @abstractmethod
-    def set_default_params(course: Course) -> Course:
+    def set_default_parameters(cls, course_dict: dict) -> None:
+        pass
+
+    @classmethod
+    @abstractmethod
+    def set_missing_default_parameters(cls, course_dict: dict) -> None:
+        pass
+    
+    @classmethod
+    @abstractmethod
+    async def completion_probability(cls, task_names: str | list[str], user: User, course: Course | None = None) -> list[float]:
         raise NotImplementedError()
     
+    @staticmethod
     @abstractmethod
-    def set_default_weights(course: Course) -> Course:
+    async def update_course_weights(course: Course) -> None:
         raise NotImplementedError()

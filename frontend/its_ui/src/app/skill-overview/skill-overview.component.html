@@ -1,17 +1,22 @@
 <div class = "skill-overview-container">
 
 <!-- [(ngModel)]="selectedCourse" -->
-    <select (change)="onSelectedCourseChange($event)">
-    <option *ngFor="let course of courses" [value]="course">{{ course }}</option>
+    <select id = "skill-overview-course-selection" (change)="onSelectedCourseChange()">
+    <option *ngFor="let course of courses" [value]="course.unique_name">{{ course.display_name }}</option>
     </select>
-
+    <!-- <h3>Course Progress</h3> -->
+    <div class="progress-container">
+        <div class="progress-bar-gain" [style.width.%]="course_value + course_progress"></div>
+        <div class="progress-bar-value" [style.width.%]="course_value"></div>
+        <div class="overlay-text">{{ course_value | number:'1.0-2' }}% + {{course_progress| number:'1.0-2' }}%</div>
+    </div>
+    <button class="isolated-button" (click)="suggestNextSteps()">Suggest Next Steps</button>
     <div class="entry-list">
     <table>
         <thead>
         <tr>
             <th>Name</th>
-            <th>Value</th>
-            <th>Progress</th>
+            <th>Skill Progress</th>
             <th>Reason</th>
             <th>Explanation</th>
         </tr>
@@ -21,17 +26,42 @@
             <td>{{ skill.name }}</td>
             <td>
                 <div class="progress-container">
-                    <div class="progress-bar" [style.width.%]="skill.value">
-                    </div>
-                    <div class="overlay-text">{{ skill.value }}</div>
+                    <div class="progress-bar-gain" [style.width.%]="skill.value + skill.gain"></div>
+                    <div class="progress-bar-value" [style.width.%]="skill.value"></div>
+                    <div class="overlay-text">{{ skill.value | number:'1.0-2' }}% + {{skill.gain | number:'1.0-2' }}%</div>
                 </div>
             </td>
-            <!-- <td>{{ skill.value }}</td> -->
-            <td>{{ skill.progress }}</td>
-            <td>{{ [skill.associated_tasks] }}</td>
-            <td>{{ skill.explanation}}</td>
+            <td><button class="list-button" (click)="generateReason(skill.name)">Get Reason</button></td>
+            <td><button class="list-button" (click)="generateExplanation(skill.name)">Get Explanation</button></td>
         </tr>
         </tbody>
     </table>
     </div>
 </div>
+
+
+  <dialog #explanationPopup class="popup-dialog-container">
+    <div class="popup-dialog">
+      <app-markdown-panel [markdownString]="explanationMarkdown"></app-markdown-panel>
+        <div class="ok-button-container">
+          <button class="popup-dialog-button" (click)="explanationPopup.close()">
+            Close
+         </button>
+        </div>
+    </div>
+  </dialog>
+
+
+  <dialog #reasonPopup class="popup-dialog-container">
+    <div class="popup-dialog">
+      <app-markdown-panel [markdownString]="reasonMarkdown"></app-markdown-panel>
+        <div class="ok-button-container">
+          <button class="popup-dialog-button" (click)="reasonPopup.close()">
+            Close
+         </button>
+        </div>
+    </div>
+  </dialog>
+
+
+

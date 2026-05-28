@@ -1,6 +1,6 @@
 #!function!#
 import numpy as np 
-def my_arrays(n):
+def my_arrays(n: int):
 #!prefix!#
     if n <= 0:
         return None  # Return None for invalid input

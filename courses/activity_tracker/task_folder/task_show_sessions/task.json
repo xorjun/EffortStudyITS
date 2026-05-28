@@ -1,0 +1,5 @@
+{
+    "arguments": {
+        "sessions": {"example": "[[\"Mathematics\", 45], [\"Physics\", 30]]", "type": "list"}
+    }
+}

@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, ViewChild, ElementRef, Input,  } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { MarkdownComponent } from 'ngx-markdown';
+import { MarkdownPanelComponent } from '../markdown-panel/markdown-panel.component';
 
 @Component({
-  selector: 'app-imprint-popup',
-  templateUrl: './imprint-popup.component.html',
-  styleUrls: ['./imprint-popup.component.css']
+    selector: 'app-imprint-popup',
+    templateUrl: './imprint-popup.component.html',
+    styleUrls: ['./imprint-popup.component.css'],
+    imports: [MarkdownPanelComponent]
 })
 export class ImprintPopupComponent {
 

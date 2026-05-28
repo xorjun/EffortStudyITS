@@ -6,6 +6,12 @@
 import { Injectable } from '@angular/core';
 import {Subject} from 'rxjs';
 
+export interface ExternalFeedbackPayload {
+  markdown: string;
+  source: 'appwrite-ai' | 'legacy-error' | 'external';
+  feedbackId?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -61,6 +67,14 @@ export class EventShareService {
     this.feedbackReadySubject.next(feedbackId);
   }
 
+  // Direct external feedback markdown Event
+  private externalFeedbackSubject = new Subject<ExternalFeedbackPayload>();
+  externalFeedback$ = this.externalFeedbackSubject.asObservable();
+
+  emitExternalFeedback(payload: ExternalFeedbackPayload) {
+    this.externalFeedbackSubject.next(payload);
+  }
+
   //New Task Event
   private newTaskEventSubject = new Subject<string>();
   newTaskEvent$ = this.newTaskEventSubject.asObservable();
@@ -99,6 +113,14 @@ export class EventShareService {
 
   emitTopicInduced(topic: string) {
     this.topicInducedSubject.next(topic);
+  }
+
+  // Task Directly Selected Event
+  private taskDirectlySelectedSubject = new Subject<string>();
+  taskDirectlySelected$ = this.taskDirectlySelectedSubject.asObservable();
+
+  emitTaskDirectlySelected(taskName: string) {
+    this.taskDirectlySelectedSubject.next(taskName);
   }
 
 }

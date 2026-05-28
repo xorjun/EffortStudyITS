@@ -1,0 +1,5 @@
+{
+    "arguments": {
+        "n": {"example": "7", "type": "int"}
+    }
+}

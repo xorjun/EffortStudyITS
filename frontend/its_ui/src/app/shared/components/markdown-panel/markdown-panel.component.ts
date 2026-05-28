@@ -1,10 +1,12 @@
 import { Component, Input, ViewChild, ElementRef } from '@angular/core';
+import { MarkdownModule } from 'ngx-markdown';
 import { PrismHighlightService } from '../../services/prism-highlight.service';
 
 @Component({
-  selector: 'app-markdown-panel',
-  templateUrl: './markdown-panel.component.html',
-  styleUrls: ['./markdown-panel.component.css']
+    selector: 'app-markdown-panel',
+    templateUrl: './markdown-panel.component.html',
+    styleUrls: ['./markdown-panel.component.css'],
+    imports: [MarkdownModule]
 })
 export class MarkdownPanelComponent {
   @Input() markdownString: string="";

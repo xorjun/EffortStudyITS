@@ -1,0 +1,27 @@
+{
+    "display_name": "Activity Tracker",
+    "domain": "Study Tracking with Python",
+    "unique_name": "activity_tracker",
+    "default_topic": "Python Basics",
+    "curriculum": {
+        "Python Basics": [
+            "welcome_message",
+            "remember_subject",
+            "start_sessions",
+            "add_session"
+        ],
+        "Data Processing": [
+            "show_sessions",
+            "describe_session",
+            "total_study_time",
+            "study_recommendation"
+        ]
+    },
+    "course_settings": {
+        "feedback_init_time": 60,
+        "feedback_cooldown": 30,
+        "pedagogical_model": "prototype",
+        "language_generation_model": "mistral-small-latest",
+        "ai_assistance_mode": "hints"
+    }
+}

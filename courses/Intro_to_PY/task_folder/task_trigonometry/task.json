@@ -1,0 +1,5 @@
+{
+    "arguments": {
+        "angle_array": {"example": "np.array([-60, -45, -30, 0])", "type": "ndarray"}
+    }
+}

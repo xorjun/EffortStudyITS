@@ -1,0 +1,5 @@
+{
+    "arguments": {
+        "numbers": {"example": "[1, 2, 4, 9, 10]", "type": "list"}
+    }
+}

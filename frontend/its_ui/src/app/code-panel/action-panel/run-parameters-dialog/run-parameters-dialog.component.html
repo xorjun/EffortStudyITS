@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>Run Parameters</h2>
+<mat-dialog-content>
+  <form [formGroup]="parametersForm" class="parameters-form">
+    <div formArrayName="fields" class="arguments-container">
+      <div *ngFor="let control of formArrayControls; let i = index" [formGroupName]="i" class="argument-field">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>{{ control.get('argname')?.value }}</mat-label>
+          <input matInput formControlName="value">
+          <span matSuffix *ngIf="control.get('argType')?.value" class="type-suffix">{{ control.get('argType')?.value }}</span>
+        </mat-form-field>
+      </div>
+    </div>
+    <mat-checkbox formControlName="showConsoleOutput" color="primary">
+      Include Console Output
+    </mat-checkbox>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="onAbort()">Abort</button>
+  <button mat-raised-button color="accent" (click)="onRun()">Run</button>
+</mat-dialog-actions>

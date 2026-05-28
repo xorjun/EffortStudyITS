@@ -1,13 +1,11 @@
 import { AfterViewInit, Component, ElementRef, Input, OnChanges, ViewChild } from '@angular/core';
 import * as Prism from 'prismjs';
 
-// source: https://techincent.com/code-syntax-highlighter-angular-with-prism-js/
-// Consult source if multiple languages are required.
-
 @Component({
   selector: 'app-prism',
   templateUrl: './prism.component.html',
-  styleUrls: ['./prism.component.css']
+  styleUrls: ['./prism.component.css'],
+  standalone: true
 })
 export class PrismComponent implements AfterViewInit, OnChanges {
   @ViewChild('codeEle') codeEle!: ElementRef;

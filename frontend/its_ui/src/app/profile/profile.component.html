@@ -1,47 +1,56 @@
 <div class="profile-container">
-    <div class="profile-form">
-        <div class="user-info-container">
-            <h1>User Profile</h1>
-            <table>
-                <tr>
-                    <th>Name</th>
-                    <td>{{user.username}}</td>
-                </tr>
-<!--                 <tr>
-                    <th>Email</th>
-                    <td>{{email}}</td>
-                </tr> -->
-                <tr>
-                    <th>Registered for</th>
-                    <td>{{enrolledCourses}}</td>
-                </tr>
-                <tr>
-                    <th>Registered since</th>
-                    <td>{{registeredDatetime}}</td>
-                </tr>
-            </table>
-        </div>
+  <mat-card class="profile-card">
+    <mat-card-header class="profile-header">
+      <mat-card-title>User Profile</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <!-- User Info Section -->
+      <mat-card class="user-info-card">
+        <mat-card-content>
+          <table class="profile-table">
+            <tr>
+              <th>Name</th>
+              <td>{{user.username}}</td>
+            </tr>
+            <tr>
+              <th>Registered for</th>
+              <td class="multiline-text">{{enrolledCourses}}</td>
+            </tr>
+            <tr>
+              <th>Registered since</th>
+              <td>{{registeredDatetime}}</td>
+            </tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
 
-        <hr>
-        <div class="checkbox-container" (click)="updateSettings()">
-              <input class="data-checkbox" id="data-checkbox" type="checkbox" #consentCheckbox checked/> 
-              <label class="consent-label" for="data-checkbox">I consent to anonymized data collection for purely scientific purposes.</label>
-        </div>
-        <div class="checkbox-info">
-          <div class="invisible-checkbox"></div>
-          <p>
-            <a (click)="showDataTermsPopup()">Learn more about the data we gather and its potential uses.</a>
-          </p>
-          <app-data-terms-popup #dataTermsPopupComponent></app-data-terms-popup>
-        </div>
+      <mat-divider class="section-divider"></mat-divider>
 
-        <hr>
-
-      <div class="centered-button">
-        <button (click)="closeProfile()">Close Profile</button>
+      <!-- Data Consent Section -->
+      <div class="consent-section">
+        <mat-checkbox 
+          [(ngModel)]="dataCollectionConsent" 
+          (change)="updateSettings()"
+          color="primary">
+          I consent to anonymized data collection for purely scientific purposes.
+        </mat-checkbox>
+        <p class="consent-info">
+          <a (click)="showDataTermsPopup()">Learn more about the data we gather and its potential uses.</a>
+        </p>
       </div>
-      <div class="centered-button">
-        <button (click)="logout()">Logout</button>
+
+      <mat-divider class="section-divider"></mat-divider>
+
+      <!-- Action Buttons -->
+      <div class="button-container">
+        <button mat-stroked-button (click)="closeProfile()" class="action-button secondary-button">
+          Close Profile
+        </button>
+        <button mat-raised-button color="primary" (click)="logout()" class="action-button">
+          Logout
+        </button>
       </div>
-    </div>
-    </div>
+    </mat-card-content>
+  </mat-card>
+</div>

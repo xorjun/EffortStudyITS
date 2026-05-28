@@ -1,0 +1,36 @@
+<section class="banner-shell" *ngIf="banner$ | async as banner">
+  <div class="banner-card" [class.banner-blocking]="banner.blocksProgress">
+    <div class="banner-header">
+      <div>
+        <p class="banner-eyebrow">Study prompt</p>
+        <h3>{{ banner.name }}</h3>
+      </div>
+      <button *ngIf="banner.isDismissable" type="button" class="dismiss-button" (click)="dismiss()">Dismiss</button>
+    </div>
+
+    <p class="banner-message">{{ banner.message }}</p>
+
+    <form class="banner-form" [formGroup]="form" (ngSubmit)="submit()">
+      <div formArrayName="responses" class="banner-inputs">
+        <div class="banner-input" *ngFor="let input of banner.inputs; let i = index">
+          <label>{{ getLabel(input, i) }}</label>
+          <ng-container *ngIf="getOptions(input).length > 0; else freeTextInput">
+            <div class="option-row">
+              <button type="button" *ngFor="let option of getOptions(input)" [class.option-active]="responses.at(i).value === option" (click)="responses.at(i).setValue(option)">{{ option }}</button>
+            </div>
+          </ng-container>
+          <ng-template #freeTextInput>
+            <textarea *ngIf="isLongText(input); else shortTextInput" [formControlName]="i" rows="3"></textarea>
+            <ng-template #shortTextInput>
+              <input [formControlName]="i" type="text">
+            </ng-template>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="banner-actions">
+        <button type="submit">Submit</button>
+      </div>
+    </form>
+  </div>
+</section>

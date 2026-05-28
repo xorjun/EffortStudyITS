@@ -1,5 +1,5 @@
 #!function!#
-def factorial(n):
+def factorial(n: int):
 #!prefix!#
     if type(n) is not int:
         raise ValueError("The factorial function is only defined for integer inputs.")

@@ -1,0 +1,663 @@
+Welcome to the Activity Tracker Python Course! We are excited to have you explore programming with us. This platform is designed to help beginners learn Python step by step through small learning sections and practical coding tasks.
+
+Our system is currently in an early development stage, so some features and improvements are still being added. While using the platform, you may notice ongoing changes as we continue improving the learning experience.
+
+
+Introduction to Python
+
+This course is a beginner-friendly introduction to the Python programming language. The goal of this course is not to teach every detail of Python, but to help you understand the basic ideas needed to solve simple programming tasks.
+
+The course focuses on:
+
+* Writing and understanding simple Python programs
+* Learning by reading examples
+* Solving small coding tasks step by step
+* Building parts of a simple Activity Tracker application
+
+You do not need any previous programming experience to complete this course.
+
+How This Course Works
+
+The course is divided into small sections. In each section, you will:
+
+1. Read short learning materials
+2. See simple code examples
+3. Complete a programming task
+
+The tasks gradually build parts of a small Activity Tracker program that can:
+
+* Store activities
+* Track time
+* Show summaries
+* Give simple feedback
+
+The course focuses on practical understanding rather than advanced theory. Explanations are kept simple and use everyday language whenever possible.
+
+Before You Start
+
+While working on the tasks:
+
+* Read the learning content carefully
+* Try to understand each example
+* Take your time when solving tasks
+* Small mistakes are normal while learning programming
+
+Programming is learned through practice and experimentation. The goal is not perfection, but understanding how programs work step by step.
+
+We hope you enjoy learning Python with the Activity Tracker course!
+
+
+
+Print a Welcome Message
+
+We start by learning how programs can display messages on the screen.
+Programs often show welcome messages, instructions, or information to the user.
+
+In Python, we use the print() command to display text.
+
+Text should be written inside quotes (" "), so the program knows which part is text.
+
+Example
+print("How are you")
+
+This will output:
+
+How are you
+
+Writing a Function
+
+A function is a small block of code that performs one task.
+
+In Python, we create a function using the def keyword.
+
+Example
+def say_hello():
+    print("Hello")
+
+This creates a function named say_hello.
+
+The code inside the function will only run when the function is called.
+
+Calling the Function:
+say_hello()
+
+This will output:
+
+Hello
+
+To Do
+
+Write a function named welcome_message that prints exactly "Welcome to Study Tracker".
+
+
+Afterwards, call the function once so that the message appears on the console when the program is executed.
+
+
+Do not print any extra text.
+
+
+2.Remember a Study Subject
+
+Programs often need to remember information so it can be used later.
+
+In Python, we can store information inside a variable.
+
+A variable is a named place where the program keeps something temporarily.
+
+For example, a program can remember:
+
+a study subject
+a username
+a score
+a message
+Using Variables
+
+A variable is created using the = symbol.
+
+study_subject = "Python"
+
+This stores the text "Python" inside the variable study_subject.
+
+Using a Function Parameter
+
+Functions can receive information from outside.
+
+The value inside the brackets is called a parameter.
+
+def show_subject(subject):
+    print(subject)
+
+Here, the function receives a subject and uses it inside the function.
+
+Returning a Value
+
+A function can give a value back using return.
+
+def get_subject():
+    subject = "Python"
+    return subject
+
+The function returns the value stored in subject.
+
+Example
+def remember_subject(subject):
+    study_subject = subject
+    return study_subject
+
+If the function is called like this:
+
+remember_subject("Python")
+
+the returned value will be:
+
+Python
+
+To Do
+
+Write a function named remember_subject that receives a subject as the parameter subject.
+
+
+Inside the function, store that value in a variable named study_subject and return study_subject.
+
+
+You will use that remembered subject again when you add study sessions later in the course.
+
+
+3. Start a Session List
+
+Programs often need to store multiple pieces of information together.
+
+In Python, we can use a list to keep many items in one place.
+
+A list can store:
+
+study subjects
+session times
+names
+messages
+
+Lists keep items in order, and new items can be added later.
+
+Creating an Empty List
+
+An empty list is created using square brackets:
+
+activities = []
+
+Right now, the list has no items inside it.
+
+Adding Items to a List
+
+We can add new items using append().
+
+activities = []
+activities.append("Reading")
+
+Now the list contains:
+
+["Reading"]
+Lists Can Store Multiple Items
+activities = []
+activities.append("Reading")
+activities.append("Exercise")
+activities.append("Music")
+
+This creates:
+
+["Reading", "Exercise", "Music"]
+Using Lists Inside Functions
+
+A function can create a list and return it.
+
+def create_activities():
+    activities = []
+    return activities
+
+When the function runs, it returns an empty list.
+
+To Do
+
+Write a function named start_sessions that does not receive any parameters.
+
+
+Create an empty list named sessions and return it.
+
+
+For example, start_sessions() should return [].
+
+4. Add One Study Session
+
+Sometimes one piece of information is not enough.
+
+A study session may need to store:
+
+the subject
+the study duration
+
+In Python, a list can store multiple values together.
+
+A list can even contain another list inside it.
+
+Storing Multiple Values Together
+session = ["Mathematics", 45]
+
+This list stores:
+
+"Mathematics" → the subject
+45 → the duration
+Lists Inside Lists
+
+A larger list can contain many study sessions.
+
+sessions = []
+
+sessions.append(["Mathematics", 45])
+sessions.append(["Physics", 30])
+
+Now the list becomes:
+
+[["Mathematics", 45], ["Physics", 30]]
+
+Each inner list represents one study session.
+
+Converting Text to a Number
+
+Sometimes numbers are stored as text.
+
+Example:
+
+"45"
+
+This is text, not a real number.
+
+To convert text into a number, we use int().
+
+duration = int("45")
+
+Now duration becomes the number:
+
+45
+Using This in a Function
+
+A function can:
+
+convert the duration
+create a study session
+add it to the list
+return the updated list
+Example
+def add_movie(movies, name, year_text):
+    year = int(year_text)
+
+    movies.append([name, year])
+
+    return movies
+
+Calling the function:
+
+add_movie([], "Inception", "2010")
+
+returns:
+
+[["Inception", 2010]]
+
+To Do
+
+Write a function named add_session that receives sessions, subject, and duration_text.
+
+Convert duration_text to an integer, append a list [subject, duration] to the existing sessions list, and return sessions.
+
+5. Show All Study Sessions
+
+Programs often need to repeat the same action multiple times.
+
+For example, a study tracker may need to:
+
+show every study session
+display every subject
+process all stored data
+
+In Python, we use a for loop to go through items one by one.
+
+Using a for Loop
+
+A for loop takes one item from a list at a time.
+
+colors = ["Red", "Blue", "Green"]
+
+for color in colors:
+    print(color)
+
+This will output:
+
+Red
+Blue
+Green
+Looping Through Study Sessions
+
+A study session list can look like this:
+
+sessions = [
+    ["Mathematics", 45],
+    ["Physics", 30]
+]
+
+Each item contains:
+
+a subject
+a duration
+Accessing Values Inside Each Session
+
+Inside the loop:
+
+session[0] gives the subject
+session[1] gives the duration
+
+Example:
+
+session = ["Mathematics", 45]
+
+print(session[0])
+print(session[1])
+
+This outputs:
+
+Mathematics
+45
+Printing Formatted Messages
+
+We can combine text and values inside print().
+
+subject = "Physics"
+duration = 30
+
+print("Subject:", subject, "- Duration:", duration)
+
+This outputs:
+
+Subject: Physics - Duration: 30
+Example
+def show_fruits(fruits):
+    for fruit in fruits:
+        print("Fruit:", fruit)
+
+Calling:
+
+show_fruits(["Apple", "Banana"])
+
+will print:
+
+Fruit: Apple
+Fruit: Banana
+
+To Do
+Write a function named show_sessions that receives a list named sessions.
+
+
+Each entry in sessions is a list of the form [subject, duration].
+
+
+Use a for loop to print each session on its own line in the format "Subject: <subject>, Duration: <duration> minutes".
+
+
+For example, for [["Mathematics", 45], ["Physics", 30]] the function should print:
+
+
+Subject: Mathematics, Duration: 45 minutes
+Subject: Physics, Duration: 30 minutes
+
+6. Describe One Session with Indices
+
+Lists store items in order.
+
+Each item in a list has a position called an index.
+
+In Python:
+
+the first item has index 0
+the second item has index 1
+the third item has index 2
+
+Indexing allows us to access specific values from a list.
+
+Accessing Items with Indices
+colors = ["Red", "Blue", "Green"]
+
+print(colors[0])
+print(colors[1])
+
+This outputs:
+
+Red
+Blue
+Using Indices with Study Sessions
+
+A study session list contains:
+
+the subject
+the duration
+
+Example:
+
+session = ["Mathematics", 45]
+
+Here:
+
+session[0] → "Mathematics"
+session[1] → 45
+Combining Text and Values
+
+We can combine text and values to create readable messages.
+
+name = "Alice"
+age = 20
+
+message = "Name: " + name + ", Age: " + str(age)
+
+print(message)
+
+This outputs:
+
+Name: Alice, Age: 20
+Converting Numbers to Text
+
+A number cannot be directly combined with text.
+
+We use str() to convert a number into text.
+
+duration = 45
+
+text_duration = str(duration)
+
+Now the number can be combined inside a string.
+
+Example
+def describe_book(book):
+    return "book[0] = " + book[0] + ", book[1] = " + str(book[1])
+
+Calling:
+
+describe_book(["Python Basics", 120])
+
+returns:
+
+book[0] = Python Basics, book[1] = 120
+
+To Do
+
+Write a function named describe_session that receives one session list named session.
+
+
+Use list indexing to create and return a string in exactly this format:
+
+
+session[0] = <subject>, session[1] = <duration>
+
+
+For example, describe_session(["Mathematics", 45]) should return "session[0] = Mathematics, session[1] = 45".
+
+7. Calculate Total Study Time
+
+Programs often need to calculate totals.
+
+For example, a study tracker may want to calculate the total number of minutes studied.
+
+To do this, we use an accumulator variable.
+
+An accumulator starts with a value and is updated inside a loop.
+
+Starting a Total
+
+Usually, the total starts at 0.
+
+total = 0
+Adding Values Inside a Loop
+total = total + 10
+
+This updates the total by adding a new value.
+
+Example
+numbers = [5, 10, 15]
+
+total = 0
+
+for number in numbers:
+    total = total + number
+
+print(total)
+
+This outputs:
+
+30
+Using This with Study Sessions
+
+A study session looks like this:
+
+["Mathematics", 45]
+
+Here:
+
+session[0] is the subject
+session[1] is the duration
+
+We only add the durations.
+
+Another Example
+def total_scores(scores):
+
+    total = 0
+
+    for score in scores:
+        total = total + score
+
+    return total
+
+Calling:
+
+total_scores([20, 15, 5])
+
+returns:
+
+40
+
+To Do
+
+Write a function named total_study_time that receives a list named sessions.
+
+
+Each element of sessions is a list [subject, duration].
+
+
+Use an accumulator variable to sum all durations and return the total number of minutes.
+
+
+For example, [["Mathematics", 45], ["Physics", 30]] should return 75.
+
+8. Give a Simple Recommendation
+
+Programs can make decisions based on conditions.
+
+For example, a study tracker can:
+
+* encourage the user to study more
+* congratulate the user for studying enough
+
+In Python, we use `if` and `else` for this.
+
+
+
+Using `if`:
+
+An `if` statement checks whether something is true.
+
+python id="r4m8qx"
+age = 15
+
+if age < 18:
+    print("Minor")
+
+
+This prints:
+
+text id="z7p2la"
+Minor
+
+
+because `15` is less than `18`.
+
+Using `else`:
+
+`else` is used when the condition is not true.
+
+python id="k5v3td"
+score = 80
+
+if score < 50:
+    print("Try again")
+else:
+    print("Well done")
+
+This outputs:
+
+text id="u2x9we"
+Well done
+
+Returning Messages from Functions:
+
+A function can return different messages depending on a condition.
+
+python id="m8q1rv"
+def weather_message(temperature):
+
+    if temperature < 20:
+        return "Cold day"
+    else:
+        return "Warm day"
+
+
+Calling:
+
+python id="t6p4av"
+weather_message(25)
+
+
+returns:
+
+text id="w3n7lb"
+Warm day
+
+To Do
+
+
+Write a function named study_recommendation that receives total_minutes.
+
+
+If total_minutes is less than 60, return exactly "Study a little longer today."
+
+
+Otherwise, return exactly "Great job! You reached at least 60 minutes."
+
+
+This recommendation is meant to be the final step after you calculate the total study time for all sessions.
+
+

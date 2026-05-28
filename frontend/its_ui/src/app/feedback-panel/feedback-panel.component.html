@@ -40,6 +40,9 @@
 
 <div class="feedback-container">
     <div class="feedback-panel">
+        <div class="panel-icon" matTooltip="Feedback Panel">
+            <mat-icon>feedback</mat-icon>
+        </div>
         <app-markdown-panel [markdownString]="feedback_markdown"></app-markdown-panel>
     </div>
     <div class="feedback-survey" *ngIf="displayFeedbackSurvey" feedbackID="currentFeedbackID">

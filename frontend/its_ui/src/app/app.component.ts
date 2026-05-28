@@ -1,13 +1,47 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { EventShareService } from './shared/services/event-share.service';
 import { environment } from 'src/environments/environment';
 import { CourseSettingsService } from './shared/services/course-settings-service.service';
+import { AuthComponent } from './auth/auth.component';
+import { ProfileComponent } from './profile/profile.component';
+import { NavigationBarComponent } from './navigation-bar/navigation-bar.component';
+import { TaskPanelComponent } from './task-panel/task-panel.component';
+import { FeedbackPanelComponent } from './feedback-panel/feedback-panel.component';
+import { CodePanelComponent } from './code-panel/code-panel.component';
+import { CourseSelectionPanelComponent } from './course-selection-panel/course-selection-panel.component';
+import { CourseSettingsComponent } from './course-settings/course-settings.component';
+import { SkillOverviewComponent } from './skill-overview/skill-overview.component';
+import { AdminSettingsComponent } from './admin-settings/admin-settings.component';
+import { FinalShowcaseComponent } from './final-showcase/final-showcase.component';
+import { AngularSplitModule } from 'angular-split';
+import { StudyFunctionsService } from './shared/services/study-functions.service';
+import { StudyTelemetryService } from './shared/services/study-telemetry.service';
+import { StudyBannerComponent } from './study-banner/study-banner.component';
+import { CourseIntroComponent } from './course-intro/course-intro.component';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css'],
+    imports: [
+        CommonModule,
+        AngularSplitModule,
+        AuthComponent,
+        ProfileComponent,
+        NavigationBarComponent,
+        TaskPanelComponent,
+        FeedbackPanelComponent,
+        CodePanelComponent,
+        CourseSelectionPanelComponent,
+        CourseSettingsComponent,
+        SkillOverviewComponent,
+        AdminSettingsComponent,
+        FinalShowcaseComponent,
+        StudyBannerComponent,
+        CourseIntroComponent
+    ]
 })
 export class AppComponent {
 
@@ -19,7 +53,9 @@ export class AppComponent {
 
   constructor(private client: HttpClient,
     private eventShareService: EventShareService,
-    private courseSettingsService: CourseSettingsService){
+    private courseSettingsService: CourseSettingsService,
+    private studyFunctionsService: StudyFunctionsService,
+    private studyTelemetryService: StudyTelemetryService){
       eventShareService.viewChange$.subscribe(
         (status) => {
           this.setView(status);
@@ -30,6 +66,21 @@ export class AppComponent {
   ngOnInit(): void {
     this.client.get<any>(`${environment.apiUrl}/status`).subscribe((data) =>  {
       console.log(data["message"]);
+    });
+
+    // Restore session after page refresh if the auth cookie is still valid.
+    this.client.get<any>(`${environment.apiUrl}/users/me`, { withCredentials: true }).subscribe({
+      next: () => { this.setView('loggedIn'); },
+      error: () => { /* not authenticated — stay on loginView */ }
+    });
+
+    void this.studyFunctionsService.initializeFromUrl().then((result) => {
+      if (result) {
+        this.studyTelemetryService.logEvent('session-start', {
+          sessionNumber: result.currentSession,
+          condition: result.condition,
+        }, result.currentSession);
+      }
     });
   }
 
@@ -43,8 +94,16 @@ export class AppComponent {
           this.pageName = 'loginView';
           break;
       case 'courseSelected':
-          this.courseSettingsService.fetchCourse();
-          this.course = this.courseSettingsService.course
+          this.courseSettingsService.getCourse().subscribe((course: any) => {
+            this.course = course;
+            if (course.introduction) {
+              this.pageName = 'courseIntroView';
+            } else {
+              this.pageName = 'tutoringView';
+            }
+          });
+          break;
+      case 'introCompleted':
           this.pageName = 'tutoringView';
           break;
       case 'skillOverviewRequest':
@@ -71,6 +130,9 @@ export class AppComponent {
           this.originPage = this.pageName;
           this.pageName = 'adminSettings';
           break;
+      case 'finalShowcase':
+        this.pageName = 'finalShowcase';
+        break;
       case 'settingsClosed':
         if (this.originPage == "tutoringView")
           {this.initTask = sessionStorage.getItem("taskId")!;}

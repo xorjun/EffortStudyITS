@@ -16,7 +16,8 @@ class Task(Document):
     tests: dict
     type: str
     prefix: str
-    arguments: Optional[list]=None
+    additional_files: Optional[list] = None
+    arguments: Optional[dict]=None
     function_name: Optional[str]=None
     possible_choices: Optional[list]=None
     correct_choices: Optional[list]=None
@@ -38,7 +39,7 @@ class State():
 
     state: str
     hashed_state: Optional[str]
-    state_embedding: np.array
+    state_embedding: np.ndarray
 
     def set(self, state, hashed_state):
 

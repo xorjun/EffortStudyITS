@@ -95,18 +95,35 @@ def get_plt_dummy(path: str = None):
 def getExecutableString_runFunction(submission_code, function_name, run_arguments):
     return_args = {
         "run_result": "run_result",
+        "submission_captured_output": "submission_captured_output",
     }
     code_strings = [
+        printIO_capture,
         submission_code,
         f"run_result = {function_name}(**{run_arguments})",
+        printIO_release,
         format_json_returns(return_args),
     ]
     return "\n".join(code_strings)
 
 def getExecutableString_runPrint(submission_code, function_name, run_arguments):
+    return_args = {
+        "run_result": "run_result",
+        "submission_captured_output": "submission_captured_output",
+    }
     code_strings = [
+        printIO_capture,
         submission_code,
-        #f"run_result = {function_name}(**{run_arguments})",
+        printIO_release,
+        "run_result = submission_captured_output",
+        "if run_result == '':",
+        "    submission_captured_output = StringIO()",
+        "    unsafe_sys_import.stdout = submission_captured_output",
+        f"    {function_name}(**{run_arguments})",
+        "    unsafe_sys_import.stdout = __stdout__",
+        "    submission_captured_output = submission_captured_output.getvalue().strip()",
+        "    run_result = submission_captured_output",
+        format_json_returns(return_args),
     ]
     return "\n".join(code_strings)
 
@@ -114,11 +131,14 @@ def getExecutableString_runPlot(submission_code, function_name, run_arguments):
     return_args = {
         "run_result": "run_result",
         "func_queue": "plt.func_queue",
+        "submission_captured_output": "submission_captured_output",
     }
     code_strings = [
+        printIO_capture,
         get_plt_dummy(),
         submission_code.strip("import matplotlib.pyplot as plt"),
         f"run_result = {function_name}(**{run_arguments})",
+        printIO_release,
         "func_queue = plt.func_queue",
         format_json_returns(return_args),
     ]

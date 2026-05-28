@@ -1,6 +1,13 @@
 from beanie import Document
 from typing import Optional
 from beanie import PydanticObjectId
+from pydantic import BaseModel, Field
+
+
+class ClipboardEvent(BaseModel):
+    action: str
+    blocked: bool = False
+    event_datetime: Optional[dict] = None
 
 
 class AttemptState(Document):
@@ -13,6 +20,7 @@ class Attempt(Document):
     task_unique_name: str
     course_unique_name: str
     state_log: list[AttemptState]
+    clipboard_log: list[ClipboardEvent] = Field(default_factory=list)
     current_state: str
     start_time_list: list
     duration_list: list
@@ -32,4 +40,11 @@ class NestedAttemptState(AttemptState):
     state_datetime_list: list
     current_state: str
     attempt_id: str
+
+
+class ClipboardTelemetry(BaseModel):
+    attempt_id: str
+    action: str
+    blocked: bool = False
+    event_datetime: dict
 

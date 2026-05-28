@@ -8,7 +8,7 @@ from models.domain.executor import check_user_code, execute_code, parse_argument
 
 async def handle_run(submission: Run_code_submission, user: User):
     user_id = user.id
-    run_result = await run_code(submission)
+    run_result, console_output = await run_code(submission)
     
     evaluated_submission = Evaluated_run_code_submission(
         code = submission.code,
@@ -16,6 +16,7 @@ async def handle_run(submission: Run_code_submission, user: User):
         submission_time=submission.submission_time,
         run_arguments=submission.run_arguments,
         run_output=run_result,
+        console_output=console_output,
         task_unique_name=submission.task_unique_name,
         type="run",
         user_id=user_id,
@@ -27,12 +28,15 @@ async def run_code(submission: Run_code_submission):
     task_json = await database.get_task(submission.task_unique_name)
     submission_code = task_json.prefix + submission.code
     run_arguments = parse_argument_types(submission.run_arguments)
+    show_console_output = submission.show_console_output
     if task_json.type == TaskType.Function:
-        run_code = getExecutableString_runFunction(submission_code, task_json.function_name, run_arguments)
+        run_code = getExecutableString_runFunction(submission_code, task_json.function_name, 
+                                                   run_arguments)
     elif task_json.type == TaskType.Print:
         run_code = getExecutableString_runPrint(submission_code, task_json.function_name, run_arguments)
     elif task_json.type == TaskType.PlotFunction:
-        run_code = getExecutableString_runPlot(submission_code, task_json.function_name, run_arguments)
+        run_code = getExecutableString_runPlot(submission_code, task_json.function_name, 
+                                               run_arguments)
     else:
         raise ValueError(f"Task type '{task_json.type}' not recognized.")
     
@@ -44,20 +48,34 @@ async def run_code(submission: Run_code_submission):
             safe=False
             run_result = f"Error or Exception: {str(e)}"
             #test_result = {"test_name": test_name, "status": 0, "message": f"Error or Exception: {test_message}"}
+    console_output=""
     if safe:
-        result_json = await execute_code(run_code)
+        if not task_json.additional_files is None:
+            result_json = await execute_code(run_code, task_json.additional_files)
+        else:
+            result_json = await execute_code(run_code)
         if task_json.type in [TaskType.Function]:
             try:
                 run_result = str(result_json["run_result"])
+                if show_console_output:
+                    console_output = str(result_json["submission_captured_output"])
             except Exception as e:
                 run_result = result_json.splitlines()[-1]
         elif task_json.type in [TaskType.PlotFunction]:
             try:
                 run_result = process_plt_plots(result_json["func_queue"])
+                if show_console_output:
+                    console_output = str(result_json["submission_captured_output"])
             except Exception as e:
                 print("Plots could not be processed.")
                 run_result = result_json
+        elif task_json.type in [TaskType.Print]:
+            if isinstance(result_json, dict):
+                run_result = str(result_json["run_result"])
+                if show_console_output:
+                    console_output = str(result_json["submission_captured_output"])
+            else:
+                run_result = result_json
         else:
             run_result = result_json
-
-    return run_result
+    return run_result, console_output

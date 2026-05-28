@@ -18,40 +18,112 @@ label {
 }
 
 select {
-  margin-bottom: 20px;
-  padding: 6px;
-  align-self: left
+  margin: 20px;
+  padding: 10px;
+  align-self: left;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.4rem 0.8rem rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  background-color: #777777;
+  color: #fff;
+  border: none;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+select:hover {
+    background-color: #252525;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 1.3rem
+  font-size: 1.1rem
 }
 
 th, td {
-  padding: 12px;
+  padding: 10px;
   text-align: left;
 }
 
 
 .progress-container {
-  width: 100px;
+  width: 200px;
+  position: relative;
   background-color: black;
   border-radius: 5px;
   overflow: hidden;
-  height: 20px;
+  height: 25px;
   text-align: center;
 }
 
-.progress-bar {
+.progress-bar-value {
+  width: 100%;
   height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
   background-color: #4caf50;
-  color: white;
   line-height: 20px;
   white-space: nowrap;
   transition: width 0.3s ease;
 }
-.overlay-text{
+.progress-bar-gain {
+  width: 100%;
+  height: 100%;
   position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #71c474;
+  line-height: 20px;
+  white-space: nowrap;
+  transition: width 0.3s ease;
 }
+
+.overlay-text{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: white;
+}
+
+.list-button {
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    padding: 0.5rem 1rem; 
+    background-color: #777777;
+    color: #fff;
+    border: none;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    width: 100%;
+    font-size: 1.1rem;
+}
+
+.list-button:hover {
+    background-color: #252525;
+}
+
+.isolated-button {
+    margin-bottom: 0.5rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.2rem 0.4rem rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    padding: 0.5rem 1rem; 
+    background-color: #777777;
+    color: #fff;
+    border: none;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+.isolated-button:hover {
+    background-color: #252525;
+}
+

@@ -1,0 +1,35 @@
+:host {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  height: 100%;
+}
+
+.intro-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+  max-width: 900px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.intro-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.intro-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--mat-divider-color, #e0e0e0);
+  margin-top: 16px;
+}
+
+.intro-footer button {
+  gap: 8px;
+}

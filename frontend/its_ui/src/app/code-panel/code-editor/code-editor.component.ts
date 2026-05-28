@@ -1,18 +1,26 @@
-import { Component, Output, EventEmitter, ElementRef, ViewChild, OnInit, AfterViewInit} from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, ViewChild, AfterViewInit} from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { MonacoCodeEditorComponent } from 'src/app/shared/components/monaco-code-editor/monaco-code-editor.component';
+import { MonacoCodeEditorComponent, AdditionalFile } from 'src/app/shared/components/monaco-code-editor/monaco-code-editor.component';
 import { EventShareService } from 'src/app/shared/services/event-share.service';
 import { DatetimeService } from 'src/app/shared/services/datetime.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-code-editor',
-  templateUrl: './code-editor.component.html',
-  styleUrls: ['./code-editor.component.css']
+    selector: 'app-code-editor',
+    templateUrl: './code-editor.component.html',
+    styleUrls: ['./code-editor.component.css'],
+    imports: [CommonModule, MonacoCodeEditorComponent, MatTooltipModule, MatIconModule]
 })
 export class CodeEditorComponent {
 
   @Output() codeChangeEvent : EventEmitter<string[]> = new EventEmitter<string[]>();
+  @Output() clipboardTelemetryEvent: EventEmitter<{ action: string, blocked: boolean }> = new EventEmitter();
+  @Input() clipboardLocked: boolean = false;
   language: string = "python";
+
+  additionalFiles: AdditionalFile[] = [];
 
   @ViewChild(MonacoCodeEditorComponent) monacoCodeEditorComponent!: MonacoCodeEditorComponent;
 
@@ -65,6 +73,40 @@ export class CodeEditorComponent {
     this. monacoCodeEditorComponent.setContent(value);
   }
 
+  resetForNewTask() {
+    const taskId = sessionStorage.getItem("taskId") || 'main';
+    this.monacoCodeEditorComponent.resetForNewTask(taskId);
+  }
+
+  setAdditionalFiles(raw: string | null) {
+    if (!raw) {
+      this.additionalFiles = [];
+      return;
+    }
+    const parsed: { filename: string; content: string }[] = JSON.parse(raw);
+    this.additionalFiles = parsed
+      .filter(f => {
+        const ext = f.filename.split('.').pop()?.toLowerCase();
+        return ext !== 'png';
+      })
+      .map(f => ({
+        name: f.filename,
+        content: f.content,
+        language: this.inferLanguage(f.filename),
+        readOnly: true
+      }));
+  }
+
+  private inferLanguage(filename: string): string {
+    const ext = filename.split('.').pop()?.toLowerCase();
+    const map: Record<string, string> = {
+      'py': 'python',
+      'csv': 'csv',
+      'json': 'json'
+    };
+    return map[ext || ''] || ext || 'plaintext';
+  }
+
   appendContent(newContent: any){
     this.newContentList.push(newContent);
     this.datetimeList.push(this.datetimeService.datetimeNowUTC());
@@ -75,7 +117,8 @@ export class CodeEditorComponent {
     this.datetimeList = [];
   }
 
-  onEditorContentChange(event: Event){
+  onEditorContentChange(event: { file: string, changed: boolean }){
+    if (!event.changed) return;
     const prefix = this.prefix;
     const newContent = this.contentControl;
     if (newContent.startsWith(prefix)) {
@@ -83,7 +126,6 @@ export class CodeEditorComponent {
       diff = this.deriveDiff(this.lastSnapshot , diff);
       if (diff.length > 0){
         this.lastSnapshot = newContent.slice(prefix.length);
-        //this.newContentList.push(diff);
         this.appendContent(diff);
       }
       clearTimeout(this.timer);
@@ -142,6 +184,10 @@ export class CodeEditorComponent {
 
   ngOnDestroy() {
     //this.newTaskSubscription.unsubscribe();
+  }
+
+  handleClipboardTelemetryEvent(eventData: { action: string, blocked: boolean }) {
+    this.clipboardTelemetryEvent.emit(eventData);
   }
 
 }

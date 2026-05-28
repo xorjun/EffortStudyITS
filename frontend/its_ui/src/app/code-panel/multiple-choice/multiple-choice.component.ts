@@ -1,17 +1,21 @@
 import { Component, Renderer2,  AfterViewChecked, AfterViewInit, ElementRef, OnDestroy, OnInit, ViewChild, EventEmitter, Output, HostListener, ViewChildren, QueryList } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 //Prism
-import { FormBuilder } from '@angular/forms'
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms'
 import { fromEvent, Subscription } from 'rxjs';
 import { PrismHighlightService } from 'src/app/shared/services/prism-highlight.service'
 
 import { EventShareService } from 'src/app/shared/services/event-share.service';
-import { MatCheckbox, MatCheckboxChange } from '@angular/material/checkbox';
+import { MatCheckbox, MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
-  selector: 'app-multiple-choice',
-  templateUrl: './multiple-choice.component.html',
-  styleUrls: ['./multiple-choice.component.css']
+    selector: 'app-multiple-choice',
+    templateUrl: './multiple-choice.component.html',
+    styleUrls: ['./multiple-choice.component.css'],
+    imports: [CommonModule, ReactiveFormsModule, MatCheckboxModule, MatTooltipModule, MatIconModule]
 })
 export class MultipleChoiceComponent {
 

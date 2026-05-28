@@ -1,6 +1,7 @@
 from _ast import Call, Del, Delete, Global, Interactive, Nonlocal, Name
 from typing import Any
-from sys import __stdout__
+from pathlib import Path
+from sys import __stdout__, executable as python_executable
 from config import config
 import asyncio
 import aiohttp
@@ -9,11 +10,14 @@ import json
 import ast
 import re
 import io
+import os
 import matplotlib.pyplot as plt
+import tempfile
+import zipfile
 
 
-async def execute_code(code):
-    run_result = await execute_code_judge0(code_payload=code)
+async def execute_code(code, additional_files: list = []):
+    run_result = await execute_code_judge0(code_payload=code, additional_files=additional_files)
     if "##!serialization!##" in run_result:
         pattern = r".*?\##!serialization!##(.*?)\##!serialization!##.*"
         parsed_result_string = re.findall(pattern, run_result, re.DOTALL)
@@ -22,7 +26,64 @@ async def execute_code(code):
     return(run_result)
 
 
-async def execute_code_judge0(code_payload, url=f"{config.judge0_host}", bearer_token=config.judge0_token):
+def zip_additional_files(additional_files: list):
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for file in additional_files:
+            zf.writestr(file['filename'], file['content'])
+    zip_bytes = zip_buffer.getvalue()
+    return zip_bytes
+
+
+async def execute_code_judge0(code_payload, additional_files: list = [], url=f"{config.judge0_host}", bearer_token=config.judge0_token):
+    try:
+        return await execute_code_judge0_primary(code_payload, additional_files=additional_files, url=url, bearer_token=bearer_token)
+    except Exception as error:
+        if not should_use_local_execution_fallback():
+            raise
+        print(f"Judge0 execution failed, using local development fallback: {error}")
+        return await execute_code_local(code_payload, additional_files=additional_files)
+
+
+def should_use_local_execution_fallback():
+    return (
+        config.judge0_mode == "local"
+        and config.env in ["development", "development-docker"]
+        and getattr(config, "unsafe_local_execution_fallback_enabled", False)
+    )
+
+
+async def execute_code_local(code_payload, additional_files: list = []):
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_path = Path(temp_dir)
+        script_path = temp_path / "script.py"
+        script_path.write_text(code_payload, encoding="utf-8")
+
+        for additional_file in additional_files:
+            file_name = Path(additional_file["filename"]).name
+            (temp_path / file_name).write_text(additional_file["content"], encoding="utf-8")
+
+        environment = os.environ.copy()
+        environment["MPLBACKEND"] = "Agg"
+        process = await asyncio.create_subprocess_exec(
+            python_executable,
+            script_path.name,
+            cwd=str(temp_path),
+            env=environment,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.STDOUT,
+        )
+        try:
+            stdout, _ = await asyncio.wait_for(process.communicate(), timeout=20)
+        except asyncio.TimeoutError:
+            process.kill()
+            await process.communicate()
+            return "Time limit exceeded."
+
+    return stdout.decode("utf-8", errors="replace")
+
+
+async def execute_code_judge0_primary(code_payload, additional_files: list = [], url=f"{config.judge0_host}", bearer_token=config.judge0_token):
     """Execute a code snippet in judge0 and wait for the result to return.
 
     Args:
@@ -39,14 +100,14 @@ async def execute_code_judge0(code_payload, url=f"{config.judge0_host}", bearer_
         payload = {
             #"expected_output": "null",
             "language_id": "10",
-            "max_file_size": "1000", #kb
+            "max_file_size": "5000", #kb
             #"max_processes_and_or_threads": "1",
-            "memory_limit": 100000, #kb
+            "memory_limit": 150000, #kb
             "source_code": base64.b64encode(bytes(code_payload, 'utf-8')).decode("ascii"),
             #"stack_limit": "null",
             #"stdin": "null",
-            "wall_time_limit": "10", #sec
-            "cpu_time_limit": "10", #sec
+            "wall_time_limit": "20", #sec
+            "cpu_time_limit": "20", #sec
             "enable_network": "false",
             "redirect_stderr_to_stdout": "true",
             }
@@ -54,7 +115,9 @@ async def execute_code_judge0(code_payload, url=f"{config.judge0_host}", bearer_
             headers = {"Authorization": f"Bearer {bearer_token}"}
         else:
             headers = {}
-        async with session.post(f"{url}/submissions/?base64_encoded=true", data=payload, headers=headers, timeout=10) as response:
+        if len(additional_files) > 0:
+            payload.update({"additional_files": base64.b64encode(zip_additional_files(additional_files)).decode("ascii")})
+        async with session.post(f"{url}/submissions/?base64_encoded=true", data=payload, headers=headers, timeout=20) as response:
             run_token = await response.text()
             run_token = json.loads(run_token)["token"]
         max_iter = 100
@@ -171,7 +234,7 @@ def check_user_code(code, prefix_lines=[]):
                 #module_id = node.func.value.id
             if func_id == "exec":
                 raise Exception("exec() is not allowed in this context")
-            if func_id in ["eval", "open", "breakpoint", "callable",
+            if func_id in ["eval", "breakpoint", "callable", "open",
                                  "delattr", "dir", "getattr", "globals",
                                  "hasattr", "help", "id", "input", "locals", 
                                  "memoryview", "property", "setattr", 
@@ -180,7 +243,7 @@ def check_user_code(code, prefix_lines=[]):
             self.generic_visit(node)
 
         def visit_Name(self, node: Name) -> Any:
-            bad_func_list = ["exec", "eval", "open", "breakpoint", "callable",
+            bad_func_list = ["exec", "eval", "breakpoint", "callable", "open",
                                  "delattr", "dir", "getattr", "globals",
                                  "hasattr", "help", "id", "input", "locals", 
                                  "memoryview", "property", "setattr", 

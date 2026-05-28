@@ -1,23 +1,34 @@
-import { Component, AfterViewInit, EventEmitter, Output, ViewChild, ElementRef } from '@angular/core';
+import { Component, AfterViewInit, EventEmitter, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import { EventShareService } from '../shared/services/event-share.service';
+import { MarkdownDialogService } from '../shared/services/markdown-dialog.service';
 import { environment } from 'src/environments/environment';
 
-import { DataTermsPopupComponent } from '../shared/components/data-terms-popup/data-terms-popup.component';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatListModule } from '@angular/material/list';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
-  selector: 'app-profile',
-  templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.css']
+    selector: 'app-profile',
+    templateUrl: './profile.component.html',
+    styleUrls: ['./profile.component.css'],
+    imports: [
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatListModule,
+    MatDividerModule
+  ]
 })
 export class ProfileComponent {
 
-  @ViewChild('dataTermsPopupComponent', {static: true}) dataTermsPopupComponent!: DataTermsPopupComponent;
-  showDataTermsPopup(){
-    this.dataTermsPopupComponent.showPopup();
-  }
-
-  @ViewChild('consentCheckbox', {static: true}) consentCheckbox!: ElementRef
+  dataCollectionConsent: boolean = false;
 
   @Output() profileAction: EventEmitter<string> = new EventEmitter<string>;
 
@@ -28,8 +39,15 @@ export class ProfileComponent {
   user: {register_datetime?: any, settings?: any, enrolled_courses?: string[], roles?: string[], username?: string, current_course?: string} = {};
   enrolledCourses: string = "";
 
-  constructor(private http: HttpClient,
-    private eventShareService: EventShareService) {}
+  constructor(
+    private http: HttpClient,
+    private eventShareService: EventShareService,
+    private markdownDialogService: MarkdownDialogService
+  ) {}
+
+  showDataTermsPopup() {
+    this.markdownDialogService.openDataTerms();
+  }
 
     ngAfterViewInit() {
       this.show_profile()
@@ -48,12 +66,7 @@ export class ProfileComponent {
         };
         this.registeredDatetime = this.user.register_datetime["local"];
         this.enrolledCourses = this.user.enrolled_courses!.join("\n");
-        if(this.user.settings.dataCollection) {
-          this.consentCheckbox.nativeElement.checked = true;
-        }
-        else {
-          this.consentCheckbox.nativeElement.checked = false;
-        }
+        this.dataCollectionConsent = this.user.settings.dataCollection || false;
       });
     }
 
@@ -69,10 +82,10 @@ export class ProfileComponent {
     }
 
     updateSettings() {
-      if(this.consentCheckbox.nativeElement.checked != this.user.settings.dataCollection) {
-        this.user.settings.dataCollection = this.consentCheckbox.nativeElement.checked
+      if(this.dataCollectionConsent !== this.user.settings.dataCollection) {
+        this.user.settings.dataCollection = this.dataCollectionConsent;
         this.http.patch<any>(`${this.apiUrl}/users/me`, this.user, {withCredentials: true}).subscribe();
-        sessionStorage.setItem('dataCollection', this.consentCheckbox.nativeElement.checked)
+        sessionStorage.setItem('dataCollection', String(this.dataCollectionConsent));
       }
     }
 

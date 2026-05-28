@@ -4,7 +4,7 @@ from feedback.schemas import Evaluated_feedback_submission
 from db import database
 #import aiohttp
 #import json
-from services.language_generation import generate_language, parse_code_response
+from services.language_generation import generate_language, get_pedagogical_system_prompt, parse_code_response
 
 class Prompt_llm_step_generator(Base_step_generator):
 
@@ -21,6 +21,7 @@ class Prompt_llm_step_generator(Base_step_generator):
         test_messages = "\n".join([test["message"] for test in submission.test_results])
         task = task_json.task
         instruction, system = self.create_instruction(previous_step, task=task) #TODO: Get short version of tasks or differentiate between local and server.
+        system = await get_pedagogical_system_prompt(system)
         course_settings = await database.get_course_settings_for_user(submission.user_id, submission.course_unique_name)
         language_generation_model = course_settings["language_generation_model"]
         next_step = await generate_language(instruction, system=system, model=language_generation_model)

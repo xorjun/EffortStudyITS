@@ -1,6 +1,6 @@
 #!function!#
 import numpy as np 
-def custom_identity_matrix(n, value):
+def custom_identity_matrix(n: int, value: int):
 #!prefix!#
 
     if n <= 0:

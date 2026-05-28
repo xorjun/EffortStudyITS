@@ -1,0 +1,76 @@
+<div class="final-showcase">
+  <section class="hero">
+    <p class="eyebrow">Course Finished</p>
+    <h1>Your Activity Tracker Demo</h1>
+    <p class="subtitle">
+      This final page runs the app you built across the 8 exercises. You can test it here, export your session package, and continue to the study survey.
+    </p>
+  </section>
+
+  <section class="actions">
+    <button class="action-button" *ngIf="canPrepareSessionPackage" [disabled]="sessionCompletionPending" (click)="prepareSessionPackage()">
+      {{ sessionCompletionPending ? 'Preparing...' : 'Prepare Session Package' }}
+    </button>
+    <a *ngIf="canPrepareSessionPackage && sessionPreviewUrl" class="action-link" [href]="sessionPreviewUrl" target="_blank" rel="noopener noreferrer">Open Shareable Preview</a>
+    <a *ngIf="canPrepareSessionPackage && sessionDownloadUrl" class="action-link" [href]="sessionDownloadUrl">Download Session ZIP</a>
+    <a *ngIf="canPrepareSessionPackage && sessionSurveyUrl" class="action-link" [href]="sessionSurveyUrl" target="_blank" rel="noopener noreferrer">Continue to Survey</a>
+    <button class="action-link secondary" (click)="backToCourses()">Back to Courses</button>
+  </section>
+
+  <p class="error" *ngIf="sessionCompletionError">{{ sessionCompletionError }}</p>
+
+  <section class="demo activity-demo" *ngIf="activityTrackerDemo as trackerDemo">
+    <h2>Live Demo</h2>
+    <div class="demo-grid">
+      <article class="demo-card">
+        <h3>Remembered Subject</h3>
+        <p>{{ trackerDemo.rememberedSubject }}</p>
+      </article>
+      <article class="demo-card">
+        <h3>Total Study Time</h3>
+        <p>{{ trackerDemo.totalMinutes }} minutes</p>
+      </article>
+      <article class="demo-card demo-card-wide">
+        <h3>Recommendation</h3>
+        <p>{{ trackerDemo.recommendation }}</p>
+      </article>
+    </div>
+
+    <div class="demo-output">
+      <section>
+        <h3>Saved Sessions</h3>
+        <div class="session-list">
+          <div class="session-pill" *ngFor="let session of trackerDemo.sessions">
+            <strong>{{ session[0] }}</strong>
+            <span>{{ session[1] }} minutes</span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h3>First Session Description</h3>
+        <p>{{ trackerDemo.firstSessionDescription }}</p>
+      </section>
+
+      <section *ngIf="trackerDemo.showSessionsOutput?.length">
+        <h3>show_sessions Output</h3>
+        <pre><code>{{ (trackerDemo.showSessionsOutput || []).join('\n') }}</code></pre>
+      </section>
+    </div>
+  </section>
+
+  <section class="demo" *ngIf="demoUrl">
+    <h2>Live Demo</h2>
+    <iframe [src]="demoUrl" sandbox="allow-scripts" title="Final Activity Tracker Demo"></iframe>
+  </section>
+
+  <section class="demo unavailable" *ngIf="!activityTrackerDemo && !demoUrl">
+      <h2>Live Demo Unavailable</h2>
+      <p>{{ activityTrackerDemoError || demoUnavailableReason }}</p>
+    </section>
+
+  <section class="code-preview" *ngIf="latestCode">
+    <h2>Latest Final Code</h2>
+    <pre><code>{{ latestCode }}</code></pre>
+  </section>
+</div>

@@ -380,3 +380,6 @@ id_ed25519.pub
 appwrite.config.json
 appwrite.json
 .env
+
+# Copilot instructions (local only)
+.github/copilot-instructions.md

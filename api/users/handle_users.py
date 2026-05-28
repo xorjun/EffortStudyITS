@@ -24,9 +24,12 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
     verification_token_secret = os.environ["USER_VERIFICATION_SECRET"]
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
-        update_dict = {"roles": [UserLevel("student")]}
+        # First user to register becomes admin automatically.
+        user_count = await database.db["User"].count_documents({})
+        role = UserLevel("admin") if user_count <= 1 else UserLevel("student")
+        update_dict = {"roles": [role]}
         await database.update_user(user, update_dict)
-        print(f"User {user.id} has registered.")
+        print(f"User {user.id} has registered with role {role}.")
 
 
     async def on_after_forgot_password(

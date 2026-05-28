@@ -1,6 +1,231 @@
-# Readme
+# EffortStudyITS (ITS03)
 
-SCRIPT (Step-based Coding for Research and Interactive Programming Training) is an Intelligent Tutoring System for programming. In this REDAME, you will find information on how to start using, contributing or hosting SCRIPT. This software is developed and maintained by the Knowledge Representation and Machine Learning (KML) group of Bielefeld University (https://www.uni-bielefeld.de/fakultaeten/technische-fakultaet/arbeitsgruppen/kml/).
+**A modified version of the SCRIPT Intelligent Tutoring System, adapted to conduct the Effort Study at Bielefeld University.**
+
+This platform provides an online Python code-editor with step-based feedback, automated unit-test evaluation, and competency-based task selection — extended with study-specific instrumentation for research data collection.
+
+> **Base project:** [SCRIPT](https://gitlab.ub.uni-bielefeld.de/publications-ag-kml/script) — Step-based Coding for Research and Interactive Programming Training, developed and maintained by the Knowledge Representation and Machine Learning (KML) group of Bielefeld University (https://www.uni-bielefeld.de/fakultaeten/technische-fakultaet/arbeitsgruppen/kml/).
+
+---
+
+## Quick Start (Docker)
+
+The fastest way to get the platform running:
+
+```bash
+git clone https://github.com/xorjun/EffortStudyITS.git
+cd EffortStudyITS
+```
+
+Create a `.env` file in the project root:
+
+```env
+ITS_ENV=development-docker
+DB_SERVICE_PW=your_db_password
+DB_ROOT_PW=your_root_password
+JWT_SECRET=your_jwt_secret
+USER_VERIFICATION_SECRET=your_verification_secret
+RESET_PWD_SECRET=your_reset_secret
+JUDGE0_MODE=local
+```
+
+Start all services:
+
+```bash
+docker compose up -d
+```
+
+The platform will be available at `http://localhost:8080` (frontend) and `http://localhost:8888/api` (backend).
+
+---
+
+## Local Development Setup
+
+### Prerequisites
+
+- **Python 3.11+** with [`uv`](https://docs.astral.sh/uv/) (package manager)
+- **MongoDB 5.x** running on `localhost:27017`
+- **Node.js 20+** with Angular CLI 19
+- **Docker** (for Judge0 code execution)
+
+### 1. Backend Setup
+
+```bash
+cd api
+
+# Install dependencies via uv (fast, reproducible)
+uv sync
+
+# Run the backend
+uv run python main.py
+```
+
+The backend starts on `http://localhost:8000`.
+
+### 2. Frontend Setup
+
+```bash
+cd frontend/its_ui
+
+# Install dependencies
+npm install
+
+# Start dev server
+ng serve
+```
+
+The frontend starts on `http://localhost:4200` and proxies API requests to the backend.
+
+### 3. Database Setup
+
+Create a MongoDB user with read/write access to the `its_db` database:
+
+```js
+use admin
+db.createUser({
+  user: "backend_service_user",
+  pwd: "your_db_password",
+  roles: [{ role: "readWrite", db: "its_db" }]
+})
+```
+
+### 4. Judge0 (Code Execution)
+
+```bash
+cd judge0
+docker compose up -d
+```
+
+### 5. LLM Server (Optional — for AI feedback)
+
+```bash
+cd llm-server
+docker compose up -d
+```
+
+Or point to an external Ollama instance via the admin settings UI.
+
+---
+
+## Creating Users
+
+### First Admin User
+
+1. Register a new account through the UI at `/auth/register`.
+2. In development mode, the verification token is printed to the backend console — look for the link in the terminal running `uv run python main.py`.
+3. Visit the verification link to activate the account.
+4. Connect to MongoDB and add the `admin` role:
+
+```js
+use its_db
+db.User.updateOne(
+  { email: "your_email@example.com" },
+  { $set: { roles: ["admin"] } }
+)
+```
+
+5. Log in — the admin settings panel is now accessible from the navigation bar.
+
+### Creating Regular Users
+
+Users self-register at `/auth/register`. In production (with email configured), a verification email is sent. In development, the verification link appears in the backend logs.
+
+### Pre-configured Test Users
+
+The platform includes a database setup script at `database_scripts/setup_users.py` for creating test accounts in bulk.
+
+---
+
+## Using the Platform
+
+### Admin: Loading Courses
+
+1. Log in as an admin user.
+2. From the course selection page, click **"Upload Course"**.
+3. Select a course folder (structured per `courses/course_template/`).
+4. The course appears for all enrolled users.
+
+### Admin: Configuring Settings
+
+Navigate to the admin settings panel from the navigation bar:
+- **LLM API** — configure the Ollama endpoint for AI-generated feedback
+- **Pedagogical Model** — select feedback strategy (LLM-based, state-space, etc.)
+- **Editor Policy** — toggle copy/paste restrictions for the code editor
+- **Email Whitelist** — restrict registration to specific domains
+
+### Learner: Solving Tasks
+
+1. Select a course from the course selection page.
+2. Read the task description (upper-left panel).
+3. Write your solution in the Monaco code editor (right panel).
+4. Use the action buttons:
+   - **Run** — execute your code with custom parameters
+   - **Submit** — run unit tests and see results
+   - **Feedback** — request AI-generated step-by-step guidance
+
+### Learner: Tracking Progress
+
+The **skill overview** (navigation bar) shows competency estimates across course topics, updated after each submission.
+
+---
+
+## Project Structure
+
+```
+EffortStudyITS/
+├── api/                    # FastAPI backend
+│   ├── main.py             # Application entrypoint
+│   ├── pyproject.toml      # uv dependency spec
+│   ├── uv.lock             # Locked dependencies
+│   ├── models/             # Pedagogical, domain & learner models
+│   ├── attempts/           # Code attempt tracking
+│   ├── courses/            # Course loading & parsing
+│   ├── db/                 # MongoDB connector (Beanie ODM)
+│   ├── feedback/           # Feedback generation pipeline
+│   ├── runs/               # Code execution (Judge0)
+│   ├── services/           # Email, LLM, embeddings
+│   ├── skills/             # Competency estimation (PFA)
+│   ├── submissions/        # Unit-test evaluation
+│   ├── surveys/            # In-platform surveys
+│   ├── system/             # Admin settings & info pages
+│   ├── tasks/              # Task schemas & state spaces
+│   ├── tests/              # Pytest test suite
+│   └── users/              # Auth & user management
+├── frontend/               # Angular 19 frontend
+│   └── its_ui/src/app/     # Components, services, shared modules
+├── courses/                # Course content (tasks, tests, markdown)
+├── judge0/                 # Judge0 code execution engine
+├── llm-server/             # Ollama LLM server config
+├── appwrite/               # Study management cloud functions
+├── database_scripts/       # DB setup & migration scripts
+├── doc/                    # Architecture & API documentation
+├── docker-compose.yml      # Full-stack Docker deployment
+└── nginx.conf              # Reverse proxy config
+```
+
+---
+
+## Adding New Courses
+
+Create a folder under `courses/` with this structure:
+
+```
+my_course/
+├── course.json             # Course metadata & competency definitions
+├── introduction.md         # Welcome page shown to learners
+└── task_folder/
+    └── task_my_task/
+        ├── task.json       # Task type, parameters, hints
+        ├── task.md         # Task description (Markdown)
+        ├── example_solution.py
+        └── test_my_task.py # Unit tests for auto-grading
+```
+
+Use `courses/course_template/` as a reference.
+
+
+
+---
 
 ## License
 
@@ -19,165 +244,6 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-## Feature List
-
-- [x] Online code-editor based on Monaco code editor
-- [x] Display tasks and feedback with markdown
-- [x] User management and data-collection settings
-- [x] Save code execution using Jugde0
-- [x] Program evaluation/submission based on unit-tests
-- [x] Run programs with custom parameters
-- [x] Users can send feedback requests to an ollama LLM-server
-- [x] Print, function and multiple-choice tasks
-- [x] Multiple courses per user
-- [x] E-Mail based login
-- [x] Upload courses
-- [x] Conceptual Feedback on Steps
-- [x] Course settings
-- [x] Task selection based on user competency
-- [x] Tasks with image-files
-- [ ] Learning progress dashboard
-- [ ] Fill the gap-tasks
-- [ ] Course enrollment system
-
-
-## How to use?
-
-At this point, SCRIPT is still in an alpha stage.
-
-### Learners
-
-#### Registration
-
-At registration, learners have to enter an email-adress for account verification. The email-adress is only stored until the user has succesfully verified (afterwords it will be hashed and encrypted for cases of a password reset).  On registration, learners must select, whether they want their intermediate steps to be stored in the database and whether they allow the usage of their system data for research purposes. 
-
-![register](doc/pictures/register.png "Register"){width=300}
-
-
-#### Login
-
-Users can log in to the selected course with their username and password. 
-
-![login](doc/pictures/login.png "Login"){width=300}
-
-#### Reset Password
-
-To reset their password users have to enter their mail, their username and the password reset token they received via email on registration.
-
-![forget password](doc/pictures/forgot_password.png "Forgot password"){width=300}
-
-#### Tutoring View
-
-The tutoring view is the main view within a particular course. It allows for solving and navigating tasks. The task description is displayed in the upper left corner, different feedback and result types are displayed in the lower left corner. On the right side, the code editor allows for entering solutions to tasks. The action panel on the bottom allows for three actions: "Run", "Feedback" and "Submission". 
-
-![tutoring view](doc/pictures/tutoring_view.png "Tutoring View"){width=500}
-
-
-The "Run" button allows for the execution of the learner program with custom parameters. The "Submit" functionality will run unit tests on the current solution and display the results to the learner in the feedback panel. The "Feedback" button will send a Feedback request to the backend. Depending on the course settings, feedback on the current learner program will then be generated.
-
-#### Profile View
-
-The user profile can be reached over the navigation bar. It displays basic information about the user profile. Also, the user profile allows for reviewing and re-setting the data-collection preferences that were originally set during registration.
-
-
-![profile](doc/pictures/profile.png "Profile View"){width=300}
-
-## How to deploy?
-
-There are two options for deployment. The first one deployment through Docker and the second one is local deployment. We recommend deployment through Docker for testing out the system and local deployment for development.
-
-### Deployment through Docker
-
-1. Clone the repository
-
-2.  Install required software
-
-    - Docker, Docker-compose
-
-3. Set up a .env file in the repo's root folder
-
-Example: 
-
-```
-ITS_ENV="development-docker"
-
-DB_SERVICE_PW="SECRET"
-DB_ROOT_PW="SECRET"
-
-JWT_SECRET="SECRET"
-USER_VERIFICATION_SECRET="SECRET"
-RESET_PWD_SECRET="SECRET"
-
-JUDGE0_MODE = "local"
-
-```
-
-4. Open a terminal inside the repo and run "docker-compose up"
-
-
-### Local Deployment
-
-1. Clone the repository
-
-2.  Install required software
-
-    - Docker, Docker-compose
-    - MongoDB (5.x)
-    - NodeJs
-    - Angular CLI
-    - Judge0 (Best install through the provided judge0/docker-compose.yml)
-
-3. Set up a .env file in the repo's root folder
-
-Example: 
-
-```
-ITS_ENV="development"
-
-DB_SERVICE_PW="SECRET"
-DB_ROOT_PW="SECRET"
-
-JWT_SECRET="SECRET"
-USER_VERIFICATION_SECRET="SECRET"
-RESET_PWD_SECRET="SECRET"
-
-JUDGE0_MODE = "local"
-```
-
-4. Set up a user in MongoDB with read and write access to "its_db"
-
-```
-use admin
-db.createUser(
-  {
-    user: "backend_service_user",
-    pwd:  "SECRET",
-    roles: [ { role: "readWrite", db: "its_db" }]
-  }
-)
-```
-
-5. Install python requirements in /api/requirements.txt, it is recommended to use a virtual python environment like conda. 
-
-6. Run "npm install" in frontend/its_ui
-
-6. Start the system by running start_app.py
-
-
-#### Setting up an (admin) user.
-
-In the development environment no emails are sended upon registration. The tokens for verifiction and pasword reset are printed to the backend console. For deployment through docker, one has to access the backend container for verifying new users. 
-
-Only users with the roles "admin" and "tutor" can upload courses to the system. The roles can be added manually in the database User document. 
-
-#### Loading a course to the system
-
-If your user has the respective priveliges, courses can be uploaded through the UI. For uploading a new course, there is a button on the course-selection page. For uploading new tasks to an exiting course, there is an option in the course settings.
-
-#### Setting up the LLM Server
-
-To set up the feedback functionality, please ensure that you can access an Ollama instance with your preferred models installed. Indicate the link to your instance in the admin settings. Additionally, you can select a language generation model in the course settings.
 
 ## Contributing
 

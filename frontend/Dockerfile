@@ -11,5 +11,6 @@ RUN npm run build -- --configuration ${BUILD_ENV}
 # Stage 2
 FROM nginx:latest
 COPY --from=node /app/dist/its_ui /usr/share/nginx/html
+COPY default.conf /etc/nginx/conf.d/default.conf
 COPY runtime-config.sh /docker-entrypoint.d/40-runtime-config.sh
 RUN chmod +x /docker-entrypoint.d/40-runtime-config.sh

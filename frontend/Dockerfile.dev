@@ -3,6 +3,6 @@ FROM node:20.19.0 as node
 WORKDIR /app
 COPY its_ui/ .
 RUN npm install
-EXPOSE 4200 49153
+EXPOSE 4200 42001
 #CMD tail -f /dev/null
 CMD ["npm", "start"]

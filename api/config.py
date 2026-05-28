@@ -48,18 +48,30 @@ class Config:
             self.database_host = "mongodb"
             self.database_port = 27017
             self.judge0_mode = os.environ.get("JUDGE0_MODE")
+
+        elif self.env == "standalone":
+            # Single-image deployment: all config via env vars
+            dotenv.load_dotenv(dotenv.find_dotenv())
+            self.database_pwd = os.environ.get("DB_SERVICE_PW", "")
+            self.database_host = os.environ.get("DATABASE_HOST", "mongodb")
+            self.database_port = int(os.environ.get("DATABASE_PORT", "27017"))
+            self.database_usr = os.environ.get("DATABASE_USER", "backend_service_user")
+            self.judge0_mode = os.environ.get("JUDGE0_MODE", "none")
             if self.judge0_mode == "local":
-                self.judge0_host = "http://j0-server:2358"
-                self.judge0_token = None
+                self.judge0_host = os.environ.get("JUDGE0_URL", "http://j0-server:2358")
+                self.judge0_token = os.environ.get("JUDGE0_TOKEN", None)
             elif self.judge0_mode == "remote":
                 self.judge0_host = os.environ.get("JUDGE0_URL")
                 self.judge0_token = os.environ.get("JUDGE0_TOKEN")
-            else: 
+            elif self.judge0_mode == "none":
+                self.judge0_host = None
+                self.judge0_token = None
+            else:
                 raise Exception("Judge0 mode not specified correctly")
 
 
         else:
-            raise ValueError("Invalid 'env' value. Supported values are 'development', 'production', and 'staging'.")
+            raise ValueError("Invalid 'env' value. Supported values are 'development', 'development-docker', 'standalone', 'production', and 'staging'.")
 
         fallback_default = "true" if self.env in ["development", "development-docker"] and self.judge0_mode == "local" else "false"
         self.unsafe_local_execution_fallback_enabled = os.environ.get("UNSAFE_LOCAL_EXECUTION_FALLBACK", fallback_default).strip().lower() == "true"

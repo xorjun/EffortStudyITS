@@ -199,3 +199,13 @@ if __name__ == "__main__":
                                                         database_user=config.database_usr, database_pwd=config.database_pwd)
 
     uvicorn.run(app, host="0.0.0.0", port=8000, )
+
+
+# -- SPA static file serving (standalone Docker image) --
+# When STATIC_DIR is set, FastAPI serves the pre-built Angular frontend.
+# API routes (/api/*) take priority; everything else falls back to index.html.
+import os as _os
+_STATIC_DIR = _os.environ.get("STATIC_DIR")
+if _STATIC_DIR and _os.path.isdir(_STATIC_DIR):
+    from fastapi.staticfiles import StaticFiles
+    app.mount("/", StaticFiles(directory=_STATIC_DIR, html=True), name="spa")

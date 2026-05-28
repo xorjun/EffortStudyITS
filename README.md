@@ -39,6 +39,33 @@ The platform will be available at `http://localhost:8080` (frontend) and `http:/
 
 ---
 
+## One-Command Standalone (Recommended)
+
+A single Docker image with the backend and pre-built frontend — plus MongoDB in one Compose stack. No build tools required.
+
+```bash
+git clone https://github.com/xorjun/EffortStudyITS.git
+cd EffortStudyITS
+docker compose -f docker-compose.standalone.yml up -d
+```
+
+The platform is ready at **http://localhost:8080**. That's it.
+
+To use an external MongoDB instead:
+
+```bash
+docker run -d -p 8080:8000 \
+  -e ITS_ENV=standalone \
+  -e DATABASE_HOST=your.mongo.host \
+  -e DB_SERVICE_PW=yourpassword \
+  -e JWT_SECRET=changeme \
+  -e USER_VERIFICATION_SECRET=changeme \
+  -e RESET_PWD_SECRET=changeme \
+  effortstudy-its
+```
+
+---
+
 ## Local Development Setup
 
 ### Prerequisites

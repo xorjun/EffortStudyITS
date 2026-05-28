@@ -1,0 +1,49 @@
+# One-command standalone deployment — app + MongoDB.
+#
+# Usage:
+#   docker compose -f docker-compose.standalone.yml up -d
+#
+# The platform will be available at http://localhost:8080
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8000"
+    environment:
+      ITS_ENV: standalone
+      DATABASE_HOST: mongodb
+      DATABASE_PORT: "27017"
+      DATABASE_USER: backend_service_user
+      DB_SERVICE_PW: ${DB_SERVICE_PW:-devpassword}
+      JWT_SECRET: ${JWT_SECRET:-dev-jwt-secret-change-in-production}
+      USER_VERIFICATION_SECRET: ${USER_VERIFICATION_SECRET:-dev-verify-secret}
+      RESET_PWD_SECRET: ${RESET_PWD_SECRET:-dev-reset-secret}
+      JUDGE0_MODE: ${JUDGE0_MODE:-none}
+      STATIC_DIR: /app/static
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:5.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./database_scripts/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_ROOT_PW:-rootpassword}
+      DB_SERVICE_USER: backend_service_user
+      DB_SERVICE_PW: ${DB_SERVICE_PW:-devpassword}
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  mongo_data:

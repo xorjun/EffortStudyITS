@@ -1,4 +1,6 @@
-# Print a Welcome Message
+# Task 1 — Print a Welcome Message
+
+## Learning Content
 
 When we use programs on a computer or phone, the program often shows messages to us.
 
@@ -10,9 +12,9 @@ Examples:
 - results
 - error messages
 
-Python can also display messages.
+These messages are put there by programmers. Programmers use text the computer can interpret to do so. We call any text the computer can understand "code".
 
-To show text on the screen, Python uses:
+To display text, the code we use is:
 
 ```python
 print()
@@ -22,30 +24,32 @@ The word inside the brackets will appear on the screen.
 
 ---
 
-## Writing Text in Python
+## Writing Text
 
 Text must be written inside quotation marks.
+
+Example:
 
 ```python
 "Hello"
 ```
 
-Quotation marks help Python understand where the text starts and ends.
+Quotation marks help the computer understand where the text starts and ends.
 
-Without quotation marks, Python may think the text is part of the program itself.
+Without quotation marks, it interprets the text as part of the program itself.
 
 ---
 
-## Example
+## First Example
 
 ```python
-print("Hello")
+print("Fruits")
 ```
 
-Console output:
+The computer displays:
 
 ```
-Hello
+Fruits
 ```
 
 ---
@@ -55,15 +59,15 @@ Hello
 You can also use `print` multiple times.
 
 ```python
-print("Welcome")
-print("Track your activity sessions")
+print("Fruits")
+print("Fruits are tasty")
 ```
 
-Console output:
+The computer displays:
 
 ```
-Welcome
-Track your activity sessions
+Fruits
+Fruits are tasty
 ```
 
 Each `print` statement creates a new line.
@@ -73,18 +77,26 @@ Each `print` statement creates a new line.
 ## Important Notes
 
 - `print()` shows text on the screen
-- text should be inside quotation marks
-- Python reads the code from top to bottom
-- each `print` statement creates a new line
+- Text should be inside quotation marks
+- The computer reads the code from top to bottom
+- Each `print` statement creates a new line
 
 ---
 
 ## To Do
 
-Complete the missing part inside the function so it prints exactly:
+Write a program that prints:
 
 ```
 Welcome to Activity Tracker
 ```
 
-Do not print any extra text.
+In the Coding area to the right.
+
+> Any line that starts with `#` is ignored by the computer.
+
+---
+
+## Your Program Can Now…
+
+Welcome you when you open the tracker.

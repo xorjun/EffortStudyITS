@@ -1,20 +1,20 @@
-# Calculate Total Study Time
+# Task 6 — Repeat Actions and Calculate Total Study Time
 
-Programs can repeat actions.
+This task combines two ideas from the document:
 
-Python uses **loops** to repeat code.
+1. **Repeat Actions for Multiple Activities** (docx Task 6) — using a loop.
+2. **Calculate Total Study Time** (our test) — summing the loop's values.
 
-A loop can go through items one by one.
+## Learning Content: Repeat Actions for Multiple Activities
 
----
+Programs can repeat actions to deal with multiple items in a list.
 
-## Example
+Example:
 
 ```python
-times = [10, 20, 30]
-
-for time in times:
-    print(time)
+numbers = [10, 20, 30]
+for number in numbers:
+    print(number)
 ```
 
 Console output:
@@ -25,28 +25,27 @@ Console output:
 30
 ```
 
-The loop prints one number at a time.
+The loop processes one item at a time.
 
----
-
-## Understanding the Loop
+### Understanding the Loop
 
 In this example:
 
 ```python
-for time in times:
+for number in numbers:
 ```
 
-Python:
-
 - takes one item from the list
-- stores it in `time`
-- runs the indented code
-- repeats for the next item
+- temporarily stores it in the variable `number`
+- starts the indented code
+- repeats the same steps for the next item
+- stops when there are no more items left in the list
+
+The indentation is important here as well. Inside a loop, indentation tells the program which lines belong to the repeated part.
 
 ---
 
-## Adding Numbers Together
+## Learning Content: Calculate the Total
 
 A variable can keep track of the total while the loop runs.
 
@@ -67,9 +66,7 @@ Console output:
 60
 ```
 
----
-
-## Step-by-Step Explanation
+### Step-by-Step Explanation
 
 The program:
 
@@ -83,10 +80,10 @@ The program:
 
 ## Important Notes
 
-- loops repeat actions
-- loops process items one by one
-- totals often start at `0`
-- the total changes during each loop step
+- Loops repeat actions.
+- Loops process items one by one.
+- Totals often start at `0`.
+- The total changes during each loop step.
 
 ---
 
@@ -105,5 +102,10 @@ def total_activity_time(times):
 ```
 
 Example input: `[20, 30, 10]`
-
 Expected return value: `60`
+
+---
+
+## Your Program Can Now…
+
+Display multiple activities one by one from a list, and sum their durations.

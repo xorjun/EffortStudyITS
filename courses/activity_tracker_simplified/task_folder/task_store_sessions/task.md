@@ -1,14 +1,13 @@
-# Store Multiple Study Sessions
+# Task 5 — Store Multiple Study Sessions
 
-Programs sometimes need to store many pieces of information together.
+## Learning Content
 
-For example, an Activity Tracker may store:
+Programs sometimes need to store many pieces of information together. For example, an Activity Tracker may store:
 
-- Python
-- Mathematics
-- Physics
+- Exercises
+- Hobbies
 
-Python uses **lists** to store multiple items together.
+Programmers use **lists** to store multiple items together.
 
 ---
 
@@ -17,69 +16,97 @@ Python uses **lists** to store multiple items together.
 An empty list looks like this:
 
 ```python
-sessions = []
+[]
 ```
+
+Example:
+
+```python
+fruits = []
+```
+
+Variables can also store lists. Here, we store an empty list into a variable called `fruits`. Now the program has an empty list.
 
 ---
 
 ## Adding Items to a List
 
-Python uses `append()` to add new items.
+For adding items to a list, we use:
 
 ```python
-sessions = []
+.append()
+```
 
-sessions.append("Python")
-sessions.append("Mathematics")
+The program needs to know two things to add an item to a list:
+
+1. Which list
+2. Which item
+
+We tell the program which item by adding it within `()`, the way we did before. We tell the program which list by adding `.append` after the name of the list, separated by a dot.
+
+---
+
+## Example
+
+```python
+fruits = []
+fruits.append("Apple")
+fruits.append("Orange")
 ```
 
 The list now contains:
 
 ```
-['Python', 'Mathematics']
+['Apple', 'Orange']
 ```
 
 ---
 
 ## Printing a List
 
+Sometimes we want to display all items stored in a list.
+
 ```python
-sessions = []
-
-sessions.append("Python")
-sessions.append("Mathematics")
-
-print(sessions)
+fruits = []
+fruits.append("Apple")
+fruits.append("Orange")
+print(fruits)
 ```
 
-Console output:
+Computer displays:
 
 ```
-['Python', 'Mathematics']
+['Apple', 'Orange']
 ```
 
 ---
 
 ## Important Notes
 
-- lists store multiple items together
-- `[]` creates an empty list
-- `append()` adds new items
-- items are added one after another
+- Lists store multiple items together.
+- `[]` creates a list.
+- `.append()` adds new items to a variable containing a list.
+- `.append()` needs to follow the list we wish to append items to, separated by a dot.
+- Items are added one by one.
 
 ---
 
 ## To Do
 
-Complete the missing parts.
+Create a list of study sessions and return it.
 
 ```python
 def start_sessions():
+    # Create an empty list called sessions
     sessions = _____
 
+    # Add the first session to the list
     sessions.________("Python")
+
+    # Add the second session to the list
     sessions.________("Mathematics")
 
+    # Return the list
     return sessions
 ```
 
@@ -88,3 +115,9 @@ The function should return:
 ```
 ['Python', 'Mathematics']
 ```
+
+---
+
+## Your Program Can Now…
+
+Store multiple activities.

@@ -65,3 +65,40 @@ async def get_task_status(course_unique_name, topic: Optional[str] = None, user:
         else:
             task_status_dict[task] = "not attempted"
     return({"local_curriculum": local_curriculum, "task_status_dict": task_status_dict})
+
+
+@router.get("/task/reference_solution/{unique_name}")
+async def get_reference_solution(unique_name: str, user: User = Depends(current_active_verified_user)):
+    """Return the example solution for a task.
+
+    The reference solution is only revealed once the learner has at least one
+    failed submission for the task. This is the "give up" reward surfaced in
+    the feedback panel when a submission is not correct: it lets the learner
+    compare their code with the model solution without spoiling the task
+    before they have tried.
+    """
+    task = await database.get_task(unique_name)
+    if task is None or task.task == "":
+        raise HTTPException(status_code=404, detail="Task not known")
+
+    from submissions.schemas import Tested_Submission  # local import to avoid cycles
+    from beanie import PydanticObjectId
+
+    failed_submissions = await Tested_Submission.find(
+        Tested_Submission.user_id == PydanticObjectId(user.id),
+        Tested_Submission.task_unique_name == unique_name,
+        Tested_Submission.type == "submission",
+        Tested_Submission.valid_solution == False,  # noqa: E712
+    ).to_list()
+
+    if len(failed_submissions) == 0:
+        raise HTTPException(
+            status_code=403,
+            detail="Reference solution is only available after at least one failed submission for this task.",
+        )
+
+    return {
+        "unique_name": unique_name,
+        "prefix": task.prefix,
+        "example_solution": task.example_solution,
+    }

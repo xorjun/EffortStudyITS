@@ -1,5 +1,5 @@
 <mat-toolbar class="navbar">
-  <button mat-button class="nav-brand" (click)="emitHomeButtonClicked()" matTooltip="Home">
+  <button mat-button class="nav-brand" (click)="emitHomeButtonClicked()" matTooltip="Return to the course selection screen" matTooltipPosition="below">
     <mat-icon>home</mat-icon>
     <span class="brand-text">{{title}}</span>
   </button>
@@ -8,7 +8,7 @@
 
   <nav class="nav-links">
     <ng-container *ngIf="display_elements.has('topicSelection')">
-      <button mat-button [matMenuTriggerFor]="topicMenu">
+      <button mat-button [matMenuTriggerFor]="topicMenu" matTooltip="Jump to another topic in this course" matTooltipPosition="below">
         {{current_topic_index}}/{{course_topics.length}} {{current_topic}}
       </button>
       <mat-menu #topicMenu="matMenu">
@@ -21,7 +21,7 @@
     <span class="vspace" *ngIf="display_elements.has('topicSelection')"></span>
 
     <ng-container *ngIf="display_elements.has('taskSelection')">
-      <button mat-icon-button (click)="newTaskButtonClicked('previous')" matTooltip="Previous task">
+      <button mat-icon-button (click)="newTaskButtonClicked('previous')" matTooltip="Previous task" matTooltipPosition="below">
         <mat-icon>chevron_left</mat-icon>
       </button>
       <div class="task-nav-wrapper">
@@ -35,14 +35,19 @@
             [class.attempted]="task_status_dict[task] === 'attempted'"
             [class.completed]="task_status_dict[task] === 'completed'"
             [class.current]="task === task_name"
-            [matTooltip]="task"
+            [matTooltip]="task + ' — ' + (task_status_dict[task] || 'unknown status')"
             matTooltipPosition="below"
             (click)="onBubbleClick(task)">
           </span>
           <span class="ellipsis" *ngIf="showRightEllipsis">...</span>
         </div>
       </div>
-      <button mat-icon-button (click)="newTaskButtonClicked('next')" matTooltip="Next task">
+      <button mat-icon-button
+              *ngIf="isNextTaskUnlocked()"
+              (click)="newTaskButtonClicked('next')"
+              [matTooltip]="nextTaskTooltip()"
+              matTooltipPosition="below"
+              data-testid="next-task-button">
         <mat-icon>chevron_right</mat-icon>
       </button>
     </ng-container>
@@ -50,7 +55,7 @@
     <span class="vspace" *ngIf="display_elements.has('taskSelection')"></span>
 
     <ng-container *ngIf="roles.includes('admin') || roles.includes('tutor')">
-      <button mat-button [matMenuTriggerFor]="settingsMenu">
+      <button mat-button [matMenuTriggerFor]="settingsMenu" matTooltip="Open platform or course settings" matTooltipPosition="below">
         Settings
       </button>
       <mat-menu #settingsMenu="matMenu">
@@ -67,10 +72,19 @@
 
     <span class="vspace" *ngIf="roles.includes('admin') || roles.includes('tutor')"></span>
 
-    <button mat-icon-button [matMenuTriggerFor]="infoMenu">
+    <button mat-icon-button (click)="openHelp()" matTooltip="Open the platform help guide" matTooltipPosition="below" aria-label="Open help">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+
+    <button mat-icon-button [matMenuTriggerFor]="infoMenu" matTooltip="Open the more menu (About, Impressum, Profile, Skill Overview)" matTooltipPosition="below">
       <mat-icon>menu</mat-icon>
     </button>
     <mat-menu #infoMenu="matMenu">
+      <button mat-menu-item (click)="openHelp()">
+        <mat-icon>help_outline</mat-icon>
+        Help
+      </button>
+      <mat-divider></mat-divider>
       <button mat-menu-item (click)="openAboutPopup()">
         <mat-icon>info</mat-icon>
         About

@@ -14,6 +14,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MarkdownDialogService } from '../shared/services/markdown-dialog.service';
 import { TaskStatusService } from '../shared/services/task-status.service';
+import { HelpDialogService } from '../shared/services/help-dialog.service';
+import { SessionTimerService } from '../shared/services/session-timer.service';
 
 @Component({
     selector: 'app-navigation-bar',
@@ -59,16 +61,37 @@ export class NavigationBarComponent {
   showLeftEllipsis: boolean = false;
   showRightEllipsis: boolean = false;
 
+  /**
+   * Number of seconds elapsed since the current session started. Updated
+   * once per second by `SessionTimerService` so the Next Task button can
+   * be gated on a 5-minute frustration timeout.
+   */
+  secondsSinceSessionStart: number = 0;
+
+  /**
+   * The Next Task button is hidden for the first 5 minutes of every
+   * session. After that it becomes visible so a frustrated learner who
+   * has been stuck for a while can move on without giving up on the
+   * platform.
+   */
+  private static readonly NEXT_TASK_UNLOCK_SECONDS = 5 * 60;
+
   constructor(
     private eventShareService: EventShareService,
     private httpClient: HttpClient,
     private rolesService: RolesService,
     private courseSettingsService: CourseSettingsService,
     private markdownDialogService: MarkdownDialogService,
-    private taskStatusService: TaskStatusService
+    private taskStatusService: TaskStatusService,
+    private helpDialogService: HelpDialogService,
+    private sessionTimerService: SessionTimerService
     ){
       this.taskFetchedSubscription = this.eventShareService.newTaskFetched$.subscribe(
         () => {
+          // First task of the session: anchor the session start so the
+          // Next Task button can be hidden during the initial 5-minute
+          // "no-skip" window.
+          this.sessionTimerService.markSessionStarted();
           this.task_name = sessionStorage.getItem("taskId")!
           if (this.course == undefined || this.course.unique_name != sessionStorage.getItem("CourseID")) {
             console.log("fetching course.")
@@ -83,6 +106,10 @@ export class NavigationBarComponent {
             this.fetchTaskStatus();
           }
         });
+      // Keep the Next Task button tooltip in sync with the live countdown.
+      this.sessionTimerService.secondsSinceStart$.subscribe((seconds) => {
+        this.secondsSinceSessionStart = seconds;
+      });
 
       this.topicInducedSubscription = this.eventShareService.topicInduced$.subscribe(
         (topic) => {
@@ -177,9 +204,20 @@ export class NavigationBarComponent {
   }
 
   onBubbleClick(taskName: string) {
-    if (taskName !== this.task_name) {
-      this.eventShareService.emitTaskDirectlySelected(taskName);
+    if (taskName === this.task_name) {
+      return;
     }
+    // Allow jumping *backwards* to a previously visited task at any time,
+    // but only allow skipping *forward* past the current task once the
+    // 5-minute no-skip window has elapsed.
+    const localCurriculum = this.local_curriculum || [];
+    const currentIndex = localCurriculum.indexOf(this.task_name);
+    const targetIndex = localCurriculum.indexOf(taskName);
+    const isForwardSkip = currentIndex !== -1 && targetIndex !== -1 && targetIndex > currentIndex;
+    if (isForwardSkip && !this.isNextTaskUnlocked()) {
+      return;
+    }
+    this.eventShareService.emitTaskDirectlySelected(taskName);
   }
 
   ngOnInit() {
@@ -194,7 +232,47 @@ export class NavigationBarComponent {
   }
 
   newTaskButtonClicked(direction: string){
+    if (direction === 'next' && !this.isNextTaskUnlocked()) {
+      // Defensive: even if the disabled state is bypassed (e.g. via the
+      // bubble navigation), keep the 5-minute no-skip window in effect.
+      return;
+    }
     this.eventShareService.emitNewTaskEvent(direction);
+  }
+
+  /**
+   * True once at least 5 minutes have passed since the session started.
+   * While false, the Next Task button is hidden in the toolbar so a
+   * learner has a chance to work through the task before being able to
+   * skip it.
+   */
+  isNextTaskUnlocked(): boolean {
+    return this.secondsSinceSessionStart >= NavigationBarComponent.NEXT_TASK_UNLOCK_SECONDS;
+  }
+
+  /**
+   * Remaining seconds until the Next Task button unlocks, or 0 if it is
+   * already unlocked. Used for the tooltip countdown.
+   */
+  nextTaskUnlockCountdown(): number {
+    return Math.max(0, NavigationBarComponent.NEXT_TASK_UNLOCK_SECONDS - this.secondsSinceSessionStart);
+  }
+
+  /**
+   * Human-readable tooltip for the Next Task button. The first 5 minutes of
+   * a session it explains the no-skip rule; afterwards it falls back to
+   * the standard "Next task" hint.
+   */
+  nextTaskTooltip(): string {
+    if (!this.isNextTaskUnlocked()) {
+      const seconds = this.nextTaskUnlockCountdown();
+      const minutes = Math.floor(seconds / 60);
+      const remainder = seconds % 60;
+      const mm = String(minutes).padStart(2, '0');
+      const ss = String(remainder).padStart(2, '0');
+      return `Next task unlocks in ${mm}:${ss} — take a moment to try before skipping.`;
+    }
+    return 'Next task';
   }
 
   emitProfileButtonClicked() {
@@ -215,6 +293,10 @@ export class NavigationBarComponent {
 
   openPrivacyPolicyPopup() {
     this.markdownDialogService.openPrivacyPolicy();
+  }
+
+  openHelp() {
+    this.helpDialogService.open();
   }
 
   emitCourseSettingsRequested() {

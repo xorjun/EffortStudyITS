@@ -12,6 +12,7 @@ import { StudyTelemetryService } from '../shared/services/study-telemetry.servic
 import { StudyContextService } from '../shared/services/study-context.service';
 
 import { MarkdownPanelComponent } from '../shared/components/markdown-panel/markdown-panel.component';
+import { TodoExtractorService } from '../shared/services/todo-extractor.service';
 
 @Component({
     selector: 'app-task-panel',
@@ -53,6 +54,7 @@ export class TaskPanelComponent {
     public studyFunctionsService: StudyFunctionsService,
     private studyTelemetryService: StudyTelemetryService,
     private studyContext: StudyContextService,
+    private todoExtractor: TodoExtractorService,
   ) {
     this.contextSubscription = this.studyContext.state$.subscribe((state) => {
       this.participantCondition = (state.condition as 'A' | 'B' | null);
@@ -242,7 +244,7 @@ export class TaskPanelComponent {
           this.handleCourseCompleted();
           return;
         }
-        this.task_markdown = this.task['task']!;
+        this.task_markdown = this.todoExtractor.stripTodoSection(this.task['task']!);
         //console.log(this.task['unique_name'])
         //this.dataShareService.emitTaskId(this.task['unique_name']!);
 

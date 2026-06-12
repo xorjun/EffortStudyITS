@@ -146,6 +146,11 @@ export class FeedbackPanelComponent implements OnDestroy {
         failedTests,
       });
       this.feedback_markdown = this.renderTestResults(this.feedback["test_results"]!, this.feedback["task_id"]!);
+      // Every submission also produces a plain-English summary of what the
+      // learner's code achieves, shown above the test results. The summary
+      // is static-analysis based (always works) and optionally enriched
+      // with an LLM one-liner by the backend.
+      this.fetchCodeSummary(submission_id);
       if(sessionStorage.getItem("taskType")! == "plot_function") {
         this.graph_result = ''
         for (var test_obj of this.feedback["test_results"]!) {
@@ -212,6 +217,53 @@ export class FeedbackPanelComponent implements OnDestroy {
     md += '```python\n' + escape(userCode) + '\n```\n\n';
     md += `### Reference solution\n\n`;
     md += '```python\n' + escape(referenceCode) + '\n```\n';
+    return md;
+  }
+
+  /**
+   * Fetch a plain-English summary of what the user's submitted code
+   * achieves and prepend it to the feedback panel. The backend always
+   * returns a deterministic AST-based summary; an LLM-enriched variant is
+   * appended when available. This is shown on every submission (passing
+   * or failing) so the learner always gets a "what does my code do"
+   * signal regardless of the test outcome.
+   */
+  private fetchCodeSummary(submissionId: string): void {
+    this.client.get<any>(`${environment.apiUrl}/submission/summary/${submissionId}`, { withCredentials: true })
+      .subscribe({
+        next: (data) => {
+          const block = this.renderCodeSummary(
+            data?.static_summary,
+            data?.llm_summary,
+          );
+          if (block) {
+            this.feedback_markdown = block + this.feedback_markdown;
+          }
+        },
+        // 404 / 500 just means the summary is not (yet) available — keep
+        // the standard test feedback visible in that case.
+        error: () => { /* no-op */ }
+      });
+  }
+
+  /**
+   * Render the "What your code achieves" block as markdown so it integrates
+   * with the rest of the feedback panel. The static summary is always
+   * shown when present; the LLM one-liner, if any, is shown as a quoted
+   * sub-section beneath it.
+   */
+  private renderCodeSummary(staticSummary: string | null | undefined, llmSummary: string | null | undefined): string {
+    if (!staticSummary && !llmSummary) {
+      return '';
+    }
+    let md = `## What your code achieves\n\n`;
+    if (staticSummary) {
+      md += staticSummary.trim() + '\n';
+    }
+    if (llmSummary) {
+      md += `\n> ${llmSummary.trim().replace(/\n+/g, ' ')}\n`;
+    }
+    md += '\n---\n\n';
     return md;
   }
 

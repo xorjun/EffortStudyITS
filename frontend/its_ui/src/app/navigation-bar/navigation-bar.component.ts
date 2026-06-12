@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, Input } from '@angular/core';
+import { Component, EventEmitter, Output, Input, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EventShareService } from '../shared/services/event-share.service';
 import { HttpClient } from '@angular/common/http';
@@ -16,6 +16,7 @@ import { MarkdownDialogService } from '../shared/services/markdown-dialog.servic
 import { TaskStatusService } from '../shared/services/task-status.service';
 import { HelpDialogService } from '../shared/services/help-dialog.service';
 import { SessionTimerService } from '../shared/services/session-timer.service';
+import { StudyTelemetryService } from '../shared/services/study-telemetry.service';
 
 @Component({
     selector: 'app-navigation-bar',
@@ -84,7 +85,8 @@ export class NavigationBarComponent {
     private markdownDialogService: MarkdownDialogService,
     private taskStatusService: TaskStatusService,
     private helpDialogService: HelpDialogService,
-    private sessionTimerService: SessionTimerService
+    private sessionTimerService: SessionTimerService,
+    private studyTelemetryService: StudyTelemetryService,
     ){
       this.taskFetchedSubscription = this.eventShareService.newTaskFetched$.subscribe(
         () => {
@@ -238,6 +240,54 @@ export class NavigationBarComponent {
       return;
     }
     this.eventShareService.emitNewTaskEvent(direction);
+  }
+
+  /**
+   * Move to the next task bypassing the 5-minute no-skip lock. Triggered
+   * by the secret keyboard shortcut (Ctrl+Shift+Q) so that anyone who
+   * knows the shortcut can advance without waiting. The shortcut is
+   * deliberately undocumented in the UI; this is the only path the user
+   * is asking us to provide.
+   */
+  private skipToNextTaskUnlocked(): void {
+    this.studyTelemetryService.logContextEvent('secret-skip-shortcut', {
+      secondsSinceSessionStart: this.secondsSinceSessionStart,
+      fromTask: this.task_name,
+    });
+    this.eventShareService.emitNewTaskEvent('next');
+  }
+
+  /**
+   * Global keyboard listener for the secret session-advance shortcut.
+   *
+   * Ctrl+Shift+Q (or Cmd+Shift+Q on macOS) advances the learner to the
+   * next task immediately, bypassing the 5-minute no-skip window that
+   * the visible Next Task button is gated by. The shortcut is not
+   * surfaced anywhere in the UI; it is a hidden affordance for moving
+   * through sessions without waiting.
+   *
+   * The listener is intentionally on `document` (via the component's
+   * HostListener) so it fires regardless of which element on the page
+   * has focus. We also call `event.preventDefault()` so the browser does
+   * not interpret the chord as anything else.
+   */
+  @HostListener('document:keydown', ['$event'])
+  handleGlobalKeydown(event: KeyboardEvent): void {
+    if (!event) {
+      return;
+    }
+    const usesModifier = event.ctrlKey || event.metaKey;
+    const usesShift = event.shiftKey;
+    if (!usesModifier || !usesShift) {
+      return;
+    }
+    const key = (event.key || '').toLowerCase();
+    if (key !== 'q') {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    this.skipToNextTaskUnlocked();
   }
 
   /**

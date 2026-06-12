@@ -27,10 +27,13 @@ export class TodoExtractorService {
   ];
 
   /**
-   * Returns the to-do / exercise section from a task markdown string, or
-   * `null` if no matching heading is present. The returned string includes
-   * the heading line itself and everything up to (but not including) the
-   * next `## ` heading.
+   * Returns the body of the to-do / exercise section from a task markdown
+   * string, or `null` if no matching heading is present. The returned
+   * string is the content under the heading, with the heading line itself
+   * stripped — the consumer (typically a panel that already renders its
+   * own "To Do" header) is expected to add the heading back if it wants
+   * one. Returning the body without the heading avoids the heading being
+   * rendered twice when the panel adds its own.
    */
   extractTodoSection(markdown: string | null | undefined): string | null {
     if (!markdown) {
@@ -40,13 +43,32 @@ export class TodoExtractorService {
     if (!range) {
       return null;
     }
-    const section = markdown.slice(range.start, range.end).trim();
-    if (section.length === 0) {
+    // The range starts at the heading line. Skip past the heading line
+    // itself plus any trailing blank lines so the body reads cleanly.
+    const startOfBody = this.skipHeadingLine(markdown, range.start);
+    const body = markdown.slice(startOfBody, range.end).trim();
+    if (body.length === 0) {
       return null;
     }
-    // Re-prepend the heading so the markdown panel still renders the
-    // "To Do" title above the steps.
-    return `## To Do\n\n${section}`;
+    return body;
+  }
+
+  /**
+   * Given the start index of a `## Heading` line, return the index of the
+   * first non-newline, non-space character after the heading line. Used by
+   * `extractTodoSection` to drop the heading line from the returned body.
+   */
+  private skipHeadingLine(markdown: string, headingStart: number): number {
+    let i = headingStart;
+    // Walk to the end of the heading line.
+    while (i < markdown.length && markdown[i] !== '\n') {
+      i += 1;
+    }
+    // Skip the newline itself and any blank lines immediately after.
+    while (i < markdown.length && (markdown[i] === '\n' || markdown[i] === ' ' || markdown[i] === '\t')) {
+      i += 1;
+    }
+    return i;
   }
 
   /**

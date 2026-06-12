@@ -2,20 +2,16 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, Subscription, interval } from 'rxjs';
 
 /**
- * Tracks the wall-clock time since the current tutoring session started and
+ * Tracks the wall-clock time since the current tutoring task started and
  * exposes it as a reactive stream. Components that need to gate UI on
- * "at least N minutes into the session" (e.g. reveal the Next Task button
- * after a frustration timeout) subscribe to `secondsSinceStart$` and decide
- * locally.
+ * "at least N minutes into the current task" (e.g. reveal the Next Task
+ * button after a frustration timeout) subscribe to `secondsSinceStart$`
+ * and decide locally.
  *
- * "Session started" is whichever happens first:
- *  - the StudyContextService state becomes initialized (study context
- *    resolved from URL or sessionStorage), or
- *  - a caller explicitly invokes `markSessionStarted()` (e.g. when the
- *    tutoring view mounts and the first task is fetched).
- *
- * The timer persists in localStorage so the 5-minute countdown survives a
- * page refresh mid-session.
+ * Each new task reset the timer back to zero via `markSessionStarted()`.
+ * This way, a learner who advances to a new task (via the visible Next
+ * Task button or the secret Ctrl+Shift+Q shortcut) starts the 5-minute
+ * no-skip window over again on the new task.
  */
 @Injectable({
   providedIn: 'root'
@@ -25,7 +21,7 @@ export class SessionTimerService implements OnDestroy {
 
   private sessionStartedAt: number;
   private readonly secondsSubject = new BehaviorSubject<number>(0);
-  /** Seconds elapsed since the current session started, emitted every second. */
+  /** Seconds elapsed since the current task started, emitted every second. */
   readonly secondsSinceStart$: Observable<number> = this.secondsSubject.asObservable();
   private tickSubscription?: Subscription;
 
@@ -39,25 +35,18 @@ export class SessionTimerService implements OnDestroy {
   }
 
   /**
-   * Reset the session start to the current time. Called when the tutoring
-   * view is entered for the first time, or when the study context is
-   * initialized from the URL.
+   * Reset the task start to the current time. Called on every new task
+   * fetch so the 5-minute no-skip window applies per task, not per
+   * study session. After a Ctrl+Shift+Q skip, the next task's Next Task
+   * button will be hidden for its first 5 minutes as expected.
    */
   markSessionStarted(): void {
-    const now = Date.now();
-    // Only reset if we don't already have a stored start, or if more than
-    // 30 minutes have passed (treat as a new session).
-    const stored = this.readStoredStart();
-    if (stored === null || (now - stored) > 30 * 60 * 1000) {
-      this.sessionStartedAt = now;
-      this.writeStoredStart(now);
-    } else {
-      this.sessionStartedAt = stored;
-    }
+    this.sessionStartedAt = Date.now();
+    this.writeStoredStart(this.sessionStartedAt);
     this.emit();
   }
 
-  /** Convenience: seconds elapsed since the current session started. */
+  /** Convenience: seconds elapsed since the current task started. */
   getSecondsSinceStart(): number {
     return Math.max(0, Math.floor((Date.now() - this.sessionStartedAt) / 1000));
   }

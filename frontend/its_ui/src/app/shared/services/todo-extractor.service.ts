@@ -36,6 +36,60 @@ export class TodoExtractorService {
     if (!markdown) {
       return null;
     }
+    const range = this.findTodoRange(markdown);
+    if (!range) {
+      return null;
+    }
+    const section = markdown.slice(range.start, range.end).trim();
+    if (section.length === 0) {
+      return null;
+    }
+    // Re-prepend the heading so the markdown panel still renders the
+    // "To Do" title above the steps.
+    return `## To Do\n\n${section}`;
+  }
+
+  /**
+   * Returns the same task markdown with the `## To Do` section removed.
+   * The matching `---` separator (or surrounding blank lines) directly
+   * before the section is also dropped so the result reads cleanly.
+   * If no to-do section is found, the markdown is returned unchanged.
+   */
+  stripTodoSection(markdown: string | null | undefined): string {
+    if (!markdown) {
+      return '';
+    }
+    const range = this.findTodoRange(markdown);
+    if (!range) {
+      return markdown;
+    }
+    // Extend the cut a little to the left so a trailing `---` separator
+    // directly above the section is consumed too. We do not eat more than
+    // one preceding blank line to avoid eating content from the previous
+    // section.
+    let cutStart = range.start;
+    const before = markdown.slice(0, cutStart);
+    const sepMatch = /\n[ \t]*-{3,}[ \t]*\n[ \t]*$/.exec(before);
+    if (sepMatch) {
+      cutStart -= sepMatch[0].length;
+    } else {
+      // Drop at most one preceding blank line so we don't glue the
+      // next section's heading directly onto the previous paragraph.
+      cutStart = Math.max(0, cutStart - 1);
+      while (cutStart > 0 && /\s/.test(markdown[cutStart - 1])) {
+        cutStart -= 1;
+      }
+    }
+    return (markdown.slice(0, cutStart) + markdown.slice(range.end)).replace(/\n{3,}/g, '\n\n').trimEnd() + '\n';
+  }
+
+  /**
+   * Locate the to-do section's [start, end) range in `markdown` (start is
+   * the index of the heading line; end is one past the last character
+   * before the next `## ` heading or end-of-document). Returns `null` if
+   * no matching heading is present.
+   */
+  private findTodoRange(markdown: string): { start: number; end: number } | null {
     for (const heading of this.todoHeadings) {
       const match = heading.exec(markdown);
       if (!match) {
@@ -48,14 +102,8 @@ export class TodoExtractorService {
       // appear at the very top of the document (the task title) so they
       // don't need a special case.
       const nextHeading = /(^|\n)##\s/.exec(rest);
-      const endIndex = nextHeading ? nextHeading.index + (nextHeading[1]?.length ?? 0) : rest.length;
-      const section = rest.slice(0, endIndex).trim();
-      if (section.length === 0) {
-        return null;
-      }
-      // Re-prepend the heading so the markdown panel still renders the
-      // "To Do" title above the steps.
-      return `## To Do\n\n${section}`;
+      const endOffset = nextHeading ? nextHeading.index + (nextHeading[1]?.length ?? 0) : rest.length;
+      return { start: startIndex, end: afterHeading + endOffset };
     }
     return null;
   }

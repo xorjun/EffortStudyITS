@@ -1,0 +1,362 @@
+/* Help dialog — high-contrast, card-style, theme-aware.
+   Uses Material 3 system tokens with explicit light/dark fallbacks so the
+   dialog is readable in both light and dark app themes. */
+
+.help-dialog {
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+  min-width: 320px;
+  max-width: 880px;
+  /* Force a light card look by default; dark mode overrides below. */
+  background-color: #ffffff;
+  color: #1f1f1f;
+}
+
+/* When the host page is in dark mode, mirror the dialog surface.
+   The body in SCRIPT has class "dark-mode" when dark theme is active
+   (or data-theme="dark" — we accept both). */
+:host-context(body.dark-mode) .help-dialog,
+:host-context(body[data-theme="dark"]) .help-dialog,
+:host-context(.dark-theme) .help-dialog,
+:host-context([data-theme="dark"]) .help-dialog {
+  background-color: #1e1e1e;
+  color: #ececec;
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+.help-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem 0.75rem 1.25rem;
+}
+
+.header-icon {
+  font-size: 2.25rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  line-height: 2.25rem;
+  color: #3f51b5;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+:host-context(body.dark-mode) .header-icon,
+:host-context(body[data-theme="dark"]) .header-icon {
+  color: #7986cb;
+}
+
+.header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.header-text h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: inherit;
+}
+
+.subtitle {
+  margin: 0.25rem 0 0 0;
+  color: #5f6368;
+  font-size: 0.875rem;
+  line-height: 1.3;
+}
+
+:host-context(body.dark-mode) .subtitle,
+:host-context(body[data-theme="dark"]) .subtitle {
+  color: #b0b0b0;
+}
+
+.close-btn {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: #5f6368;
+}
+
+:host-context(body.dark-mode) .close-btn,
+:host-context(body[data-theme="dark"]) .close-btn {
+  color: #b0b0b0;
+}
+
+/* ── Search bar ─────────────────────────────────────────────────── */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 1.25rem;
+  padding: 0.5rem 0.75rem;
+  background-color: #f1f3f4;
+  border-radius: 24px;
+  border: 1px solid transparent;
+  transition: border-color 120ms;
+}
+
+:host-context(body.dark-mode) .search-bar,
+:host-context(body[data-theme="dark"]) .search-bar {
+  background-color: #2a2a2a;
+}
+
+.search-bar:focus-within {
+  border-color: #3f51b5;
+  background-color: #ffffff;
+}
+
+:host-context(body.dark-mode) .search-bar:focus-within,
+:host-context(body[data-theme="dark"]) .search-bar:focus-within {
+  background-color: #1e1e1e;
+}
+
+.search-icon {
+  color: #5f6368;
+  flex-shrink: 0;
+}
+
+:host-context(body.dark-mode) .search-icon,
+:host-context(body[data-theme="dark"]) .search-icon {
+  color: #9aa0a6;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.95rem;
+  color: inherit;
+  min-width: 0;
+}
+
+.search-input::placeholder {
+  color: #9aa0a6;
+}
+
+.search-clear {
+  flex-shrink: 0;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  color: #5f6368;
+}
+
+:host-context(body.dark-mode) .search-clear,
+:host-context(body[data-theme="dark"]) .search-clear {
+  color: #9aa0a6;
+}
+
+/* ── Tabs ──────────────────────────────────────────────────────── */
+.help-tabs {
+  flex: 1;
+  min-height: 0;
+}
+
+.tab-icon {
+  margin-right: 0.35rem;
+  vertical-align: middle;
+  font-size: 1.1rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  line-height: 1.1rem;
+}
+
+.tab-label {
+  vertical-align: middle;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.tab-count {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background-color: rgba(0, 0, 0, 0.08);
+  color: #5f6368;
+  border-radius: 10px;
+  line-height: 1.4;
+  vertical-align: middle;
+}
+
+:host-context(body.dark-mode) .tab-count,
+:host-context(body[data-theme="dark"]) .tab-count {
+  background-color: rgba(255, 255, 255, 0.12);
+  color: #b0b0b0;
+}
+
+/* On narrow dialogs, hide the tab label text and show icon only. */
+@media (max-width: 560px) {
+  .tab-label {
+    display: none;
+  }
+  .tab-icon {
+    margin-right: 0;
+  }
+  .tab-count {
+    margin-left: 0.25rem;
+  }
+}
+
+/* ── Content area ──────────────────────────────────────────────── */
+.help-content {
+  padding: 1rem 1.5rem 1rem 1.5rem;
+  color: inherit;
+}
+
+.section-intro {
+  margin: 0 0 0.75rem 0;
+  color: #5f6368;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.section-intro.empty {
+  color: #9aa0a6;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 400;
+  font-style: italic;
+}
+
+:host-context(body.dark-mode) .section-intro,
+:host-context(body[data-theme="dark"]) .section-intro {
+  color: #b0b0b0;
+}
+
+:host-context(body.dark-mode) .section-intro.empty,
+:host-context(body[data-theme="dark"]) .section-intro.empty {
+  color: #6e6e6e;
+}
+
+.help-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Each item: card with left accent border ───────────────────── */
+.help-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  background-color: #f8f9fa;
+  border-left: 4px solid #3f51b5;
+  border-radius: 0 6px 6px 0;
+  transition: background-color 120ms;
+}
+
+.help-item:hover {
+  background-color: #eef0f3;
+}
+
+:host-context(body.dark-mode) .help-item,
+:host-context(body[data-theme="dark"]) .help-item {
+  background-color: #2a2a2a;
+  border-left-color: #7986cb;
+}
+
+:host-context(body.dark-mode) .help-item:hover,
+:host-context(body[data-theme="dark"]) .help-item:hover {
+  background-color: #333333;
+}
+
+.item-icon {
+  color: #3f51b5;
+  font-size: 1.4rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  line-height: 1.4rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+:host-context(body.dark-mode) .item-icon,
+:host-context(body[data-theme="dark"]) .item-icon {
+  color: #9fa8da;
+}
+
+.item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.help-item-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.2rem;
+}
+
+.help-item-name {
+  font-weight: 600;
+  color: #1f1f1f;
+  font-size: 0.95rem;
+}
+
+:host-context(body.dark-mode) .help-item-name,
+:host-context(body[data-theme="dark"]) .help-item-name {
+  color: #ffffff;
+}
+
+.help-item-location {
+  font-size: 0.72rem;
+  color: #5f6368;
+  background-color: rgba(63, 81, 181, 0.1);
+  padding: 0.15rem 0.55rem;
+  border-radius: 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+:host-context(body.dark-mode) .help-item-location,
+:host-context(body[data-theme="dark"]) .help-item-location {
+  color: #b0b0b0;
+  background-color: rgba(159, 168, 218, 0.15);
+}
+
+.help-item-desc {
+  margin: 0;
+  color: #3c4043;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+:host-context(body.dark-mode) .help-item-desc,
+:host-context(body[data-theme="dark"]) .help-item-desc {
+  color: #c5c8c6;
+}
+
+/* ── Footer ────────────────────────────────────────────────────── */
+.help-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  gap: 1rem;
+  background-color: #f8f9fa;
+}
+
+:host-context(body.dark-mode) .help-actions,
+:host-context(body[data-theme="dark"]) .help-actions {
+  background-color: #232323;
+}
+
+.actions-hint {
+  color: #5f6368;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+:host-context(body.dark-mode) .actions-hint,
+:host-context(body[data-theme="dark"]) .actions-hint {
+  color: #9aa0a6;
+}

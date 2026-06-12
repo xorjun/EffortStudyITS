@@ -1,0 +1,86 @@
+<div class="help-dialog">
+  <div class="help-header">
+    <mat-icon class="header-icon">help_outline</mat-icon>
+    <div class="header-text">
+      <h2 mat-dialog-title>How to use SCRIPT</h2>
+      <p class="subtitle">Quick reference for every button, menu, and screen section.</p>
+    </div>
+    <button mat-icon-button class="close-btn" (click)="close()" aria-label="Close help" matTooltip="Close" type="button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-divider></mat-divider>
+
+  <div class="search-bar">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input
+      type="text"
+      class="search-input"
+      [(ngModel)]="searchQuery"
+      (input)="onSearchChange()"
+      placeholder="Filter help items..."
+      aria-label="Filter help items"
+    />
+    <button
+      *ngIf="searchQuery"
+      mat-icon-button
+      class="search-clear"
+      (click)="clearSearch()"
+      aria-label="Clear search"
+      matTooltip="Clear">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-tab-group
+    dynamicHeight
+    mat-stretch-tabs="false"
+    class="help-tabs"
+    [selectedIndex]="selectedTabIndex"
+    (selectedIndexChange)="onTabChange($event)">
+    <mat-tab *ngFor="let section of filteredSections; let i = index">
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">{{ section.icon }}</mat-icon>
+        <span class="tab-label">{{ section.title }}</span>
+        <span class="tab-count" *ngIf="section.items.length > 0">{{ section.items.length }}</span>
+      </ng-template>
+
+      <div class="help-content" mat-dialog-content>
+        <p class="section-intro" *ngIf="section.items.length > 0; else noItems">
+          {{ section.items.length }} element{{ section.items.length === 1 ? '' : 's' }} in this section.
+        </p>
+        <ng-template #noItems>
+          <p class="section-intro empty">No items match "{{ searchQuery }}".</p>
+        </ng-template>
+
+        <ul class="help-list">
+          <li *ngFor="let item of section.items" class="help-item">
+            <mat-icon class="item-icon" *ngIf="item.icon">{{ item.icon }}</mat-icon>
+            <div class="item-body">
+              <div class="help-item-head">
+                <span class="help-item-name">{{ item.name }}</span>
+                <span class="help-item-location" *ngIf="item.location">{{ item.location }}</span>
+              </div>
+              <p class="help-item-desc">{{ item.description }}</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+
+  <mat-divider></mat-divider>
+
+  <div mat-dialog-actions class="help-actions">
+    <span class="actions-hint">
+      <ng-container *ngIf="!searchQuery; else searching">
+        Hover over any toolbar button for a one-line tooltip.
+      </ng-container>
+      <ng-template #searching>
+        Showing matches for "{{ searchQuery }}".
+      </ng-template>
+    </span>
+    <button mat-flat-button color="primary" (click)="close()" type="button">Got it</button>
+  </div>
+</div>

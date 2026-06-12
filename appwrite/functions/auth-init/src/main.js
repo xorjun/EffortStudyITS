@@ -4,17 +4,6 @@ import { assignBalancedCondition, createParticipant, determineCurrentSession, ge
 import { COLLECTIONS, DATABASE_ID } from '../../shared/constants.js';
 import { handleFunctionError, HttpError, jsonResponse, readJsonBody, requireMethod } from '../../shared/http.js';
 
-function normalizePriorExp(rawValue) {
-  const value = String(rawValue || '').trim().toUpperCase();
-  if (/^EXP_[012]$/.test(value)) {
-    return value;
-  }
-  if (/^[012]$/.test(value)) {
-    return `EXP_${value}`;
-  }
-  throw new HttpError(400, 'prior_exp must be one of EXP_0, EXP_1, or EXP_2.');
-}
-
 function normalizePid(body) {
   return body.prolific_pid || body.prolificPid || body.PROLIFIC_PID;
 }
@@ -30,11 +19,15 @@ export default async ({ req, res, log, error }) => {
       throw new HttpError(400, 'PROLIFIC_PID is required.');
     }
 
-    const priorExp = normalizePriorExp(body.prior_exp || body.priorExp);
     const studyId = body.STUDY_ID || body.studyId || null;
     const prolificSessionId = body.SESSION_ID || body.sessionId || null;
 
     const { databases } = createAdminServices(req);
+
+    // The Prolific PID is the canonical identity. The caller is expected to
+    // have created an Appwrite account whose userId matches this PID (or a
+    // deterministic email/password derived from it). We re-bind that
+    // existing user to the participant document below.
     const existingByUser = await getParticipantByUserId(databases, userId);
     if (existingByUser && existingByUser.prolific_pid !== prolificPid) {
       throw new HttpError(409, 'This Appwrite user is already bound to a different participant.');
@@ -43,14 +36,16 @@ export default async ({ req, res, log, error }) => {
     let participant = await getParticipantByPid(databases, prolificPid);
 
     if (!participant) {
-      const condition = await assignBalancedCondition(databases, priorExp);
+      const condition = await assignBalancedCondition(databases);
       participant = await createParticipant(databases, {
         prolificPid,
-        priorExp,
         condition,
         userId,
       });
     } else if (participant.appwrite_user_id !== userId) {
+      // Same PID on a new device / cleared session: rebind the Appwrite
+      // user to the existing participant record so the PID stays the
+      // single source of identity across all pipeline components.
       await rebindParticipantUser(databases, participant, userId);
       participant = await databases.getDocument({
         databaseId: DATABASE_ID,
@@ -74,7 +69,13 @@ export default async ({ req, res, log, error }) => {
       participantUserId: userId,
       condition: participant.condition,
       currentSession,
+      // Legacy field kept for backward compatibility with the existing Angular
+      // client. New clients should read participantJwt below.
       token: null,
+      // The session JWT echoed back from the caller's request. Subsequent
+      // function calls can use this directly to authenticate as the
+      // participant. Additive field; the legacy path is preserved.
+      participantJwt: userJwt || null,
       studyId,
       prolificSessionId,
     });

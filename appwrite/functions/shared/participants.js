@@ -25,27 +25,23 @@ export async function getParticipantByUserId(databases, userId) {
   return result.documents[0] || null;
 }
 
-async function getConditionCounts(databases, priorExp) {
-  const perStratum = await databases.listDocuments({
-    databaseId: DATABASE_ID,
-    collectionId: COLLECTIONS.CONDITION_COUNTS,
-    queries: [Query.equal('prior_exp', priorExp), Query.limit(2)],
-  });
-
-  if (perStratum.documents.length !== 2) {
-    throw new HttpError(500, `Missing seeded condition_counts documents for ${priorExp}.`);
-  }
-
-  const allCounts = await databases.listDocuments({
+/**
+ * Read the global A/B condition counters. Condition assignment is no
+ * longer stratified — the entire study is balanced globally so every
+ * participant is one of A or B without any pre-survey branching.
+ */
+async function getConditionCounts(databases) {
+  const counts = await databases.listDocuments({
     databaseId: DATABASE_ID,
     collectionId: COLLECTIONS.CONDITION_COUNTS,
     queries: [Query.limit(10)],
   });
 
-  return {
-    perStratum: perStratum.documents,
-    all: allCounts.documents,
-  };
+  if (counts.documents.length < 2) {
+    throw new HttpError(500, 'Missing seeded condition_counts documents (A and B).');
+  }
+
+  return counts.documents;
 }
 
 async function acquireConditionLock(databases) {
@@ -101,33 +97,30 @@ async function releaseConditionLock(databases, lockId) {
   }).catch(() => undefined);
 }
 
-function chooseCondition({ perStratum, all }) {
-  const perCondition = new Map(perStratum.map((document) => [document.condition, document]));
+function chooseCondition(counts) {
+  const perCondition = new Map(counts.map((document) => [document.condition, document]));
   const a = perCondition.get('A');
   const b = perCondition.get('B');
+
+  if (a && !b) return 'A';
+  if (b && !a) return 'B';
+  if (!a && !b) {
+    throw new HttpError(500, 'Neither A nor B condition_counts row is present.');
+  }
 
   if (a.count !== b.count) {
     return a.count < b.count ? 'A' : 'B';
   }
 
-  const totals = all.reduce((accumulator, document) => {
-    accumulator[document.condition] = (accumulator[document.condition] || 0) + document.count;
-    return accumulator;
-  }, {});
-
-  if ((totals.A || 0) !== (totals.B || 0)) {
-    return (totals.A || 0) < (totals.B || 0) ? 'A' : 'B';
-  }
-
   return CONDITION_VALUES[Math.floor(Math.random() * CONDITION_VALUES.length)];
 }
 
-export async function assignBalancedCondition(databases, priorExp) {
+export async function assignBalancedCondition(databases) {
   const lockId = await acquireConditionLock(databases);
   try {
-    const counts = await getConditionCounts(databases, priorExp);
+    const counts = await getConditionCounts(databases);
     const chosenCondition = chooseCondition(counts);
-    const chosenDocument = counts.perStratum.find((document) => document.condition === chosenCondition);
+    const chosenDocument = counts.find((document) => document.condition === chosenCondition);
 
     await databases.incrementDocumentAttribute({
       databaseId: DATABASE_ID,
@@ -167,7 +160,7 @@ export async function determineCurrentSession(databases, participantId, fallback
   return Math.max(fallbackCurrentSession, result.documents.at(-1).session_number + 1);
 }
 
-export async function createParticipant(databases, { prolificPid, priorExp, condition, userId }) {
+export async function createParticipant(databases, { prolificPid, condition, userId }) {
   return databases.createDocument({
     databaseId: DATABASE_ID,
     collectionId: COLLECTIONS.PARTICIPANTS,
@@ -176,7 +169,6 @@ export async function createParticipant(databases, { prolificPid, priorExp, cond
       prolific_pid: prolificPid,
       appwrite_user_id: userId,
       condition,
-      prior_exp: priorExp,
       pre_survey_completed: false,
       day1_completed: false,
       day2_completed: false,

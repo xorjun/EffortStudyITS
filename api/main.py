@@ -86,6 +86,12 @@ app.include_router(
     handle_users.fastapi_users.get_auth_router(handle_users.auth_backend,
                                                requires_verification=False), prefix=f"{prefix}/auth/jwt", tags=["auth"]
 )
+# Auto-login by Prolific PID. This is the primary entry point for
+# participants who arrive via a Prolific redirect. It creates or
+# reuses a SCRIPT user keyed on a deterministic email derived from
+# the PID, then sets the same auth cookie as /auth/jwt/login.
+from users import auto_login as _auto_login  # noqa: E402
+app.include_router(_auto_login.router, prefix=f"{prefix}", tags=["auth"])
 app.include_router(
     handle_users.fastapi_users.get_register_router(user_schemas.UserRead, user_schemas.UserCreate),
     prefix=f"{prefix}/auth",

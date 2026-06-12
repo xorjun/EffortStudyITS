@@ -121,13 +121,15 @@ export class StudyFunctionsService {
     }
 
     this.initializePromise = (async () => {
-      await this.appwrite.ensureAnonymousSession();
+      // Establish a real, PID-derived Appwrite session. No anonymous
+      // session is used anywhere in the pipeline; the Prolific PID is the
+      // single tying key across all pipeline components.
+      await this.appwrite.ensureProlificSession(prolificPid);
 
       const authResponse = await this.executeJson<AuthInitResponse>(this.config.functions.authInit, {
         PROLIFIC_PID: prolificPid,
         STUDY_ID: params.get('STUDY_ID'),
         SESSION_ID: params.get('SESSION_ID'),
-        prior_exp: params.get('prior_exp'),
       });
 
       this.studyContext.update({
@@ -144,6 +146,30 @@ export class StudyFunctionsService {
     })();
 
     return this.initializePromise;
+  }
+
+  /**
+   * Auto-login to the SCRIPT FastAPI backend using only the Prolific PID.
+   * The SCRIPT backend derives a deterministic user from the PID and
+   * issues a session cookie, so the participant lands in the tutoring
+   * view without ever seeing a login screen.
+   *
+   * This is the second leg of the "PID is the single tying identity"
+   * pipeline: Appwrite (research pipeline functions) and SCRIPT
+   * (course platform) are now both authenticated by the same PID.
+   */
+  async loginScriptByProlificId(prolificPid: string): Promise<void> {
+    if (!prolificPid) {
+      return;
+    }
+    const apiUrl = (window as any).__env?.apiUrl
+      ?? (window.location.origin + '/api');
+    await fetch(`${apiUrl}/auth/auto-login-by-pid`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ prolific_pid: prolificPid }),
+    });
   }
 
   async ensureActiveSession(sessionNumber?: number): Promise<SessionStartResponse | null> {

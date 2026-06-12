@@ -102,7 +102,10 @@ async def _get_or_create_user(prolific_pid: str) -> User:
         is_verified=True,
     )
     await user.insert()
-    return user
+    # Re-fetch so Beanie resolves the document's id property. In some
+    # fastapi-users versions the freshly-inserted instance does not
+    # expose .id until the document is reloaded.
+    return await User.get(user.id)
 
 
 @router.post("/auth/auto-login-by-pid", response_model=AutoLoginResponse)
@@ -124,7 +127,7 @@ async def auto_login_by_pid(body: AutoLoginRequest, response: Response):
     # is the same path the regular login flow uses, so all subsequent
     # endpoints that read `current_active_user` keep working.
     strategy = auth_backend.get_strategy()
-    token = await strategy.write_token(user.id)
+    token = await strategy.write_token(user)
 
     # CookieTransport sets Set-Cookie on the response. The transport's
     # get_login_response returns a Response object which we use to copy

@@ -3,6 +3,7 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
+  min-height: 0;
   background-color: #1E1E1E;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 4px;
@@ -42,9 +43,31 @@
 
 .panel-body {
   flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0.75rem 1rem;
   color: #e0e0e0;
+}
+
+/* Neutralize the inner markdown panel's own scrollbar. The
+   `markdown-container` <pre> element ships with `overflow-y: auto` and
+   `height: 100%` so it scrolls independently in its natural context
+   (the right-hand feedback panel). Here, in the To Do panel, the
+   `panel-body` is already the single source of scrolling, so the
+   inner scrollbar would stack a second (and visually a third) on top
+   of the outer one. Disable the inner one and let its content flow
+   into the panel-body. */
+.task-todo-panel .panel-body ::ng-deep .markdown-container {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  background: transparent;
+}
+
+.task-todo-panel .panel-body ::ng-deep .markdown-panel {
+  margin-left: 0;
+  white-space: normal;
 }
 
 /* When we have no real To Do section, soften the panel so it doesn't

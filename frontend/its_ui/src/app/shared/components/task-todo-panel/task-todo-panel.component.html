@@ -1,0 +1,12 @@
+<div class="task-todo-panel" [class.fallback]="isFallback">
+  <div class="panel-header">
+    <mat-icon class="header-icon">checklist</mat-icon>
+    <span class="header-title">To Do</span>
+    <span class="header-hint" *ngIf="isFallback">
+      Read the task description on the left for the steps to complete.
+    </span>
+  </div>
+  <div class="panel-body">
+    <app-markdown-panel [markdownString]="todoMarkdown"></app-markdown-panel>
+  </div>
+</div>

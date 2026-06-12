@@ -12,18 +12,26 @@ import { Subscription } from 'rxjs';
 import { StudyFunctionsService } from '../shared/services/study-functions.service';
 import { StudyTelemetryService } from '../shared/services/study-telemetry.service';
 import { StudyBannerService } from '../shared/services/study-banner.service';
+import { TodoExtractorService } from '../shared/services/todo-extractor.service';
+import { TaskTodoPanelComponent } from '../shared/components/task-todo-panel/task-todo-panel.component';
+import { AngularSplitModule } from 'angular-split';
 
 @Component({
     selector: 'app-code-panel',
     templateUrl: './code-panel.component.html',
     styleUrls: ['./code-panel.component.css'],
-    imports: [CommonModule, CodeEditorComponent, MultipleChoiceComponent, ActionPanelComponent]
+    imports: [CommonModule, CodeEditorComponent, MultipleChoiceComponent, ActionPanelComponent, TaskTodoPanelComponent, AngularSplitModule]
 })
 export class CodePanelComponent implements AfterViewInit, OnDestroy {
 
   submitted_code: string = ''
   code_language = 'python';
   disableEditorCopyPaste: boolean = false;
+
+  /** Markdown for the "## To Do" section of the current task, or a generic
+   *  fallback. Displayed above the Monaco editor. */
+  todoMarkdown: string = '';
+  todoIsFallback: boolean = true;
 
   //TODO: the editor is initialized and listens for changes even for MC-Questions.
   @ViewChild(CodeEditorComponent)
@@ -35,6 +43,13 @@ export class CodePanelComponent implements AfterViewInit, OnDestroy {
   isMultipleChoice: boolean = false;
 
   feedbackAvailable!: boolean;
+
+  /**
+   * Single-line comment prepended to the task prefix so that the learner
+   * sees a clear instruction in the editor for every task. Defined once so
+   * the message is consistent across tasks.
+   */
+  private static readonly EDITOR_INSTRUCTION_COMMENT = '# Type your code below in the Monaco editor. The lines above this comment are part of the task and are not submitted.';
 
   //Submit Button
   submitButtonClicked() {
@@ -131,6 +146,7 @@ export class CodePanelComponent implements AfterViewInit, OnDestroy {
       private studyFunctionsService: StudyFunctionsService,
       private studyTelemetryService: StudyTelemetryService,
       private studyBannerService: StudyBannerService,
+      private todoExtractor: TodoExtractorService,
     ) {
 
   }
@@ -144,6 +160,7 @@ export class CodePanelComponent implements AfterViewInit, OnDestroy {
       void this.studyFunctionsService.ensureActiveSession();
       this.studyBannerService.markSessionStarted();
       this.isMultipleChoice = sessionStorage.getItem("taskType")! == "multiple_choice";
+      this.updateTodoForCurrentTask();
       setTimeout(() => {
         this.current_task_id = sessionStorage.getItem("taskId")!;
         this.feedbackAvailable = sessionStorage.getItem("feedbackAvailable") == "true";
@@ -154,13 +171,47 @@ export class CodePanelComponent implements AfterViewInit, OnDestroy {
           }
         }
         if (!this.isMultipleChoice){
-          this.codeEditorComponent.prefix = sessionStorage.getItem("taskPrefix")!;
+          this.codeEditorComponent.prefix = this.getPrefixedTaskPrefix();
           this.codeEditorComponent.setAdditionalFiles(sessionStorage.getItem("additionalFiles"));
           this.codeEditorComponent.resetForNewTask();
         }
         this.getCurrentAttemptState();
       }, 0); // 0 timeout to let DOM load first.
       })
+  }
+
+  /**
+   * Extract the "## To Do" section from the current task's full description
+   * and store it in `todoMarkdown` for the right-hand panel. When no section
+   * is found, fall back to a generic instruction so the user is never left
+   * looking at an empty panel above the editor.
+   */
+  private updateTodoForCurrentTask(): void {
+    const description = sessionStorage.getItem('taskDescription') || '';
+    const extracted = this.todoExtractor.extractTodoSection(description);
+    if (extracted) {
+      this.todoMarkdown = extracted;
+      this.todoIsFallback = false;
+    } else {
+      this.todoMarkdown = 'Read the task description on the left and implement the required steps in the Monaco editor below.';
+      this.todoIsFallback = true;
+    }
+  }
+
+  /**
+   * Prepend a single-line instructional comment to the raw task prefix so
+   * the learner always sees a clear "type your code in the Monaco editor"
+   * instruction at the top of the file. The comment is folded into the
+   * prefix so the existing `userContentControl` logic (which strips the
+   * prefix from the user's submitted code) continues to work without
+   * changes.
+   */
+  private getPrefixedTaskPrefix(): string {
+    const rawPrefix = sessionStorage.getItem('taskPrefix') || '';
+    if (rawPrefix.length === 0) {
+      return CodePanelComponent.EDITOR_INSTRUCTION_COMMENT + '\n';
+    }
+    return CodePanelComponent.EDITOR_INSTRUCTION_COMMENT + '\n' + rawPrefix;
   }
 
     loadEditorPolicy() {

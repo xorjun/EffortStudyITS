@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatIconModule } from '@angular/material/icon';
 import { StudyFunctionsService } from '../shared/services/study-functions.service';
 import { StudyTelemetryService } from '../shared/services/study-telemetry.service';
+import { StudyContextService } from '../shared/services/study-context.service';
 
 import { MarkdownPanelComponent } from '../shared/components/markdown-panel/markdown-panel.component';
 
@@ -27,6 +28,7 @@ export class TaskPanelComponent {
   private eventSubscription: Subscription;
   private topicSelectionSubscription: Subscription;
   private taskDirectlySelectedSubscription: Subscription;
+  private contextSubscription: Subscription;
   task_markdown: string = '';
   code_language: string = 'python';
 
@@ -42,6 +44,7 @@ export class TaskPanelComponent {
   sessionSurveyUrl: string | null = null;
   sessionPreviewUrl: string | null = null;
   sessionCompletionError: string | null = null;
+  participantCondition: 'A' | 'B' | null = null;
 
   constructor(
     private client: HttpClient,
@@ -49,7 +52,11 @@ export class TaskPanelComponent {
     private courseSettingsService: CourseSettingsService,
     public studyFunctionsService: StudyFunctionsService,
     private studyTelemetryService: StudyTelemetryService,
+    private studyContext: StudyContextService,
   ) {
+    this.contextSubscription = this.studyContext.state$.subscribe((state) => {
+      this.participantCondition = (state.condition as 'A' | 'B' | null);
+    });
     this.eventSubscription = this.eventShareService.newTaskEvent$.subscribe((message) => {
       this.selectAndFetchTask(message);
     });
@@ -246,6 +253,11 @@ export class TaskPanelComponent {
         sessionStorage.setItem("taskChoices", JSON.stringify(this.task['possible_choices']!));
         sessionStorage.setItem("feedbackAvailable", this.task["feedback_available"]!);
         sessionStorage.setItem("additionalFiles", JSON.stringify(data.additional_files || []));
+        // The full task description is stored so the right-hand editor pane
+        // can extract the "## To Do" section and display it above the Monaco
+        // editor. Keeping it in sessionStorage avoids cross-component
+        // coupling via a shared service just for this one read.
+        sessionStorage.setItem("taskDescription", this.task['task'] || '');
         this.studyTelemetryService.logContextEvent('task-opened', {
           taskLength: this.task['task']?.length || 0,
           hasArguments: Array.isArray(this.task['arguments']) && this.task['arguments'].length > 0,

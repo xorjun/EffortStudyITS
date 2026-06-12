@@ -8,6 +8,29 @@
   background-color: #121212;
 }
 
+.code-split {
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+}
+
+.todo-area {
+  display: flex;
+  min-height: 0;
+}
+
+.todo-area app-task-todo-panel {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+}
+
+.editor-area {
+  display: flex;
+  min-height: 0;
+}
+
 .code-editor {
   height: 100%;
   width: 100%;

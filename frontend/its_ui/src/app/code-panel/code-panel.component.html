@@ -1,16 +1,25 @@
 <div class="grid-container-code">
 
-  <div class="code-editor">
-    <app-code-editor *ngIf="!isMultipleChoice" [clipboardLocked]="disableEditorCopyPaste" (codeChangeEvent)="recordChanges($event)" (clipboardTelemetryEvent)="handleClipboardTelemetryEvent($event)"></app-code-editor>
-    <app-multiple-choice *ngIf="isMultipleChoice"></app-multiple-choice>
-  </div>
+  <as-split unit="percent" direction="vertical" gutterSize="4" class="code-split">
+    <as-split-area size="35" class="todo-area" *ngIf="!isMultipleChoice">
+      <app-task-todo-panel
+        [todoMarkdown]="todoMarkdown"
+        [isFallback]="todoIsFallback">
+      </app-task-todo-panel>
+    </as-split-area>
+    <as-split-area size="65" class="editor-area">
+      <div class="code-editor">
+        <app-code-editor *ngIf="!isMultipleChoice" [clipboardLocked]="disableEditorCopyPaste" (codeChangeEvent)="recordChanges($event)" (clipboardTelemetryEvent)="handleClipboardTelemetryEvent($event)"></app-code-editor>
+        <app-multiple-choice *ngIf="isMultipleChoice"></app-multiple-choice>
+      </div>
+    </as-split-area>
+  </as-split>
 
-  
   <div class="actionPanel">
-    <app-action-panel 
-    [showRunButton]="!isMultipleChoice" (submitEvent)="submitButtonClicked()" 
+    <app-action-panel
+    [showRunButton]="!isMultipleChoice" (submitEvent)="submitButtonClicked()"
     [showFeedbackButton]="feedbackAvailable"
-    (runEvent)="handleRunEvent($event)" (feedbackEvent)="handleFeedbackEvent()" 
+    (runEvent)="handleRunEvent($event)" (feedbackEvent)="handleFeedbackEvent()"
     ></app-action-panel>
   </div>
 

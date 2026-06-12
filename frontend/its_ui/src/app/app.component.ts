@@ -80,6 +80,22 @@ export class AppComponent {
           sessionNumber: result.currentSession,
           condition: result.condition,
         }, result.currentSession);
+        // The Prolific PID is the single tying identity. After the
+        // Appwrite research-pipeline init, also auto-login to the
+        // SCRIPT FastAPI backend so the participant lands in the
+        // tutoring view without a separate registration step.
+        const params = new URLSearchParams(window.location.search);
+        const prolificPid = params.get('PROLIFIC_PID');
+        if (prolificPid) {
+          void this.studyFunctionsService.loginScriptByProlificId(prolificPid).then(() => {
+            // Re-check SCRIPT auth now that the cookie is set, in case
+            // the user landed on a non-tutoring view (e.g. loginView).
+            this.client.get<any>(`${environment.apiUrl}/users/me`, { withCredentials: true }).subscribe({
+              next: () => { this.setView('loggedIn'); },
+              error: () => { /* stay on the current view */ }
+            });
+          });
+        }
       }
     });
   }

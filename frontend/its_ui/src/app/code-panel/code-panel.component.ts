@@ -16,6 +16,18 @@ import { TodoExtractorService } from '../shared/services/todo-extractor.service'
 import { TaskTodoPanelComponent } from '../shared/components/task-todo-panel/task-todo-panel.component';
 import { AngularSplitModule } from 'angular-split';
 
+/**
+ * Tiny module-level cache for the editor policy. The policy is read on
+ * every new task fetch but typically only changes via the admin panel
+ * once per study day, so a 60 s cache is invisible to participants
+ * and cuts one round-trip per task transition.
+ */
+const EDITOR_POLICY_TTL_MS = 60_000;
+const editorPolicyCache: { value: boolean | null; fetchedAt: number } = {
+  value: null,
+  fetchedAt: 0,
+};
+
 @Component({
     selector: 'app-code-panel',
     templateUrl: './code-panel.component.html',
@@ -215,11 +227,27 @@ export class CodePanelComponent implements AfterViewInit, OnDestroy {
   }
 
     loadEditorPolicy() {
+      // In-memory cache, 60 s TTL. The policy is read on every new
+      // task fetch but typically only changes via the admin panel
+      // once per study day, so a 60 s cache is invisible to
+      // participants and cuts one round-trip per task transition.
+      const now = Date.now();
+      if (
+        editorPolicyCache.value !== null &&
+        now - editorPolicyCache.fetchedAt < EDITOR_POLICY_TTL_MS
+      ) {
+        this.disableEditorCopyPaste = editorPolicyCache.value;
+        return;
+      }
+
       this.client.get<{ disable_editor_copy_paste: boolean }>(`${environment.apiUrl}/settings/editor_policy`).subscribe({
         next: (data) => {
-          this.disableEditorCopyPaste = !!data.disable_editor_copy_paste;
+          editorPolicyCache.value = !!data.disable_editor_copy_paste;
+          editorPolicyCache.fetchedAt = Date.now();
+          this.disableEditorCopyPaste = editorPolicyCache.value;
         },
         error: () => {
+          // Errors are not cached; the next call will retry.
           this.disableEditorCopyPaste = false;
         }
       });

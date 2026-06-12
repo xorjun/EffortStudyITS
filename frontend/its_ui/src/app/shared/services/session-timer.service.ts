@@ -8,10 +8,15 @@ import { BehaviorSubject, Observable, Subscription, interval } from 'rxjs';
  * button after a frustration timeout) subscribe to `secondsSinceStart$`
  * and decide locally.
  *
- * Each new task reset the timer back to zero via `markSessionStarted()`.
+ * Each new task resets the timer back to zero via `markSessionStarted()`.
  * This way, a learner who advances to a new task (via the visible Next
  * Task button or the secret Ctrl+Shift+Q shortcut) starts the 5-minute
  * no-skip window over again on the new task.
+ *
+ * The 1Hz tick is started lazily — the first subscribe starts the
+ * interval; when the last subscriber unsubscribes, the interval is
+ * disposed. This keeps the page idle when no component is observing
+ * the timer.
  */
 @Injectable({
   providedIn: 'root'
@@ -24,6 +29,8 @@ export class SessionTimerService implements OnDestroy {
   /** Seconds elapsed since the current task started, emitted every second. */
   readonly secondsSinceStart$: Observable<number> = this.secondsSubject.asObservable();
   private tickSubscription?: Subscription;
+  /** How many consumers are currently subscribed to secondsSinceStart$. */
+  private subscriberCount = 0;
 
   constructor() {
     const stored = this.readStoredStart();
@@ -31,7 +38,8 @@ export class SessionTimerService implements OnDestroy {
     if (stored === null) {
       this.writeStoredStart(this.sessionStartedAt);
     }
-    this.startTicking();
+    // No ticker started eagerly. The first subscribe below starts it;
+    // the last unsubscribe stops it.
   }
 
   /**
@@ -51,13 +59,43 @@ export class SessionTimerService implements OnDestroy {
     return Math.max(0, Math.floor((Date.now() - this.sessionStartedAt) / 1000));
   }
 
+  /**
+   * Subscribe to the tick stream. The first call starts the underlying
+   * 1Hz interval; the last call to unsubscribe stops it.
+   *
+   * We do not use BehaviorSubject's subscribe directly because we need
+   * to track the subscriber count to know when to dispose the
+   * interval. The returned Subscription is a small wrapper that
+   * decrements the count on unsubscribe.
+   */
+  subscribe(observer: (value: number) => void): Subscription {
+    this.subscriberCount += 1;
+    if (this.subscriberCount === 1) {
+      this.startTicking();
+    }
+    const inner = this.secondsSubject.subscribe(observer);
+    return new Subscription(() => {
+      inner.unsubscribe();
+      this.subscriberCount = Math.max(0, this.subscriberCount - 1);
+      if (this.subscriberCount === 0) {
+        this.stopTicking();
+      }
+    });
+  }
+
   ngOnDestroy(): void {
-    this.tickSubscription?.unsubscribe();
+    this.stopTicking();
+    this.secondsSubject.complete();
   }
 
   private startTicking(): void {
     this.emit();
     this.tickSubscription = interval(1000).subscribe(() => this.emit());
+  }
+
+  private stopTicking(): void {
+    this.tickSubscription?.unsubscribe();
+    this.tickSubscription = undefined;
   }
 
   private emit(): void {
@@ -81,8 +119,8 @@ export class SessionTimerService implements OnDestroy {
     try {
       localStorage.setItem(SessionTimerService.STORAGE_KEY, String(value));
     } catch {
-      // localStorage may be unavailable (private mode) — the in-memory value
-      // still works for the current page lifetime.
+      // localStorage may be unavailable (private mode) — the in-memory
+      // value still works for the current page lifetime.
     }
   }
 }

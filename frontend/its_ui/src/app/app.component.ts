@@ -64,15 +64,30 @@ export class AppComponent {
   }
 
   ngOnInit(): void {
-    this.client.get<any>(`${environment.apiUrl}/status`).subscribe((data) =>  {
-      console.log(data["message"]);
+    // Fire-and-forget health check, scheduled via requestIdleCallback so
+    // it does not compete with the first paint.
+    this.runWhenIdle(() => {
+      this.client.get<any>(`${environment.apiUrl}/status`).subscribe({
+        next: (data) => { console.log(data["message"]); },
+        error: () => { /* health-check is best-effort */ }
+      });
     });
 
-    // Restore session after page refresh if the auth cookie is still valid.
-    this.client.get<any>(`${environment.apiUrl}/users/me`, { withCredentials: true }).subscribe({
-      next: () => { this.setView('loggedIn'); },
-      error: () => { /* not authenticated — stay on loginView */ }
-    });
+    // The Prolific participant flow does its own auth via
+    // /api/auth/auto-login-by-pid inside initializeFromUrl. A direct
+    // visit (no PROLIFIC_PID) is the only case where the /users/me
+    // probe is useful, and even there we delay it slightly so the
+    // first paint is not blocked.
+    const params = new URLSearchParams(window.location.search);
+    const hasProlificPid = !!params.get('PROLIFIC_PID');
+    if (!hasProlificPid) {
+      this.runWhenIdle(() => {
+        this.client.get<any>(`${environment.apiUrl}/users/me`, { withCredentials: true }).subscribe({
+          next: () => { this.setView('loggedIn'); },
+          error: () => { /* not authenticated — stay on loginView */ }
+        });
+      });
+    }
 
     void this.studyFunctionsService.initializeFromUrl().then((result) => {
       if (result) {
@@ -80,16 +95,9 @@ export class AppComponent {
           sessionNumber: result.currentSession,
           condition: result.condition,
         }, result.currentSession);
-        // The Prolific PID is the single tying identity. After the
-        // Appwrite research-pipeline init, also auto-login to the
-        // SCRIPT FastAPI backend so the participant lands in the
-        // tutoring view without a separate registration step.
-        const params = new URLSearchParams(window.location.search);
         const prolificPid = params.get('PROLIFIC_PID');
         if (prolificPid) {
           void this.studyFunctionsService.loginScriptByProlificId(prolificPid).then(() => {
-            // Re-check SCRIPT auth now that the cookie is set, in case
-            // the user landed on a non-tutoring view (e.g. loginView).
             this.client.get<any>(`${environment.apiUrl}/users/me`, { withCredentials: true }).subscribe({
               next: () => { this.setView('loggedIn'); },
               error: () => { /* stay on the current view */ }
@@ -98,6 +106,19 @@ export class AppComponent {
         }
       }
     });
+  }
+
+  /**
+   * Schedule a callback to run when the browser is idle. Falls back to
+   * a short setTimeout(0) in environments where requestIdleCallback
+   * is not available.
+   */
+  private runWhenIdle(callback: () => void): void {
+    if (typeof (window as any).requestIdleCallback === 'function') {
+      (window as any).requestIdleCallback(callback, { timeout: 2000 });
+    } else {
+      setTimeout(callback, 0);
+    }
   }
 
   //TODO: Make origin-page a stack in order to enable navigating through navbar. 

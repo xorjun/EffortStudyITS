@@ -40,6 +40,7 @@ export class NavigationBarComponent {
 
   taskFetchedSubscription: Subscription;
   topicInducedSubscription: Subscription;
+  sessionTimerSubscription: Subscription;
 
   apiUrl: string = environment.apiUrl;
   user_name: string = "INVALID_EMAIL";
@@ -109,7 +110,10 @@ export class NavigationBarComponent {
           }
         });
       // Keep the Next Task button tooltip in sync with the live countdown.
-      this.sessionTimerService.secondsSinceStart$.subscribe((seconds) => {
+      // We use SessionTimerService.subscribe() (not the inner Observable's
+      // .subscribe) so the service knows to start/stop its 1Hz tick based
+      // on subscriber count.
+      this.sessionTimerSubscription = this.sessionTimerService.subscribe((seconds) => {
         this.secondsSinceSessionStart = seconds;
       });
 
@@ -362,8 +366,9 @@ export class NavigationBarComponent {
   }
 
   ngOnDestroy(){
-    this.taskFetchedSubscription.unsubscribe();
-    this.topicInducedSubscription.unsubscribe();
+    this.taskFetchedSubscription?.unsubscribe();
+    this.topicInducedSubscription?.unsubscribe();
+    this.sessionTimerSubscription?.unsubscribe();
   }
 
 }

@@ -129,7 +129,7 @@ export class FeedbackPanelComponent implements OnDestroy {
   fetchSubmissionFeedback(submission_id: string) {
     console.log("fetchSubmissionFeedback", submission_id)
     const endpoint_url = `${environment.apiUrl}/submission/feedback/${submission_id}`;
-    this.client.get<any>(endpoint_url, ).subscribe((data) => { 
+    this.client.get<any>(endpoint_url, ).subscribe((data) => {
       const failedTests = Array.isArray(data.test_results)
         ? data.test_results.filter((result: { status?: boolean }) => !result.status).length
         : 0;
@@ -161,9 +161,58 @@ export class FeedbackPanelComponent implements OnDestroy {
         });
         this.openValidSolutionDialog();
       }
+      else {
+        // Incorrect, non-plot submission: also fetch the reference solution
+        // so the learner can compare their code with the model solution. The
+        // backend only returns it after at least one failed submission for
+        // this task, so this is a safe "give up" reward. Plot tasks are
+        // graded by the graph comparison dialog above and do not need a
+        // code comparison.
+        this.fetchReferenceComparison(data);
+      }
       //this.evaluateFeedback(this.feedback["valid_solution"]!);
       //this.feedback_string = JSON.stringify(this.feedback);
     });
+  }
+
+  /**
+   * When a submission is not correct, fetch the reference solution and append
+   * a "Your code vs. Reference solution" section to the feedback panel. The
+   * backend enforces that this is only available after a failed submission,
+   * so the comparison is only ever shown when the learner has already tried.
+   */
+  private fetchReferenceComparison(submissionData: any): void {
+    const taskId = submissionData?.task_unique_name;
+    if (!taskId) {
+      return;
+    }
+    const userCode: string = submissionData?.code ?? '';
+    this.client.get<any>(`${environment.apiUrl}/task/reference_solution/${taskId}`, { withCredentials: true })
+      .subscribe({
+        next: (ref) => {
+          this.feedback_markdown += this.renderCodeComparison(userCode, ref?.example_solution ?? '');
+        },
+        // 403 / 404 just means the reference is not (yet) available — keep
+        // the standard test feedback visible in that case.
+        error: () => { /* no-op */ }
+      });
+  }
+
+  /**
+   * Render a side-by-side comparison of the learner's submitted code and the
+   * task's example solution. Returned as a markdown block so it integrates
+   * with the existing markdown panel rendering.
+   */
+  private renderCodeComparison(userCode: string, referenceCode: string): string {
+    const escape = (s: string) => (s ?? '').replace(/```/g, '`\u200b``');
+    let md = `\n\n## Code Comparison\n\n`;
+    md += `Your submission did not pass the hidden tests. Below is your code `;
+    md += `next to the reference solution so you can spot the difference.\n\n`;
+    md += `### Your code\n\n`;
+    md += '```python\n' + escape(userCode) + '\n```\n\n';
+    md += `### Reference solution\n\n`;
+    md += '```python\n' + escape(referenceCode) + '\n```\n';
+    return md;
   }
 
   renderTestResults(feedback_array: Array<any>, task_name: string) {

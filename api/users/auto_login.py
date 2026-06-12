@@ -129,16 +129,10 @@ async def auto_login_by_pid(body: AutoLoginRequest, response: Response):
     strategy = auth_backend.get_strategy()
     token = await strategy.write_token(user)
 
-    # CookieTransport sets Set-Cookie on the response. The transport's
-    # get_login_response returns a Response object which we use to copy
-    # the cookie headers onto our own response.
-    transport_response = await auth_backend.transport.get_login_response(
-        strategy=strategy,
-        user=user,
-        token=token,
-        response=None,
-    )
-    # Copy any cookies the transport set onto our own response.
+    # CookieTransport.get_login_response takes just the token and returns
+    # a Response with the Set-Cookie header. Copy that cookie onto our
+    # own response so the client receives it in the same round-trip.
+    transport_response = await auth_backend.transport.get_login_response(token)
     for header_name, header_value in transport_response.headers.items():
         if header_name.lower() == "set-cookie":
             response.headers.append(header_name, header_value)

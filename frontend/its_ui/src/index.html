@@ -6,6 +6,15 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <!--
+    Preconnect/dns-prefetch the cross-origin endpoints the SPA always
+    talks to on the first navigation. Resolves TLS handshake in
+    parallel with the JS bundle parse, which saves 100-200 ms of
+    perceived latency on a fresh load.
+  -->
+  <link rel="preconnect" href="https://fra.cloud.appwrite.io" crossorigin>
+  <link rel="dns-prefetch" href="https://fra.cloud.appwrite.io">
 </head>
 <body override>
   <app-root></app-root>
